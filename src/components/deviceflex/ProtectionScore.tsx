@@ -29,7 +29,7 @@ const ICONS = {
 };
 const TONES = {
   critical: "#C70032",
-  warning: "#B26A00",
+  warning: "#9E5D00",
   info: "#0057B8",
 };
 

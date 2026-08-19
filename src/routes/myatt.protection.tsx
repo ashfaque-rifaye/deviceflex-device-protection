@@ -271,7 +271,7 @@ function Manage() {
                             ? "bg-[#EAF7EE] text-[#1F7A3D]"
                             : c.status === "Booked"
                               ? "bg-[#E7F5FB] text-[#0057B8]"
-                              : "bg-[#FFF3E0] text-[#B26A00]"
+                              : "bg-[#FFF3E0] text-[#9E5D00]"
                         }`}
                       >
                         {c.status}

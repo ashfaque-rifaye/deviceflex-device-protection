@@ -102,7 +102,7 @@ export function FraudCheckRun({
               <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center">
                 {state === "done" ? (
                   s.level === "review" ? (
-                    <AlertTriangle className="h-4 w-4 text-[#B26A00]" />
+                    <AlertTriangle className="h-4 w-4 text-[#9E5D00]" />
                   ) : (
                     <Check className="h-4 w-4 text-[#1F7A3D]" />
                   )
@@ -121,7 +121,7 @@ export function FraudCheckRun({
                 {state !== "waiting" && (
                   <span
                     className={`mt-0.5 block text-xs ${
-                      state === "done" && s.level === "review" ? "text-[#B26A00]" : "text-[#686E74]"
+                      state === "done" && s.level === "review" ? "text-[#9E5D00]" : "text-[#686E74]"
                     }`}
                   >
                     {state === "active" ? s.running : s.note}
@@ -145,7 +145,7 @@ export function FraudCheckRun({
             {verdict.outcome === "approved" ? (
               <ShieldCheck className="h-4 w-4 text-[#1F7A3D]" />
             ) : (
-              <ShieldAlert className="h-4 w-4 text-[#B26A00]" />
+              <ShieldAlert className="h-4 w-4 text-[#9E5D00]" />
             )}
             {verdict.headline}
           </p>

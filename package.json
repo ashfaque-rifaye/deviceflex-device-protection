@@ -9,7 +9,8 @@
     "build:dev": "vite build --mode development",
     "preview": "wrangler dev --cwd .output/server",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "contrast": "node scripts/contrast-audit.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

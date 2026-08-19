@@ -630,7 +630,7 @@ export function computeProtectionScore(m: Member): number {
 export function scoreBand(score: number): { label: string; tone: string } {
   if (score >= 80) return { label: "Excellent", tone: "#1F7A3D" };
   if (score >= 60) return { label: "Good", tone: "#0057B8" };
-  if (score >= 40) return { label: "Fair", tone: "#B26A00" };
+  if (score >= 40) return { label: "Fair", tone: "#9E5D00" };
   return { label: "Needs attention", tone: "#C70032" };
 }
 

@@ -364,7 +364,7 @@ function TabData({ d }: { d: MemberDevice }) {
   const { addScreenGuard, backupDevice } = useAuth();
   const [busy, setBusy] = useState<"guard" | "backup" | null>(null);
   const riskTone =
-    d.screenRisk === "High" ? "#C70032" : d.screenRisk === "Medium" ? "#B26A00" : "#1F7A3D";
+    d.screenRisk === "High" ? "#C70032" : d.screenRisk === "Medium" ? "#9E5D00" : "#1F7A3D";
 
   const fitGuard = () => {
     setBusy("guard");
@@ -389,14 +389,14 @@ function TabData({ d }: { d: MemberDevice }) {
           Icon={BatteryFull}
           label="Battery health"
           value={`${d.batteryHealth}%`}
-          tone={d.batteryHealth < 80 ? "#C70032" : d.batteryHealth < 85 ? "#B26A00" : "#1F7A3D"}
+          tone={d.batteryHealth < 80 ? "#C70032" : d.batteryHealth < 85 ? "#9E5D00" : "#1F7A3D"}
         />
         <Health Icon={AlertTriangle} label="Screen risk" value={d.screenRisk} tone={riskTone} />
         <Health
           Icon={d.backedUp ? CloudCheck : CloudOff}
           label="Backup"
           value={d.backedUp ? "Up to date" : "Overdue"}
-          tone={d.backedUp ? "#1F7A3D" : "#B26A00"}
+          tone={d.backedUp ? "#1F7A3D" : "#9E5D00"}
           sub={d.lastBackup}
         />
       </div>
@@ -425,7 +425,7 @@ function TabData({ d }: { d: MemberDevice }) {
         <div className="mt-5 space-y-2">
           {!d.screenGuard && d.screenRisk !== "Low" && (
             <div className="flex flex-wrap items-center gap-3 rounded-xl bg-[#FFF3E0] p-3 text-[14px]">
-              <AlertTriangle className="h-4 w-4 shrink-0 text-[#B26A00]" />
+              <AlertTriangle className="h-4 w-4 shrink-0 text-[#9E5D00]" />
               <span className="min-w-0 flex-1">
                 {d.screenRisk === "High"
                   ? "This device has a history of impacts. A screen protector is free with your accessory perk."

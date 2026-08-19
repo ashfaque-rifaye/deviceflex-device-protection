@@ -259,7 +259,7 @@ function DeviceRow({
           {d.owner} · {formatCapacity(deviceVaultGB(d))} in vault
         </p>
         <p
-          className={`mt-0.5 inline-flex items-center gap-1 text-[11px] font-bold ${d.backedUp ? "text-[#1F7A3D]" : "text-[#B26A00]"}`}
+          className={`mt-0.5 inline-flex items-center gap-1 text-[11px] font-bold ${d.backedUp ? "text-[#1F7A3D]" : "text-[#9E5D00]"}`}
         >
           {d.backedUp ? (
             <CloudCheck className="h-3.5 w-3.5" />

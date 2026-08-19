@@ -231,7 +231,7 @@ export function DeviceCard({ d }: { d: MemberDevice }) {
                 d.screenRisk === "High"
                   ? "#C70032"
                   : d.screenRisk === "Medium"
-                    ? "#B26A00"
+                    ? "#9E5D00"
                     : "#2D7E24",
             }}
           >

@@ -1,30 +1,111 @@
 @import "tailwindcss" source(none);
 @source "../src";
 
-@theme {
-  --color-att-blue: #009fdb;
-  --color-att-deep: #0072b2;
-  --color-att-navy: #0057b8;
-  --color-att-navy-dark: #00388f;
-  --color-att-ink: #1d2329;
-  --color-att-gray: #686e74;
-  --color-att-bg: #f3f4f6;
-  --color-att-pale: #e7f5fb;
-  --color-att-border: #dcdfe3;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "AT&T Aleck Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   AT&T DESIGN TOKENS
+   Values below were read off att.com's live computed styles and stylesheet
+   rules, not estimated. Where a figure came from the site it's noted.
 
-/* AT&T Aleck Sans (Bold) — official brand typeface, used for headings/bold text */
+   Highlights worth knowing before you edit anything:
+   · The primary CTA is NAVY #00388F, not the brand cyan. Cyan is identity
+     (the globe, accents); navy is action.
+   · Buttons get LIGHTER on hover (#00388F → #0057B8), which is the opposite
+     of the usual darken-on-hover instinct.
+   · Display headings always carry -0.03em tracking. It is the single most
+     recognisable thing about AT&T typography.
+   · Links are undecorated at rest and underline on hover.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Typeface ───────────────────────────────────────────────────────────────
+   att.com ships six separate @font-face families rather than weight variants
+   of one: font-regular/medium/bold/black/light/thin → ATTAleckSans_W_Rg/Md/
+   Bd/Blk/Lt/Th. We licence only the Bold cut, so we declare that at its real
+   weight and let Inter carry the rest. Same visual system, honest about what
+   we actually have. */
 @font-face {
-  font-family: "AT&T Aleck Sans";
+  font-family: "ATT Aleck Sans";
   src: url("/fonts/ATTAleckSans-Bold.woff2") format("woff2");
-  font-weight: 600 900;
+  font-weight: 700 900;
   font-style: normal;
   font-display: swap;
 }
 
+@theme {
+  /* Brand */
+  --color-att-cyan: #009fdb; /* identity: globe, accents */
+  --color-att-navy: #00388f; /* action: primary CTA rest */
+  --color-att-navy-hover: #0057b8; /* action: primary CTA hover */
+  --color-att-link: #0072b2; /* text links */
+
+  /* Ink */
+  --color-att-ink: #1d2329; /* body copy */
+  --color-att-ink-2: #454b52; /* secondary copy */
+  --color-att-ink-3: #686e74; /* tertiary / captions */
+  --color-att-muted: #878c94; /* disabled text + borders */
+
+  /* Surfaces */
+  --color-att-surface: #ffffff;
+  --color-att-gray: #f3f4f6; /* light section fill */
+  --color-att-pale: #f2fafd; /* pale blue section fill */
+  --color-att-pale-2: #e7f5fb; /* pale blue, one step warmer */
+  --color-att-cyan-soft: #dcf3fa; /* on-dark hover fill */
+  --color-att-deep: #002837; /* deep teal band */
+  --color-att-border: #dcdfe3;
+
+  /* Semantic */
+  --color-att-success: #1f7a3d;
+  --color-att-warning: #9e5d00;
+  --color-att-danger: #c70032;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "ATT Aleck Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
+  /* ── Layout ───────────────────────────────────────────────────────────
+     Breakpoints observed in att.com media queries: 320 / 448 / 768 /
+     1024 / 1065 / 1324 / 1600. The content container caps at 1324px. */
+  --att-container: 1324px;
+  --att-container-narrow: 1068px;
+  --att-container-wide: 1600px;
+  --att-gutter: 1rem; /* 16px mobile */
+  --att-gutter-md: 1.5rem; /* 24px tablet */
+  --att-gutter-lg: 2.5rem; /* 40px desktop */
+  --att-grid-gap: 20px; /* their 3-col grid resolves to a 20px gap */
+
+  /* ── Spacing — 8px rhythm ─────────────────────────────────────────── */
+  --att-space-1: 0.5rem; /* 8  */
+  --att-space-2: 1rem; /* 16 */
+  --att-space-3: 1.5rem; /* 24 */
+  --att-space-4: 2rem; /* 32 */
+  --att-space-5: 3rem; /* 48 */
+  --att-space-6: 4rem; /* 64 */
+  --att-space-7: 5.5rem; /* 88 — section rhythm */
+
+  /* ── Radii ────────────────────────────────────────────────────────── */
+  --att-radius-pill: 9999px;
+  --att-radius-card: 1rem; /* 16 */
+  --att-radius-field: 0.5rem; /* 8  */
+
+  /* ── Elevation ────────────────────────────────────────────────────────
+     Three-layer shadows over rgba(37,48,58,α) — copied verbatim from the
+     values att.com computes on its cards. */
+  --att-shadow-1:
+    0 2px 12px 0 rgba(37, 48, 58, 0.06), 0 2px 4px -1px rgba(37, 48, 58, 0.06),
+    0 2px 8px 0 rgba(37, 48, 58, 0.118);
+  --att-shadow-2:
+    0 4px 12px 0 rgba(37, 48, 58, 0.16), 0 6px 8px -2px rgba(37, 48, 58, 0.06),
+    0 10px 10px 0 rgba(37, 48, 58, 0.05);
+  --att-shadow-3:
+    0 2px 5px 0 rgba(37, 48, 58, 0.16), 0 4px 3px -2px rgba(37, 48, 58, 0.06),
+    0 8px 13px 0 rgba(37, 48, 58, 0.05);
+
+  /* ── Motion — att.com sets a flat 0.2s on interactive elements ─────── */
+  --att-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --att-duration: 0.2s;
+  --att-transition: var(--att-duration) var(--att-ease);
+
+  /* Legacy aliases still referenced by older components */
   --background: #ffffff;
   --foreground: #1d2329;
 }
@@ -32,16 +113,20 @@
 @layer base {
   html,
   body {
-    background: #ffffff;
-    color: #1d2329;
-    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    background: var(--color-att-surface);
+    color: var(--color-att-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+
   a {
     color: inherit;
   }
-  /* Aleck Sans on headings + heavy weights, mirroring att.com */
+
+  /* Display face on headings and heavy weights, mirroring att.com. */
   h1,
   h2,
   h3,
@@ -53,8 +138,484 @@
   .font-extrabold,
   strong,
   b {
-    font-family: "AT&T Aleck Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-display);
   }
+
+  /* The −0.03em signature. att.com computes −1.02px at 34px, −0.96px at 32px
+     and −0.72px at 24px — all exactly −0.03em. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  /* Keyboard-only focus. att.com gates focus rings behind an .is-tabbing body
+     class it toggles on Tab; :focus-visible is the standards-track equivalent
+     and needs no JS. Their ring is a 1px dotted inset. */
+  :focus-visible {
+    outline: 2px solid var(--color-att-navy);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TYPE SCALE
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility att-display {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+/* h2 on att.com: 34px/40.8px, −1.02em tracking, font-black */
+@utility att-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3.2vw, 2.125rem);
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+}
+
+/* 32px/36.8px */
+@utility att-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+/* 24px/27.6px */
+@utility att-h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+}
+
+/* 16px/22.4px bold */
+@utility att-h4 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+/* p on att.com: 15px/21px */
+@utility att-body {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--color-att-ink);
+}
+
+@utility att-body-lg {
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+@utility att-small {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-att-ink-3);
+}
+
+@utility att-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-att-ink-3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BUTTONS
+   Geometry read off att.com: large = 48px tall, 28px radius, 0 32px padding,
+   14px bold label; small = 40px tall, 24px radius, 0 24px padding, 12px label.
+   Border is 2px on both variants so the two line up when placed side by side.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility att-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 48px;
+  padding: 0 2rem;
+  border-radius: var(--att-radius-pill);
+  border: 2px solid transparent;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--att-transition),
+    border-color var(--att-transition),
+    color var(--att-transition);
+  &:disabled,
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+@utility att-btn-sm {
+  height: 40px;
+  padding: 0 1.5rem;
+  font-size: 0.75rem;
+}
+
+@utility att-btn-block {
+  display: flex;
+  width: 100%;
+}
+
+/* Primary — navy at rest, LIGHTER on hover. Verified on att.com. */
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 48px;
+  padding: 0 2rem;
+  border-radius: var(--att-radius-pill);
+  border: 2px solid var(--color-att-navy);
+  background-color: var(--color-att-navy);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--att-transition),
+    border-color var(--att-transition),
+    color var(--att-transition);
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--color-att-navy-hover);
+    border-color: var(--color-att-navy-hover);
+  }
+  &:active:not(:disabled) {
+    background-color: var(--color-att-navy);
+    border-color: var(--color-att-navy);
+  }
+  /* att.com disabled primary: #DCDFE3 fill, #878C94 label */
+  &:disabled,
+  &[aria-disabled="true"] {
+    background-color: var(--color-att-border);
+    border-color: var(--color-att-border);
+    color: var(--color-att-muted);
+    cursor: not-allowed;
+  }
+}
+
+/* Secondary — outline that FILLS on hover, rather than tinting. */
+@utility btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 48px;
+  padding: 0 2rem;
+  border-radius: var(--att-radius-pill);
+  border: 2px solid var(--color-att-navy);
+  background-color: transparent;
+  color: var(--color-att-navy);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--att-transition),
+    border-color var(--att-transition),
+    color var(--att-transition);
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--color-att-navy-hover);
+    border-color: var(--color-att-navy-hover);
+    color: #ffffff;
+  }
+  &:active:not(:disabled) {
+    background-color: var(--color-att-navy);
+    border-color: var(--color-att-navy);
+    color: #ffffff;
+  }
+  /* att.com disabled secondary: transparent fill, #878C94 border and label */
+  &:disabled,
+  &[aria-disabled="true"] {
+    background-color: transparent;
+    border-color: var(--color-att-muted);
+    color: var(--color-att-muted);
+    cursor: not-allowed;
+  }
+}
+
+/* Placed on a dark or photographic ground. */
+@utility btn-on-dark {
+  border-color: var(--color-att-pale);
+  color: var(--color-att-pale);
+  background-color: transparent;
+  &:hover:not(:disabled) {
+    background-color: var(--color-att-cyan-soft);
+    border-color: var(--color-att-cyan-soft);
+    color: var(--color-att-navy);
+  }
+}
+
+/* Solid white on dark — the inverse primary att.com uses in hero bands. */
+@utility btn-inverse {
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: var(--color-att-navy);
+  &:hover:not(:disabled) {
+    background-color: var(--color-att-cyan-soft);
+    border-color: var(--color-att-cyan-soft);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LINKS — undecorated at rest, underlined on hover. Verified: `a:hover
+   { text-decoration: underline }` with link colour #0072B2.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility link-blue {
+  color: var(--color-att-link);
+  font-weight: 700;
+  text-decoration: none;
+  text-underline-offset: 3px;
+  transition: color var(--att-transition);
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* Standalone link with a trailing chevron — their "link-text" pattern. */
+@utility att-link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--color-att-link);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: color var(--att-transition);
+  & svg {
+    transition: transform var(--att-transition);
+  }
+  &:hover {
+    text-decoration: underline;
+  }
+  &:hover svg {
+    transform: translateX(2px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SURFACES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility att-card {
+  background-color: var(--color-att-surface);
+  border: 1px solid var(--color-att-border);
+  border-radius: var(--att-radius-card);
+  padding: var(--att-space-3);
+}
+
+/* Interactive card — rests flat, lifts to their level-2 shadow on hover. */
+@utility att-card-hover {
+  transition:
+    box-shadow var(--att-transition),
+    border-color var(--att-transition);
+  &:hover {
+    border-color: transparent;
+    box-shadow: var(--att-shadow-2);
+  }
+}
+
+@utility att-elevated {
+  background-color: var(--color-att-surface);
+  border-radius: var(--att-radius-card);
+  box-shadow: var(--att-shadow-1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility att-container {
+  width: 100%;
+  max-width: var(--att-container);
+  margin-inline: auto;
+  padding-inline: var(--att-gutter);
+  @media (min-width: 768px) {
+    padding-inline: var(--att-gutter-md);
+  }
+  @media (min-width: 1024px) {
+    padding-inline: var(--att-gutter-lg);
+  }
+}
+
+@utility att-section {
+  padding-block: var(--att-space-5);
+  @media (min-width: 768px) {
+    padding-block: var(--att-space-6);
+  }
+}
+
+@utility att-grid-3 {
+  display: grid;
+  gap: var(--att-grid-gap);
+  grid-template-columns: 1fr;
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FORM FIELDS — floating label, 56px tall, 1px resting border that thickens
+   to 2px navy on focus so the field doesn't shift.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility att-field {
+  position: relative;
+  display: block;
+}
+
+@utility att-field-input {
+  width: 100%;
+  height: 56px;
+  padding: 1.375rem 1rem 0.375rem;
+  border: 1px solid var(--color-att-ink-3);
+  border-radius: var(--att-radius-field);
+  background-color: var(--color-att-surface);
+  color: var(--color-att-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.25;
+  outline: none;
+  transition:
+    border-color var(--att-transition),
+    box-shadow var(--att-transition);
+  &::placeholder {
+    color: transparent;
+  }
+  &:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-att-ink);
+  }
+  &:focus {
+    border-color: var(--color-att-navy);
+    box-shadow: inset 0 0 0 1px var(--color-att-navy);
+  }
+  &:disabled {
+    background-color: var(--color-att-gray);
+    border-color: var(--color-att-border);
+    color: var(--color-att-muted);
+    cursor: not-allowed;
+  }
+}
+
+/* The label rises when the field is focused or filled, and drops back only while
+   it is empty AND unfocused. Driven off :placeholder-shown rather than React
+   state so autofill, browser restore and programmatic writes all stay correct —
+   none of those fire the events a state-driven float would rely on. */
+.att-field-label {
+  position: absolute;
+  left: 1rem;
+  top: 0.5rem;
+  transform: none;
+  transform-origin: left top;
+  color: var(--color-att-ink-2);
+  font-size: 0.75rem;
+  pointer-events: none;
+  transition:
+    top var(--att-transition),
+    font-size var(--att-transition),
+    color var(--att-transition);
+}
+
+/* Empty and unfocused → sit centred, at full size. */
+.att-field-input:placeholder-shown:not(:focus) + .att-field-label {
+  top: 1.0625rem;
+  font-size: 1rem;
+  color: var(--color-att-ink-3);
+}
+
+.att-field-input:focus + .att-field-label {
+  color: var(--color-att-navy);
+}
+
+.att-field-input[aria-invalid="true"] + .att-field-label {
+  color: var(--color-att-danger);
+}
+
+@utility att-field-error {
+  border-color: var(--color-att-danger);
+  &:focus {
+    border-color: var(--color-att-danger);
+    box-shadow: inset 0 0 0 1px var(--color-att-danger);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CLAIM-FLOW PATTERNS
+   A selectable card with a real radio for "pick one", and a flat panel for
+   guidance. Keeping them distinct matters: guidance that looks like a card
+   reads as something you're meant to press.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@utility att-choice {
+  position: relative;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  border-radius: var(--att-radius-card);
+  border: 1.5px solid var(--color-att-border);
+  background-color: var(--color-att-surface);
+  padding: 1.25rem;
+  text-align: left;
+  transition:
+    border-color var(--att-transition),
+    box-shadow var(--att-transition);
+  &:hover {
+    border-color: var(--color-att-navy);
+  }
+}
+
+@utility att-choice-on {
+  border-color: var(--color-att-navy);
+  box-shadow: 0 0 0 1.5px var(--color-att-navy);
+  background-color: var(--color-att-pale);
+}
+
+@utility att-note {
+  border-radius: 0.75rem;
+  border-left: 4px solid var(--color-att-navy);
+  background-color: var(--color-att-pale-2);
+  padding: 1.25rem 1.5rem;
 }
 
 /* Two-tone line icons (att.com "Explore more" style) */
@@ -63,86 +624,4 @@
 }
 .svg-accent {
   fill: #009fdb;
-}
-
-@utility btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background-color: #0057b8;
-  color: #ffffff;
-  font-weight: 700;
-  padding: 0.85rem 1.75rem;
-  font-size: 1rem;
-  line-height: 1;
-  transition: background-color 0.15s ease;
-  &:hover {
-    background-color: #00388f;
-  }
-}
-
-@utility btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background-color: #ffffff;
-  color: #0057b8;
-  font-weight: 700;
-  padding: 0.85rem 1.75rem;
-  font-size: 1rem;
-  line-height: 1;
-  border: 1.5px solid #0057b8;
-  transition: background-color 0.15s ease;
-  &:hover {
-    background-color: #f3f4f6;
-  }
-}
-
-@utility link-blue {
-  color: #0057b8;
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  &:hover {
-    color: #009fdb;
-  }
-}
-
-/* ── Claim-flow patterns ─────────────────────────────────────────────────────
-   AT&T uses a selectable card with a real radio for "pick one of these", and a
-   flat pale-blue panel for guidance. Keeping them visually distinct matters:
-   a guidance panel that looks like a card reads as something you should click. */
-
-@utility att-choice {
-  position: relative;
-  display: block;
-  width: 100%;
-  cursor: pointer;
-  border-radius: 1rem;
-  border: 1.5px solid #dcdfe3;
-  background-color: #ffffff;
-  padding: 1.25rem;
-  text-align: left;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  &:hover {
-    border-color: #0057b8;
-  }
-}
-
-@utility att-choice-on {
-  border-color: #0057b8;
-  box-shadow: 0 0 0 1.5px #0057b8;
-  background-color: #f7fcfe;
-}
-
-/* Guidance, not a control — flat fill, left accent rule, never a hover state. */
-@utility att-note {
-  border-radius: 0.75rem;
-  border-left: 4px solid #0057b8;
-  background-color: #e7f5fb;
-  padding: 1.25rem 1.5rem;
 }

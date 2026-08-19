@@ -52,6 +52,7 @@ import type { Member, MemberDevice, Claim } from "@/data/member";
 import { analyzeDamage, type AssessResponse } from "@/lib/assess";
 import { FraudCheckRun } from "@/components/deviceflex/FraudCheckRun";
 import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
+import { Field } from "@/components/att/Field";
 import { deductibleFor, ASURION } from "@/data/deductibles";
 import {
   buildClaimPayload,
@@ -455,27 +456,19 @@ function Flow() {
                   approximate time is fine.
                 </p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="text-xs font-bold text-[#686E74]">
-                      Date it {reason === "theft" ? "was stolen" : "went missing"}
-                    </span>
-                    <input
-                      type="date"
-                      value={incident.date ?? ""}
-                      max={new Date().toISOString().slice(0, 10)}
-                      onChange={(e) => setIncident((x) => ({ ...x, date: e.target.value }))}
-                      className="mt-1.5 w-full rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="text-xs font-bold text-[#686E74]">Approximate time</span>
-                    <input
-                      type="time"
-                      value={incident.time ?? ""}
-                      onChange={(e) => setIncident((x) => ({ ...x, time: e.target.value }))}
-                      className="mt-1.5 w-full rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
-                    />
-                  </label>
+                  <Field
+                    type="date"
+                    label={`Date it ${reason === "theft" ? "was stolen" : "went missing"}`}
+                    value={incident.date ?? ""}
+                    max={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => setIncident((x) => ({ ...x, date: e.target.value }))}
+                  />
+                  <Field
+                    type="time"
+                    label="Approximate time"
+                    value={incident.time ?? ""}
+                    onChange={(e) => setIncident((x) => ({ ...x, time: e.target.value }))}
+                  />
                 </div>
                 <label className="mt-3 block">
                   <span className="text-xs font-bold text-[#686E74]">
@@ -505,18 +498,14 @@ function Flow() {
               </div>
 
               {reason === "theft" && (
-                <label className="block rounded-xl border border-[#DCDFE3] p-4">
-                  <span className="text-sm font-extrabold">
-                    Police report number{" "}
-                    <span className="font-normal text-[#686E74]">(optional)</span>
-                  </span>
-                  <input
+                <div className="rounded-xl border border-[#DCDFE3] p-4">
+                  <Field
+                    label="Police report number (optional)"
+                    hint="Format is usually something like DPD-2026-114872."
                     value={incident.policeReport ?? ""}
                     onChange={(e) => setIncident((x) => ({ ...x, policeReport: e.target.value }))}
-                    placeholder="e.g. DPD-2026-114872"
-                    className="mt-2 w-full rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
                   />
-                </label>
+                </div>
               )}
             </div>
 
@@ -617,7 +606,7 @@ function Flow() {
                     <Sparkle className="h-3.5 w-3.5" />
                     DeviceFlex AI · {Math.round(damage.confidence * 100)}% confidence
                   </span>
-                  <span className="rounded-full bg-[#FFF3E0] px-3 py-1 text-xs font-bold text-[#B26A00]">
+                  <span className="rounded-full bg-[#FFF3E0] px-3 py-1 text-xs font-bold text-[#9E5D00]">
                     {damage.severity} damage
                   </span>
                   {damage.beyondEconomicalRepair && (
@@ -840,7 +829,7 @@ function Flow() {
                             {sm.store.address} · {sm.store.miles} mi · {sm.store.hours}
                           </p>
                           <p
-                            className={`mt-1 text-xs font-bold ${sm.inStock || need !== "swap" ? "text-[#1F7A3D]" : "text-[#B26A00]"}`}
+                            className={`mt-1 text-xs font-bold ${sm.inStock || need !== "swap" ? "text-[#1F7A3D]" : "text-[#9E5D00]"}`}
                           >
                             {sm.reason}
                           </p>
@@ -1030,7 +1019,7 @@ function Confirmation({
             <div>
               <dt className="text-[#686E74]">Status</dt>
               <dd
-                className={`font-bold ${ack.status === "Approved" ? "text-[#1F7A3D]" : "text-[#B26A00]"}`}
+                className={`font-bold ${ack.status === "Approved" ? "text-[#1F7A3D]" : "text-[#9E5D00]"}`}
               >
                 {ack.status}
               </dd>
@@ -1096,7 +1085,7 @@ function Confirmation({
               {device.backedUp ? (
                 <CloudCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#1F7A3D]" />
               ) : (
-                <CloudOff className="mt-0.5 h-4 w-4 shrink-0 text-[#B26A00]" />
+                <CloudOff className="mt-0.5 h-4 w-4 shrink-0 text-[#9E5D00]" />
               )}
               <span>
                 Vault backup: <b>{device.lastBackup}</b>

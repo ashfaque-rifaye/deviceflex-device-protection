@@ -85,7 +85,7 @@ function LoginPage() {
                         {a.enrolled ? (
                           <ShieldCheck className="h-4 w-4 text-[#1F7A3D]" />
                         ) : (
-                          <ShieldAlert className="h-4 w-4 text-[#B26A00]" />
+                          <ShieldAlert className="h-4 w-4 text-[#9E5D00]" />
                         )}
                       </span>
                       <span className="min-w-0 flex-1">

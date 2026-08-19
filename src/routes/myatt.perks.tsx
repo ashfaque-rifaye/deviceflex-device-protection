@@ -255,7 +255,7 @@ function Perks() {
                                 </span>
                               </>
                             ) : (
-                              <span className="text-[11px] font-bold text-[#B26A00]">{a.note}</span>
+                              <span className="text-[11px] font-bold text-[#9E5D00]">{a.note}</span>
                             )}
                           </span>
                         </button>
