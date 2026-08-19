@@ -109,3 +109,40 @@
     color: #009fdb;
   }
 }
+
+/* ── Claim-flow patterns ─────────────────────────────────────────────────────
+   AT&T uses a selectable card with a real radio for "pick one of these", and a
+   flat pale-blue panel for guidance. Keeping them visually distinct matters:
+   a guidance panel that looks like a card reads as something you should click. */
+
+@utility att-choice {
+  position: relative;
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 1rem;
+  border: 1.5px solid #dcdfe3;
+  background-color: #ffffff;
+  padding: 1.25rem;
+  text-align: left;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  &:hover {
+    border-color: #0057b8;
+  }
+}
+
+@utility att-choice-on {
+  border-color: #0057b8;
+  box-shadow: 0 0 0 1.5px #0057b8;
+  background-color: #f7fcfe;
+}
+
+/* Guidance, not a control — flat fill, left accent rule, never a hover state. */
+@utility att-note {
+  border-radius: 0.75rem;
+  border-left: 4px solid #0057b8;
+  background-color: #e7f5fb;
+  padding: 1.25rem 1.5rem;
+}

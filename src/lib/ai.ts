@@ -17,6 +17,8 @@ import type { Member, MemberDevice } from "@/data/member";
 import { deviceVaultGB, TIER_POOL, TIER_VAULT_GB, formatCapacity } from "@/data/member";
 import type { ClaimReasonId } from "@/data/deviceflex";
 import { STORES, HOME_REPAIR, type Store, type StoreCapability } from "@/data/stores";
+import { deductibleFor, deviceTier, ASURION, type FeeKind } from "@/data/deductibles";
+import { daysSince, withinFilingWindow, type IncidentDetails } from "@/lib/asurion";
 
 const money = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
@@ -181,9 +183,12 @@ export type ClaimOption = {
   id: "repair" | "home-repair" | "swap" | "ship" | "upgrade" | "battery";
   title: string;
   detail: string;
-  /** What this path costs the member. "Covered" where the plan absorbs it;
-   *  a real figure once the deductible schedule is wired in. */
+  /** What this path costs the member — the Asurion deductible or service fee, as text. */
   price: string;
+  /** Which line of the fee schedule applies, so payload and UI can't drift apart. */
+  feeKind: FeeKind;
+  /** The same figure in dollars, for comparison and sorting. */
+  deductible: number;
   time: string;
   recommended?: boolean;
   restore: "none" | "in-store" | "on-arrival"; // where Smart Restore happens
@@ -207,6 +212,12 @@ export function resolutionOptions(
   const batteryStore = bestStore(device, "battery");
   const at = (m: StoreMatch | null) => (m ? `nearest store ${m.store.miles} mi` : "nearest store");
 
+  // Every path quotes the real Asurion fee for that kind of resolution.
+  const fee = (kind: FeeKind) => {
+    const d = deductibleFor(device, kind);
+    return { price: d.label, feeKind: kind, deductible: d.amount };
+  };
+
   if (reason === "damage") {
     const beyond = damage?.beyondEconomicalRepair;
     const repairQuote = damage?.retailRepairCost ?? 329;
@@ -217,7 +228,7 @@ export function resolutionOptions(
           id: "home-repair",
           title: "Home screen repair",
           detail: `A technician comes to you and repairs the screen in about ${HOME_REPAIR.etaMinutes} minutes. You keep your device — nothing to restore.`,
-          price: "Covered",
+          ...fee("screen-repair"),
           time: HOME_REPAIR.windows[0],
           recommended: true,
           restore: "none",
@@ -230,7 +241,7 @@ export function resolutionOptions(
           id: "repair",
           title: "Repair at an AT&T store",
           detail: `Drop in and we'll repair the screen while you wait. ${repairStore.reason}.`,
-          price: "Covered",
+          ...fee("screen-repair"),
           time: `~45 min · ${at(repairStore)}`,
           restore: "none",
           outcome: "Your own device, repaired",
@@ -245,7 +256,7 @@ export function resolutionOptions(
         id: "swap",
         title: "15-minute in-store swap",
         detail: `Hand over the damaged device, walk out with a replacement. ${swapStore.reason}. Smart Restore runs in store on your new device.`,
-        price: "Covered",
+        ...fee("replacement"),
         time: `~15 min · ${at(swapStore)}`,
         recommended: !!beyond,
         restore: "in-store",
@@ -263,7 +274,7 @@ export function resolutionOptions(
         id: "swap",
         title: "Same-day in-store replacement",
         detail: `Pick up a replacement today. We'll suspend the old line and Smart Restore your data in store. ${swapStore.reason}.`,
-        price: "Covered",
+        ...fee("replacement"),
         time: `Today · ${at(swapStore)}`,
         recommended: true,
         restore: "in-store",
@@ -278,7 +289,7 @@ export function resolutionOptions(
       title: "Ship a replacement to me",
       detail:
         "Next-day delivery. Smart Restore runs automatically when your device arrives and you sign in.",
-      price: "Covered",
+      ...fee("replacement"),
       time: "Arrives tomorrow",
       restore: "on-arrival",
       outcome: `A factory-new ${device.name}, delivered`,
@@ -292,8 +303,8 @@ export function resolutionOptions(
       opts.push({
         id: "repair",
         title: "Manufacturer warranty repair",
-        detail: `Your ${device.name} is still in warranty — repair is handled under the manufacturer's warranty at no cost.`,
-        price: "Covered",
+        detail: `Your ${device.name} is still in warranty — repair is handled under the manufacturer's warranty at no cost, and it doesn't use a claim.`,
+        ...fee("warranty"),
         time: "3–5 days",
         recommended: true,
         restore: "none",
@@ -306,7 +317,7 @@ export function resolutionOptions(
         id: "swap",
         title: "Replace under Protect Advantage",
         detail: `Out-of-warranty mechanical or electrical failure is covered. ${swapStore.reason}.`,
-        price: "Covered",
+        ...fee("replacement"),
         time: `~15 min · ${at(swapStore)}`,
         recommended: device.warranty === "Out of warranty",
         restore: "in-store",
@@ -325,9 +336,9 @@ export function resolutionOptions(
         id: "battery",
         title: "Battery replacement at a store",
         detail: failing
-          ? `Battery health is ${device.batteryHealth}% — below the 80% threshold, so replacement is included in your plan.`
-          : `Health is ${device.batteryHealth}%. We'll test in store; if it reads under 80% the replacement is included.`,
-        price: "Covered",
+          ? `Battery health is ${device.batteryHealth}% — below the 80% threshold, so replacement carries no service fee.`
+          : `Health is ${device.batteryHealth}%. We'll test in store; if it reads under 80% the replacement carries no service fee.`,
+        ...fee("battery"),
         time: `~45 min · ${at(batteryStore)}`,
         recommended: true,
         restore: "none",
@@ -347,7 +358,8 @@ export function resolutionOptions(
     opts.push({
       id: "upgrade",
       title: "Upgrade to a new device (Next Up Anytime)",
-      detail: `You're on Next Up Anytime and this device can't be economically repaired. Your guaranteed trade-in value of ${money(device.tradeIn)} is applied — upgrade now instead of replacing like-for-like.`,
+      detail: `You're on Next Up Anytime, so you can upgrade instead of claiming — no deductible, and your guaranteed trade-in value of ${money(device.tradeIn)} comes off the new device.`,
+      ...fee("upgrade"),
       price: `from $${monthly.toFixed(2)}/mo.`,
       time: "Same visit",
       restore: "in-store",
@@ -377,27 +389,31 @@ export function advise(
   const pick = options.find((o) => o.recommended) ?? options[0] ?? null;
   if (!pick) return { headline: "No options available", reasoning: "", pick: null };
 
+  const repairFee = deductibleFor(device, "screen-repair").amount;
+  const replaceFee = deductibleFor(device, "replacement").amount;
+  const tier = deviceTier(device);
+
   if (reason === "damage" && damage?.beyondEconomicalRepair) {
     const upgrade = options.find((o) => o.id === "upgrade");
     return {
       headline: `Replace it — repair isn't worth it on this one`,
       reasoning: upgrade
-        ? `A repair would run about ${money(damage.retailRepairCost)} against a device worth ${money(device.retail)}, and the frame damage means it won't hold a new screen properly. A swap gets you a factory-new ${device.name} in 15 minutes, with your cost confirmed before you book. You're also on Next Up Anytime, so upgrading with your ${money(device.tradeIn)} trade-in is a real alternative if you'd rather move up a model.`
-        : `A repair would run about ${money(damage.retailRepairCost)} against a device worth ${money(device.retail)}, and the frame damage means it won't hold a new screen properly. A swap gets you a factory-new ${device.name} in 15 minutes, with your cost confirmed before you book.`,
+        ? `The frame damage means it won't hold a new screen properly, so the ${money(repairFee)} repair isn't an option here. A swap is ${money(replaceFee)} — your Tier ${tier} replacement deductible — against ${money(device.retail)} to buy the device outright. You're also on Next Up Anytime, and an upgrade carries no deductible at all, so if you'd rather move up a model that's the cheaper path today.`
+        : `The frame damage means it won't hold a new screen properly, so the ${money(repairFee)} repair isn't an option here. A swap is ${money(replaceFee)} — your Tier ${tier} replacement deductible — against ${money(device.retail)} to buy the device outright.`,
       pick: pick.id,
     };
   }
   if (reason === "damage") {
     return {
-      headline: "Repair it — you keep your own device",
-      reasoning: `The damage is limited to the front glass and everything else tests clean, so there's no reason to give up your ${device.name}. Home repair is the fastest path and nothing needs restoring, because your data never leaves the device. Without coverage this repair would be ${money(damage?.retailRepairCost ?? 329)}.`,
+      headline: `Repair it — ${money(repairFee)} instead of ${money(replaceFee)}`,
+      reasoning: `The damage is limited to the front glass and everything else tests clean, so there's no reason to give up your ${device.name}. Screen repair is a flat ${money(repairFee)} service fee; swapping the device would trigger your Tier ${tier} replacement deductible of ${money(replaceFee)}. Repair also keeps your data where it is, so nothing needs restoring. Without any coverage this repair would be ${money(damage?.retailRepairCost ?? 329)}.`,
       pick: pick.id,
     };
   }
   if (reason === "loss" || reason === "theft") {
     return {
       headline: "Replace today, and suspend the old line first",
-      reasoning: `${reason === "theft" ? "Theft" : "Loss"} is covered. Picking up in store is faster than shipping and lets Smart Restore run on the spot, so you leave with your photos and messages already back. Without coverage a replacement would be ${money(device.retail)}.`,
+      reasoning: `${reason === "theft" ? "Theft" : "Loss"} is covered, with a ${money(replaceFee)} Tier ${tier} replacement deductible billed to your next AT&T bill — against ${money(device.retail)} to replace it yourself. Picking up in store is faster than shipping and lets Smart Restore run on the spot, so you leave with your photos and messages already back.`,
       pick: pick.id,
     };
   }
@@ -409,19 +425,19 @@ export function advise(
           : "Replace it under Protect Advantage",
       reasoning:
         device.warranty === "In warranty"
-          ? `Your ${device.name} is still inside the manufacturer's warranty, so the repair costs nothing and doesn't consume anything on your plan. We only use Protect Advantage once that warranty is done.`
-          : `The warranty has expired and the diagnostics point at a hardware fault, which is exactly what out-of-warranty malfunction cover is for. A swap is ${money(device.retail)} without coverage and $0 with it.`,
+          ? `Your ${device.name} is still inside the manufacturer's warranty, so the repair costs nothing, carries no deductible, and doesn't use one of your ${ASURION.claimLimit} claims. We only use Protect Advantage once that warranty is done.`
+          : `The warranty has expired and the diagnostics point at a hardware fault, which is exactly what out-of-warranty malfunction cover is for. A swap costs your Tier ${tier} deductible of ${money(replaceFee)}, against ${money(device.retail)} to replace it yourself.`,
       pick: pick.id,
     };
   }
   return {
     headline:
       device.batteryHealth < 80
-        ? "Book the battery replacement — it's covered"
+        ? "Book the battery replacement — no service fee"
         : "Get it tested, it's close to the threshold",
     reasoning:
       device.batteryHealth < 80
-        ? `Health is ${device.batteryHealth}%, under the 80% line, so the replacement is included in your plan.`
+        ? `Health is ${device.batteryHealth}%, under the 80% line, so the battery is replaced with no service fee on any device tier.`
         : `Health is ${device.batteryHealth}%, so it's above the covered threshold today. A store test settles it — if it reads under 80% the replacement is free, and if not you'll know where you stand.`,
     pick: pick.id,
   };
@@ -656,38 +672,120 @@ export function checkTierFit(tier: "basic" | "plus" | "family", deviceCount: num
   return { eligible: true, reason: `${deviceCount} of ${cap} device${cap > 1 ? "s" : ""} used` };
 }
 
-export type FraudSignal = { level: "clear" | "review"; label: string; note: string };
+export type FraudSignal = {
+  id: string;
+  level: "clear" | "review";
+  label: string;
+  /** What the agent is doing, shown while the check runs. */
+  running: string;
+  /** What it concluded, shown once it settles. */
+  note: string;
+};
 
-export function fraudCheck(m: Member, reason: ClaimReasonId, device: MemberDevice): FraudSignal[] {
-  const recent = m.claims.filter((c) => c.deviceId === device.id).length;
+/**
+ * The checks Asurion expects before a loss or theft claim is fulfilled. Returned as an
+ * ordered list so the UI can run them one at a time and show the agent working, rather
+ * than flipping a device to "blocked" the instant a button is pressed.
+ */
+export function fraudCheck(
+  m: Member,
+  reason: ClaimReasonId,
+  device: MemberDevice,
+  incident?: IncidentDetails,
+): FraudSignal[] {
+  const priorOnDevice = m.claims.filter((c) => c.deviceId === device.id).length;
+  const priorTotal = m.claims.length;
+  const age = daysSince(incident?.date);
+  const inWindow = withinFilingWindow(incident?.date);
+
   const signals: FraudSignal[] = [
     {
-      level: "clear",
-      label: "Account standing",
-      note: `Member since ${m.memberSince} · balance ${m.balance}`,
-    },
-    {
-      level: recent >= 3 ? "review" : "clear",
-      label: "Claim velocity",
-      note:
-        recent === 0
-          ? "No prior claims on this device"
-          : `${recent} prior claim${recent > 1 ? "s" : ""} on this device`,
-    },
-    {
-      level: "clear",
-      label: "Device match",
-      note: `IMEI ${device.imei} matches the line on file`,
-    },
-  ];
-  if (reason === "loss" || reason === "theft") {
-    signals.push({
+      id: "identity",
       level: "clear",
       label: "Identity verification",
-      note: "One-time code to the account holder's verified number",
+      running: "Sending a one-time code to the account contact on file…",
+      note: `One-time code confirmed against ${m.email}`,
+    },
+    {
+      id: "standing",
+      level: "clear",
+      label: "Account standing",
+      running: "Checking billing history and account status…",
+      note: `Member since ${m.memberSince} · balance ${m.balance} · in good standing`,
+    },
+    {
+      id: "velocity",
+      level: priorTotal >= ASURION.claimLimit ? "review" : "clear",
+      label: "Claim limits",
+      running: `Counting claims against the ${ASURION.claimLimitWindow} limit…`,
+      note:
+        priorTotal >= ASURION.claimLimit
+          ? `${priorTotal} claims in the last ${ASURION.claimLimitWindow} — at the limit of ${ASURION.claimLimit}, so Asurion reviews this one`
+          : `${priorTotal} of ${ASURION.claimLimit} claims used in the last ${ASURION.claimLimitWindow}` +
+            (priorOnDevice ? ` · ${priorOnDevice} on this device` : ""),
+    },
+    {
+      id: "device",
+      level: "clear",
+      label: "Device and line match",
+      running: "Matching IMEI against the line and the account…",
+      note: `IMEI ${device.imei} matches ${device.line} on account ${m.accountNumber}`,
+    },
+  ];
+
+  if (reason === "loss" || reason === "theft") {
+    signals.push({
+      id: "window",
+      level: inWindow ? "clear" : "review",
+      label: "Reporting window",
+      running: `Checking the incident against the ${ASURION.filingWindowDays}-day filing window…`,
+      note:
+        age === null
+          ? "No incident date given — reported today"
+          : inWindow
+            ? `Reported ${age === 0 ? "same day" : `${age} day${age === 1 ? "" : "s"} after the incident`}, inside the ${ASURION.filingWindowDays}-day window`
+            : `Reported ${age} days after the incident — past the ${ASURION.filingWindowDays}-day window, so Asurion reviews this one`,
+    });
+    signals.push({
+      id: "network",
+      level: "clear",
+      label: "Network activity",
+      running: "Looking for activity on the line since the incident…",
+      note: "No calls, data or SIM swaps since the reported time — consistent with the report",
+    });
+    signals.push({
+      id: "blocklist",
+      level: "clear",
+      label: "Blocklist and line suspension",
+      running: "Submitting the IMEI to the national blocklist and suspending the line…",
+      note: "Line suspended and IMEI blocked — the device can't be used or resold",
     });
   }
+
   return signals;
+}
+
+/** The decision the agent lands on once every check has run. */
+export type FraudVerdict = {
+  outcome: "approved" | "review";
+  headline: string;
+  detail: string;
+};
+
+export function fraudVerdict(signals: FraudSignal[]): FraudVerdict {
+  const flagged = signals.filter((s) => s.level === "review");
+  if (!flagged.length) {
+    return {
+      outcome: "approved",
+      headline: "Verified — your claim can proceed",
+      detail: `All ${signals.length} checks cleared. ${ASURION.short} has what it needs to fulfil this claim without a manual review.`,
+    };
+  }
+  return {
+    outcome: "review",
+    headline: "Verified, with one thing for a human to confirm",
+    detail: `${flagged.map((f) => f.label.toLowerCase()).join(" and ")} needs a look. Your claim still goes through — an ${ASURION.short} specialist confirms it before the replacement ships, usually within a couple of hours.`,
+  };
 }
 
 export const needsIdentityCheck = (reason: ClaimReasonId) =>

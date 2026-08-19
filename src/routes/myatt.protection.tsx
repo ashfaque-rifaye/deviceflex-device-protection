@@ -20,6 +20,7 @@ import { AccountNav } from "@/components/deviceflex/AccountNav";
 import { ProtectionScore } from "@/components/deviceflex/ProtectionScore";
 import { RequireAuth, useAuth } from "@/lib/auth";
 import { poolStatus } from "@/lib/ai";
+import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
 import { TIER_POOL, formatCapacity } from "@/data/member";
 import { getTier, TIERS } from "@/data/deviceflex";
 import type { Member } from "@/data/member";
@@ -174,7 +175,12 @@ function Manage() {
 
             {/* Covered devices */}
             <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
-              <h2 className="text-lg font-extrabold">Devices on this plan</h2>
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="text-lg font-extrabold">Devices on this plan</h2>
+                <p className="text-xs text-[#686E74]">
+                  Your deductible if you claim — known upfront
+                </p>
+              </div>
               <ul className="mt-4 divide-y divide-[#DCDFE3]">
                 {m.devices.map((d) => (
                   <li key={d.id}>
@@ -193,6 +199,7 @@ function Manage() {
                         <p className="text-xs text-[#686E74]">
                           {d.owner} · {d.line}
                         </p>
+                        {d.protected && <DeductibleInline device={d} />}
                       </div>
                       <span
                         className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${d.protected ? "bg-[#EAF7EE] text-[#1F7A3D]" : "bg-[#FDE9EE] text-[#C70032]"}`}

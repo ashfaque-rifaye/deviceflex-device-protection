@@ -29,6 +29,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { AccountNav } from "@/components/deviceflex/AccountNav";
 import { IconSim, IconKebab, IconChevronR } from "@/components/deviceflex/AttIcons";
 import { RequireAuth, useAuth } from "@/lib/auth";
+import { DeductibleCard } from "@/components/deviceflex/DeductibleCard";
 import { getTier } from "@/data/deviceflex";
 import type { Member, MemberDevice } from "@/data/member";
 
@@ -536,6 +537,12 @@ function TabOptions({ d }: { d: MemberDevice }) {
             left
           </p>
         </section>
+      )}
+
+      {d.protected && (
+        <div className="mb-6">
+          <DeductibleCard device={d} />
+        </div>
       )}
 
       <h3 className="text-[20px] font-extrabold">Device options</h3>

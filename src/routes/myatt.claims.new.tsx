@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Camera,
   Check,
@@ -22,6 +22,9 @@ import {
   AlertTriangle,
   Sparkle,
   WifiOff,
+  Receipt,
+  Building2,
+  CalendarDays,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalWidgets } from "@/components/site/GlobalWidgets";
@@ -34,6 +37,7 @@ import {
   resolutionOptions,
   advise,
   fraudCheck,
+  fraudVerdict,
   findStores,
   homeRepairWindows,
   planRestore,
@@ -42,9 +46,20 @@ import {
   type ClaimOption,
   type Diagnostic,
   type StoreMatch,
+  type FraudVerdict,
 } from "@/lib/ai";
 import type { Member, MemberDevice, Claim } from "@/data/member";
 import { analyzeDamage, type AssessResponse } from "@/lib/assess";
+import { FraudCheckRun } from "@/components/deviceflex/FraudCheckRun";
+import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
+import { deductibleFor, ASURION } from "@/data/deductibles";
+import {
+  buildClaimPayload,
+  submitClaim,
+  daysSince,
+  type IncidentDetails,
+  type AsurionAck,
+} from "@/lib/asurion";
 import { toDataUrl } from "@/lib/image";
 
 export const Route = createFileRoute("/myatt/claims/new")({
@@ -99,6 +114,9 @@ function Flow() {
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [diags, setDiags] = useState<Diagnostic[] | null>(null);
   const [verified, setVerified] = useState(false);
+  const [incident, setIncident] = useState<IncidentDetails>({});
+  const [verdictFraud, setVerdictFraud] = useState<FraudVerdict | null>(null);
+  const [ack, setAck] = useState<AsurionAck | null>(null);
   const [option, setOption] = useState<ClaimOption | null>(null);
   const [storeId, setStoreId] = useState<string | null>(null);
   const [slot, setSlot] = useState<string | null>(null);
@@ -106,6 +124,7 @@ function Flow() {
   const [claimId, setClaimId] = useState<string | null>(null);
 
   const cfg = CLAIM_REASONS.find((r) => r.id === reason);
+  const incidentAge = daysSince(incident.date);
   const filled = photos.filter(Boolean).length;
   const back = () => setStep((s) => Math.max(0, s - 1));
 
@@ -142,16 +161,29 @@ function Flow() {
       setBusy(false);
     }, 1500);
   };
-  const verifyIdentity = () => {
-    setBusy(true);
-    setTimeout(() => {
-      setVerified(true);
-      setBusy(false);
-    }, 1200);
+  // Verification is now a sequence the member watches — see <FraudCheckRun />.
+  const signals = reason ? fraudCheck(m, reason, device, incident) : [];
+  const onVerified = (v: FraudVerdict) => {
+    setVerdictFraud(v);
+    setVerified(true);
   };
 
-  const options = reason ? resolutionOptions(device, reason, damage) : [];
-  const verdict = reason ? advise(device, reason, options, damage) : null;
+  // Memoised so the preselect effect below has a stable dependency.
+  const options = useMemo(
+    () => (reason ? resolutionOptions(device, reason, damage) : []),
+    [reason, device, damage],
+  );
+  const verdict = useMemo(
+    () => (reason ? advise(device, reason, options, damage) : null),
+    [reason, device, options, damage],
+  );
+
+  // Land on the step with the Advisor's pick already selected — the member confirms
+  // a recommendation rather than starting from nothing.
+  useEffect(() => {
+    if (step !== 3 || option || !options.length) return;
+    setOption(options.find((o) => o.recommended) ?? options[0]);
+  }, [step, option, options]);
 
   // Which store list applies depends on what the chosen option needs.
   const need = option?.id === "battery" ? "battery" : option?.id === "repair" ? "repair" : "swap";
@@ -161,6 +193,7 @@ function Flow() {
   const isHomeRepair = option?.id === "home-repair";
   const isShip = option?.id === "ship";
   const needsSlot = !isShip;
+  const feeDetail = deductibleFor(device, option?.feeKind ?? "replacement");
 
   const confirm = () => {
     if (!option || !reason) return;
@@ -169,13 +202,50 @@ function Flow() {
       : isHomeRepair
         ? `Technician visit · ${slot}`
         : `${chosenStore?.store.name} · ${slot}`;
+
+    // Everything filed here goes to Asurion — they administer the program, charge the
+    // deductible and fulfil the device. One payload, whatever path the member took.
+    const payload = buildClaimPayload({
+      member: m,
+      device,
+      reason,
+      incident,
+      feeKind: option.feeKind,
+      resolutionTitle: option.title,
+      fulfilment: where,
+      assessment: damage
+        ? {
+            source: damage.source === "model" ? "vision-model" : "diagnostics",
+            severity: damage.severity,
+            beyondEconomicalRepair: damage.beyondEconomicalRepair,
+            findings: damage.detected,
+            confidence: damage.confidence,
+          }
+        : diags
+          ? {
+              source: "diagnostics",
+              findings: diags.map((d) => `${d.label}: ${d.result}`),
+            }
+          : { source: "attested" },
+      identityVerified: verified,
+      lineSuspended: verified && (reason === "loss" || reason === "theft"),
+      signals: signals.map((sig) => ({ label: sig.label, outcome: sig.note })),
+    });
+    const receipt = submitClaim(payload);
+    setAck(receipt);
+
     const id = fileClaim({
       device: `${device.name} (${device.owner.split(" ")[0]})`,
       deviceId: device.id,
       reason: REASON_LABEL[reason],
       resolution: option.title,
-      detail: where,
-      status: option.id === "ship" ? "In progress" : "Booked",
+      detail: `${where} · ${ASURION.short} ref ${receipt.reference} · deductible ${option.price}`,
+      status:
+        receipt.status === "In review"
+          ? "In progress"
+          : option.id === "ship"
+            ? "In progress"
+            : "Booked",
     });
     // A physical replacement earns the "new, not refurbished" certificate.
     if (option.newNotRefurbished) issueGuarantee(device.id);
@@ -285,6 +355,7 @@ function Flow() {
                       {d.warranty}
                       {d.nextUp && " · Next Up"}
                     </p>
+                    <DeductibleInline device={d} />
                   </div>
                 </button>
               ))}
@@ -353,16 +424,17 @@ function Flow() {
           </div>
         )}
 
-        {/* ── Step 2b — identity (loss / theft) ────────────────────── */}
+        {/* ── Step 2b — incident details + verification (loss / theft) ─ */}
         {!done && step === 2 && cfg?.needsIdVerify && (
           <div>
             <h2 className="text-xl font-extrabold">
               {reason === "theft" ? "Report your stolen device" : "Report your lost device"}
             </h2>
             <p className="mt-1 text-sm text-[#686E74]">
-              No photos needed. We'll verify it's you, then suspend the line so nobody else can use
-              it.
+              No photos needed. Tell us what you can about the incident, then we'll verify it's you
+              and suspend the line so nobody else can use it.
             </p>
+
             <div className="mt-5 space-y-3">
               <div className="rounded-xl border border-[#DCDFE3] p-4">
                 <p className="text-sm font-extrabold">Device</p>
@@ -370,6 +442,68 @@ function Flow() {
                   {device.name} · {device.line} · IMEI {device.imei}
                 </p>
               </div>
+
+              {/* Incident details — optional, but they sharpen the fraud checks and are
+                  exactly what Asurion asks for on the phone. */}
+              <div className="rounded-xl border border-[#DCDFE3] p-4">
+                <p className="flex items-center gap-2 text-sm font-extrabold">
+                  <CalendarDays className="h-4 w-4 text-[#0057B8]" />
+                  Incident details <span className="font-normal text-[#686E74]">(optional)</span>
+                </p>
+                <p className="mt-1 text-xs text-[#686E74]">
+                  Claims must be reported within {ASURION.filingWindowDays} days of the incident. An
+                  approximate time is fine.
+                </p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="text-xs font-bold text-[#686E74]">
+                      Date it {reason === "theft" ? "was stolen" : "went missing"}
+                    </span>
+                    <input
+                      type="date"
+                      value={incident.date ?? ""}
+                      max={new Date().toISOString().slice(0, 10)}
+                      onChange={(e) => setIncident((x) => ({ ...x, date: e.target.value }))}
+                      className="mt-1.5 w-full rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs font-bold text-[#686E74]">Approximate time</span>
+                    <input
+                      type="time"
+                      value={incident.time ?? ""}
+                      onChange={(e) => setIncident((x) => ({ ...x, time: e.target.value }))}
+                      className="mt-1.5 w-full rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
+                    />
+                  </label>
+                </div>
+                <label className="mt-3 block">
+                  <span className="text-xs font-bold text-[#686E74]">
+                    Where it happened, and anything you remember
+                  </span>
+                  <textarea
+                    rows={2}
+                    value={incident.circumstances ?? ""}
+                    onChange={(e) => setIncident((x) => ({ ...x, circumstances: e.target.value }))}
+                    placeholder={
+                      reason === "theft"
+                        ? "e.g. taken from my bag on the 14 bus, downtown"
+                        : "e.g. left it in a taxi coming back from the airport"
+                    }
+                    className="mt-1.5 w-full resize-y rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
+                  />
+                </label>
+
+                {incidentAge !== null && incidentAge > ASURION.filingWindowDays && (
+                  <p className="mt-3 flex items-start gap-2 rounded-lg bg-[#FFF3E0] p-3 text-xs text-[#7A4A00]">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                    That's {incidentAge} days ago, past the {ASURION.filingWindowDays}-day reporting
+                    window. You can still file — {ASURION.short} will review it rather than
+                    approving automatically.
+                  </p>
+                )}
+              </div>
+
               {reason === "theft" && (
                 <label className="block rounded-xl border border-[#DCDFE3] p-4">
                   <span className="text-sm font-extrabold">
@@ -377,37 +511,30 @@ function Flow() {
                     <span className="font-normal text-[#686E74]">(optional)</span>
                   </span>
                   <input
+                    value={incident.policeReport ?? ""}
+                    onChange={(e) => setIncident((x) => ({ ...x, policeReport: e.target.value }))}
                     placeholder="e.g. DPD-2026-114872"
                     className="mt-2 w-full rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
                   />
                 </label>
               )}
-              <div
-                className={`flex flex-wrap items-center gap-3 rounded-xl border p-4 ${verified ? "border-[#1F7A3D] bg-[#EAF7EE]" : "border-[#DCDFE3]"}`}
-              >
-                <PhoneOff className={`h-5 w-5 ${verified ? "text-[#1F7A3D]" : "text-[#0057B8]"}`} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-extrabold">
-                    {verified ? "Identity verified · line suspended" : "Verify your identity"}
-                  </p>
-                  <p className="text-xs text-[#686E74]">
-                    {verified
-                      ? "The device is blocked and can't be used or resold."
-                      : "We'll send a one-time code to your account email."}
-                  </p>
-                </div>
-                {!verified && (
-                  <button
-                    onClick={verifyIdentity}
-                    disabled={busy}
-                    className="btn-secondary text-sm"
-                  >
-                    {busy ? "Verifying…" : "Verify"}
-                  </button>
-                )}
-              </div>
             </div>
-            {verified && <FraudPanel member={m} reason={reason!} device={device} />}
+
+            {/* The agent runs its checks in the open, then decides. */}
+            <FraudCheckRun
+              key={`${reason}-${incident.date ?? ""}`}
+              signals={signals}
+              verdict={fraudVerdict(signals)}
+              onComplete={onVerified}
+            />
+
+            {verified && (
+              <p className="mt-3 flex items-center gap-2 text-sm font-bold text-[#1F7A3D]">
+                <PhoneOff className="h-4 w-4" />
+                Line suspended · IMEI blocked — the device can't be used or resold
+              </p>
+            )}
+
             <Nav
               onBack={back}
               nextLabel="See my options"
@@ -529,9 +656,11 @@ function Flow() {
               </>
             )}
 
-            {/* Claim-to-Upgrade Advisor — the verdict, in plain English */}
+            {/* Claim-to-Upgrade Advisor. Guidance, not a control — flat panel with a
+                left accent rule, no border box and no hover, so it can't be mistaken
+                for something you're meant to press. */}
             {verdict && (
-              <div className="mt-6 rounded-2xl border border-[#0057B8] bg-[#E7F5FB] p-5">
+              <div className="att-note mt-6">
                 <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#0057B8]">
                   <Scale className="h-4 w-4" /> Claim-to-Upgrade Advisor
                 </p>
@@ -544,64 +673,111 @@ function Flow() {
               </div>
             )}
 
-            <h3 className="mt-6 text-base font-extrabold">Compare every option</h3>
-            <div className="mt-3 grid gap-3">
-              {options.map((o) => (
-                <button
-                  key={o.id}
-                  onClick={() => {
-                    setOption(o);
-                    setStoreId(null);
-                    setSlot(null);
-                    setStep(4);
-                  }}
-                  className={`rounded-xl border p-4 text-left hover:border-[#0057B8] ${o.recommended ? "border-[#0057B8] bg-[#E7F5FB]" : "border-[#DCDFE3]"}`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="font-extrabold">
-                        {o.title}
-                        {o.recommended && (
-                          <span className="ml-2 rounded-full bg-[#0057B8] px-2 py-0.5 text-[10px] text-white">
-                            Recommended
-                          </span>
-                        )}
-                      </p>
-                      <p className="mt-1 text-sm text-[#686E74]">{o.detail}</p>
-                    </div>
-                    <p className="shrink-0 text-right font-extrabold">{o.price}</p>
-                  </div>
-                  <dl className="mt-3 grid gap-2 border-t border-[#DCDFE3]/70 pt-3 text-xs sm:grid-cols-3">
-                    <div>
-                      <dt className="text-[#686E74]">How long</dt>
-                      <dd className="font-bold">{o.time}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-[#686E74]">You end up with</dt>
-                      <dd className="font-bold">{o.outcome}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-[#686E74]">Without coverage</dt>
-                      <dd className="font-bold text-[#C70032]">{o.withoutCoverage}</dd>
-                    </div>
-                  </dl>
-                  {o.newNotRefurbished && (
-                    <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-bold text-[#1F7A3D]">
-                      <BadgeCheck className="h-3.5 w-3.5" /> New, not refurbished — guaranteed
-                    </p>
-                  )}
-                </button>
-              ))}
+            <div className="mt-7 flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="text-base font-extrabold">Choose how to resolve it</h3>
+              <p className="text-xs text-[#686E74]">
+                Deductibles set by {ASURION.short}, billed to your next AT&amp;T bill
+              </p>
             </div>
+
+            <fieldset className="mt-3">
+              <legend className="sr-only">Resolution options</legend>
+              <div className="grid gap-3">
+                {options.map((o) => {
+                  const on = option?.id === o.id;
+                  return (
+                    <label
+                      key={o.id}
+                      className={`att-choice ${on ? "att-choice-on" : ""}`}
+                      data-testid={`option-${o.id}`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="radio"
+                          name="resolution"
+                          value={o.id}
+                          checked={on}
+                          onChange={() => {
+                            setOption(o);
+                            setStoreId(null);
+                            setSlot(null);
+                          }}
+                          className="mt-1 h-5 w-5 shrink-0 accent-[#0057B8]"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+                            <p className="font-extrabold">
+                              {o.title}
+                              {o.recommended && (
+                                <span className="ml-2 whitespace-nowrap rounded-full bg-[#0057B8] px-2 py-0.5 text-[10px] font-bold text-white">
+                                  Recommended
+                                </span>
+                              )}
+                            </p>
+                            <p className="shrink-0 text-right">
+                              <span className="block text-lg font-extrabold leading-none">
+                                {o.price}
+                              </span>
+                              <span className="block text-[10px] uppercase tracking-wide text-[#686E74]">
+                                {o.feeKind === "screen-repair"
+                                  ? "service fee"
+                                  : o.feeKind === "replacement"
+                                    ? "deductible"
+                                    : o.feeKind === "upgrade"
+                                      ? "monthly"
+                                      : "your cost"}
+                              </span>
+                            </p>
+                          </div>
+                          <p className="mt-1 text-sm text-[#686E74]">{o.detail}</p>
+
+                          <dl className="mt-3 grid gap-2 border-t border-[#DCDFE3] pt-3 text-xs sm:grid-cols-3">
+                            <div>
+                              <dt className="text-[#686E74]">How long</dt>
+                              <dd className="font-bold">{o.time}</dd>
+                            </div>
+                            <div>
+                              <dt className="text-[#686E74]">You end up with</dt>
+                              <dd className="font-bold">{o.outcome}</dd>
+                            </div>
+                            <div>
+                              <dt className="text-[#686E74]">Without coverage</dt>
+                              <dd className="font-bold text-[#C70032]">{o.withoutCoverage}</dd>
+                            </div>
+                          </dl>
+
+                          {o.newNotRefurbished && (
+                            <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#EAF7EE] px-2.5 py-0.5 text-[11px] font-bold text-[#1F7A3D]">
+                              <BadgeCheck className="h-3.5 w-3.5" /> New, not refurbished —
+                              guaranteed
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
 
             {!device.nextUp && (
               <p className="mt-4 flex items-start gap-2 rounded-xl bg-[#F3F4F6] p-3 text-xs text-[#686E74]">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#0057B8]" />
-                Upgrading instead of replacing requires <b className="mx-1">Next Up Anytime</b> and
-                a device that can't be economically repaired. This device isn't enrolled in Next Up.
+                <span>
+                  Upgrading instead of replacing requires <b>Next Up Anytime</b> and a device that
+                  can't be economically repaired. This device isn't enrolled in Next Up.
+                </span>
               </p>
             )}
-            <Nav onBack={back} hideNext />
+
+            <Nav
+              onBack={back}
+              nextLabel={
+                option ? `Continue with ${option.title.toLowerCase()}` : "Select an option"
+              }
+              nextDisabled={!option}
+              onNext={() => setStep(4)}
+            />
           </div>
         )}
 
@@ -706,13 +882,29 @@ function Flow() {
               </div>
             )}
 
-            <div className="mt-5 rounded-xl bg-[#F3F4F6] p-4 text-sm">
-              <div className="flex justify-between">
-                <span className="text-[#686E74]">Deductible</span>
-                <span className="font-extrabold">Confirmed before you book</span>
+            <div className="mt-5 rounded-xl border border-[#DCDFE3] bg-[#F3F4F6] p-4 text-sm">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#686E74]">
+                <Receipt className="h-3.5 w-3.5" /> What you'll pay
+              </p>
+              <div className="mt-3 flex items-baseline justify-between border-b border-[#DCDFE3] pb-3">
+                <span className="font-bold">
+                  {option.feeKind === "screen-repair"
+                    ? "Screen repair service fee"
+                    : option.feeKind === "replacement"
+                      ? `Replacement deductible · Tier ${feeDetail.tier}`
+                      : option.feeKind === "upgrade"
+                        ? "Upgrade — no claim deductible"
+                        : "Service fee"}
+                </span>
+                <span className="text-2xl font-extrabold tabular-nums">{option.price}</span>
+              </div>
+              <p className="mt-2 text-xs text-[#686E74]">{feeDetail.basis}.</p>
+              <div className="mt-3 flex justify-between">
+                <span className="text-[#686E74]">Billed to</span>
+                <span className="font-bold">Your next AT&amp;T wireless bill</span>
               </div>
               <div className="mt-1 flex justify-between">
-                <span className="text-[#686E74]">Without coverage</span>
+                <span className="text-[#686E74]">Same fix without coverage</span>
                 <span className="font-bold text-[#C70032]">{option.withoutCoverage}</span>
               </div>
               <div className="mt-1 flex justify-between">
@@ -750,51 +942,13 @@ function Flow() {
             slot={slot}
             member={m}
             claimId={claimId}
+            ack={ack}
+            fraudVerdict={verdictFraud}
             storeName={chosenStore?.store.name ?? null}
             onDashboard={() => navigate({ to: "/myatt/protection", search: { device: "" } })}
           />
         )}
       </div>
-    </div>
-  );
-}
-
-// ── Eligibility & Fraud Agent, shown rather than hidden ──────────────────────
-function FraudPanel({
-  member,
-  reason,
-  device,
-}: {
-  member: Member;
-  reason: ClaimReasonId;
-  device: MemberDevice;
-}) {
-  const signals = fraudCheck(member, reason, device);
-  const flagged = signals.some((s) => s.level === "review");
-  return (
-    <div className="mt-4 rounded-xl border border-[#DCDFE3] p-4">
-      <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#686E74]">
-        <ShieldCheck className="h-3.5 w-3.5 text-[#0057B8]" /> Eligibility &amp; Fraud check
-      </p>
-      <ul className="mt-3 space-y-2">
-        {signals.map((s) => (
-          <li key={s.label} className="flex items-start gap-2 text-xs">
-            {s.level === "clear" ? (
-              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#1F7A3D]" />
-            ) : (
-              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#B26A00]" />
-            )}
-            <span>
-              <b>{s.label}</b> — <span className="text-[#686E74]">{s.note}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-3 text-[11px] text-[#686E74]">
-        {flagged
-          ? "One signal needs a human look. Your claim continues — an associate reviews it before fulfilment."
-          : "All checks clear. Your claim proceeds without review."}
-      </p>
     </div>
   );
 }
@@ -806,6 +960,8 @@ function Confirmation({
   slot,
   member,
   claimId,
+  ack,
+  fraudVerdict: fv,
   storeName,
   onDashboard,
 }: {
@@ -814,6 +970,8 @@ function Confirmation({
   slot: string | null;
   member: Member;
   claimId: string | null;
+  ack: AsurionAck | null;
+  fraudVerdict: FraudVerdict | null;
   storeName: string | null;
   onDashboard: () => void;
 }) {
@@ -851,6 +1009,51 @@ function Confirmation({
       </p>
       {claimId && (
         <p className="mt-1 text-xs text-[#686E74]">Claim {claimId} · saved to your account</p>
+      )}
+
+      {/* The Asurion handoff, shown rather than implied — they administer the program,
+          charge the deductible and fulfil the device. */}
+      {ack && (
+        <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-[#DCDFE3] p-5 text-left">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#686E74]">
+            <Building2 className="h-3.5 w-3.5 text-[#0057B8]" /> Sent to {ASURION.short}
+          </p>
+          <p className="mt-2 text-sm">
+            Your claim has been submitted to <b>{ASURION.administrator}</b>, who administers
+            AT&amp;T Protect Advantage and fulfils the replacement.
+          </p>
+          <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-[#DCDFE3] pt-3 text-xs">
+            <div>
+              <dt className="text-[#686E74]">{ASURION.short} reference</dt>
+              <dd className="font-bold">{ack.reference}</dd>
+            </div>
+            <div>
+              <dt className="text-[#686E74]">Status</dt>
+              <dd
+                className={`font-bold ${ack.status === "Approved" ? "text-[#1F7A3D]" : "text-[#B26A00]"}`}
+              >
+                {ack.status}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[#686E74]">
+                {option.feeKind === "screen-repair" ? "Service fee" : "Deductible"}
+              </dt>
+              <dd className="font-bold">{option.price}</dd>
+            </div>
+            <div>
+              <dt className="text-[#686E74]">Billed to</dt>
+              <dd className="font-bold">{ack.billedTo}</dd>
+            </div>
+          </dl>
+          {fv?.outcome === "review" && (
+            <p className="mt-3 rounded-lg bg-[#FFF3E0] p-3 text-xs text-[#7A4A00]">{fv.detail}</p>
+          )}
+          <p className="mt-3 text-[11px] text-[#686E74]">
+            Questions about this claim: {ASURION.claimsUrl} or {ASURION.claimsPhone} ·{" "}
+            {ASURION.hours}. Underwritten by {ASURION.underwriter}.
+          </p>
+        </div>
       )}
 
       {/* New, not refurbished — the certificate, issued */}
