@@ -20,6 +20,8 @@ import {
   BadgeCheck,
   Scale,
   AlertTriangle,
+  Sparkle,
+  WifiOff,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalWidgets } from "@/components/site/GlobalWidgets";
@@ -28,7 +30,6 @@ import { AccountNav } from "@/components/deviceflex/AccountNav";
 import { RequireAuth, RequirePlan, useAuth } from "@/lib/auth";
 import { CLAIM_REASONS, type ClaimReasonId } from "@/data/deviceflex";
 import {
-  assessDamage,
   runDiagnostics,
   resolutionOptions,
   advise,
@@ -43,6 +44,8 @@ import {
   type StoreMatch,
 } from "@/lib/ai";
 import type { Member, MemberDevice, Claim } from "@/data/member";
+import { analyzeDamage, type AssessResponse } from "@/lib/assess";
+import { toDataUrl } from "@/lib/image";
 
 export const Route = createFileRoute("/myatt/claims/new")({
   validateSearch: (s: Record<string, unknown>) => ({ device: (s.device as string) || "" }),
@@ -65,7 +68,7 @@ function NewClaim() {
         <AccountNav active="Account" />
         <RequirePlan
           title="Filing a claim needs an active plan"
-          blurb="AT&T Protect Advantage covers accidental damage, loss, theft and out-of-warranty malfunction at a $0 deductible."
+          blurb="AT&T Protect Advantage covers accidental damage, loss, theft and out-of-warranty malfunction."
         >
           <Flow />
         </RequirePlan>
@@ -92,7 +95,8 @@ function Flow() {
   );
   const [photos, setPhotos] = useState<(string | null)[]>([null, null, null]);
   const [busy, setBusy] = useState(false);
-  const [damage, setDamage] = useState<DamageResult | null>(null);
+  const [damage, setDamage] = useState<AssessResponse | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const [diags, setDiags] = useState<Diagnostic[] | null>(null);
   const [verified, setVerified] = useState(false);
   const [option, setOption] = useState<ClaimOption | null>(null);
@@ -105,13 +109,31 @@ function Flow() {
   const filled = photos.filter(Boolean).length;
   const back = () => setStep((s) => Math.max(0, s - 1));
 
-  const analyzePhotos = () => {
+  // Send the photos to the Damage Assessment Agent. The server function falls back to
+  // the deterministic model if the provider is unconfigured or unreachable, so this
+  // always resolves to something the flow can continue from.
+  const analyzePhotos = async () => {
+    const images = photos.filter((p): p is string => !!p);
+    if (images.length < 3 || busy) return;
     setBusy(true);
-    setTimeout(() => {
-      setDamage(assessDamage(device, filled));
-      setBusy(false);
+    setPhotoError(null);
+    try {
+      const result = await analyzeDamage({
+        data: {
+          images,
+          deviceName: device.name,
+          screenRisk: device.screenRisk,
+          retail: device.retail,
+        },
+      });
+      setDamage(result);
       setStep(3);
-    }, 1500);
+    } catch (err) {
+      console.error("[claim] assessment failed", err);
+      setPhotoError("We couldn't analyse those photos. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
   };
   const doDiagnostics = () => {
     setBusy(true);
@@ -296,11 +318,18 @@ function Flow() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const f = e.target.files?.[0];
-                      if (f) {
-                        const u = URL.createObjectURL(f);
-                        setPhotos((ph) => ph.map((x, j) => (j === i ? u : x)));
+                      e.target.value = "";
+                      if (!f) return;
+                      try {
+                        // Downscaled here so three photos stay well inside the
+                        // provider's request ceiling.
+                        const url = await toDataUrl(f);
+                        setPhotoError(null);
+                        setPhotos((ph) => ph.map((x, j) => (j === i ? url : x)));
+                      } catch {
+                        setPhotoError("That file couldn't be read as an image.");
                       }
                     }}
                   />
@@ -308,9 +337,15 @@ function Flow() {
               ))}
             </div>
             <p className="mt-3 text-xs text-[#686E74]">{filled}/3 photos added</p>
+            {photoError && (
+              <p className="mt-2 flex items-start gap-2 rounded-xl bg-[#FDE9EE] p-3 text-sm text-[#C70032]">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                {photoError}
+              </p>
+            )}
             <Nav
               onBack={back}
-              nextLabel={busy ? "Analyzing…" : "Analyze with AI"}
+              nextLabel={busy ? "Analysing your photos…" : "Analyse with AI"}
               nextDisabled={filled < 3 || busy}
               onNext={analyzePhotos}
               busy={busy}
@@ -451,7 +486,8 @@ function Flow() {
             {damage && (
               <>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[#EAF7EE] px-3 py-1 text-xs font-bold text-[#1F7A3D]">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EAF7EE] px-3 py-1 text-xs font-bold text-[#1F7A3D]">
+                    <Sparkle className="h-3.5 w-3.5" />
                     DeviceFlex AI · {Math.round(damage.confidence * 100)}% confidence
                   </span>
                   <span className="rounded-full bg-[#FFF3E0] px-3 py-1 text-xs font-bold text-[#B26A00]">
@@ -473,6 +509,23 @@ function Flow() {
                     </li>
                   ))}
                 </ul>
+
+                {/* Where this verdict came from — never pass a simulation off as a model. */}
+                {damage.source === "model" ? (
+                  <p className="mt-4 flex items-start gap-2 text-[11px] text-[#686E74]">
+                    <Sparkle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#1F7A3D]" />
+                    Assessed from your photos by <span className="font-mono">{damage.model}</span>.
+                    A store associate confirms the final path before anything is actioned.
+                  </p>
+                ) : (
+                  <p className="mt-4 flex items-start gap-2 rounded-xl bg-[#FFF3E0] p-3 text-[11px] text-[#7A4A00]">
+                    <WifiOff className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      <b>Offline assessment.</b> {damage.fallbackReason} — this reading comes from
+                      the on-device model using your device's history, not from your photos.
+                    </span>
+                  </p>
+                )}
               </>
             )}
 
@@ -656,7 +709,7 @@ function Flow() {
             <div className="mt-5 rounded-xl bg-[#F3F4F6] p-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-[#686E74]">Deductible</span>
-                <span className="font-extrabold text-[#1F7A3D]">$0.00</span>
+                <span className="font-extrabold">Confirmed before you book</span>
               </div>
               <div className="mt-1 flex justify-between">
                 <span className="text-[#686E74]">Without coverage</span>
@@ -791,10 +844,10 @@ function Confirmation({
       </h2>
       <p className="mt-2 text-sm text-[#686E74]">
         {option.id === "home-repair"
-          ? `A technician is on the way — ${slot ?? "today"}, $0 deductible. You keep your device, so nothing needs restoring.`
+          ? `A technician is on the way — ${slot ?? "today"}. You keep your device, so nothing needs restoring.`
           : option.restore === "on-arrival"
-            ? "Your replacement arrives tomorrow. $0 deductible."
-            : `${option.title} confirmed${slot ? ` for ${slot}` : ""}${storeName ? ` at ${storeName}` : ""}. $0 deductible.`}
+            ? "Your replacement arrives tomorrow."
+            : `${option.title} confirmed${slot ? ` for ${slot}` : ""}${storeName ? ` at ${storeName}` : ""}.`}
       </p>
       {claimId && (
         <p className="mt-1 text-xs text-[#686E74]">Claim {claimId} · saved to your account</p>

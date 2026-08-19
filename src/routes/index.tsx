@@ -31,7 +31,10 @@ const IMG = {
   galaxyS26: "/att/devices/samsung-galaxy-s26/black-hero.png",
   galaxyS26Ultra: "/att/devices/samsung-galaxy-s26-ultra/black-hero.png",
   guarantee: "/att/misc/att-guarantee.jpg",
-  protect: "/att/samples/cracked-screen-severe.png",
+  // Lifestyle shot of a cracked phone in hand. Falls back to the crack render below
+  // until the photo is dropped in, so the banner never shows a broken image.
+  protect: "/att/misc/protect-cracked-phone.webp",
+  protectFallback: "/att/samples/cracked-screen-severe.png",
 };
 
 const DEALS = [
@@ -270,8 +273,8 @@ function Index() {
                 Cracked it? Lost it? We'll fix it in 15 minutes.
               </h2>
               <p className="mt-4 max-w-md text-[15px] text-white/95">
-                Damage, loss, theft and out-of-warranty malfunction — covered with a{" "}
-                <b>$0 deductible</b>, AI-guided claims and same-day in-store swaps.
+                Damage, loss, theft and out-of-warranty malfunction — with <b>AI-guided claims</b>,
+                your cost confirmed upfront, and same-day in-store swaps.
               </p>
               <ul className="mt-5 space-y-2 text-sm">
                 {[
@@ -303,12 +306,17 @@ function Index() {
             <div className="relative grid place-items-center bg-[#F2FAFD] p-8">
               <img
                 src={IMG.protect}
-                alt="AT&T Protect Advantage"
+                alt="A cracked phone held in one hand"
                 loading="lazy"
-                className="max-h-[360px] w-full object-contain"
+                onError={(e) => {
+                  const img = e.currentTarget;
+                  if (img.src.endsWith(IMG.protectFallback)) return;
+                  img.src = IMG.protectFallback;
+                }}
+                className="max-h-[360px] w-full rounded-2xl object-contain"
               />
               <span className="absolute left-6 top-6 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-[#0057B8] shadow">
-                $0 deductible
+                No hidden fees
               </span>
             </div>
           </div>

@@ -250,7 +250,7 @@ export function DeviceCard({ d }: { d: MemberDevice }) {
         <p className="mb-3">
           {d.protected ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-[#EAF7EE] px-2.5 py-0.5 text-[11px] font-bold text-[#1F7A3D]">
-              <ShieldCheck className="h-3.5 w-3.5" /> Protected · $0 deductible
+              <ShieldCheck className="h-3.5 w-3.5" /> Protected
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 rounded-full bg-[#FDE9EE] px-2.5 py-0.5 text-[11px] font-bold text-[#C70032]">

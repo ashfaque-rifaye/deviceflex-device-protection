@@ -168,7 +168,7 @@ function Detail() {
                 </summary>
                 <ul className="mt-3 space-y-2 text-[14px]">
                   {[
-                    "$0 deductible on covered claims",
+                    "Your cost confirmed before you book",
                     "Accidental damage, loss, theft & malfunction",
                     "15-minute in-store swap",
                     "Free loaner during repair",
@@ -212,8 +212,8 @@ function Detail() {
               </label>
               <p className="mt-4 flex items-start gap-2 text-[13px] text-[#454B52]">
                 <Globe className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />
-                Protect Advantage covers your device abroad — same $0 deductible, with a loaner
-                shipped to your hotel.
+                Protect Advantage covers your device abroad — same cover, with a loaner shipped to
+                your hotel.
               </p>
             </section>
           </div>
@@ -231,7 +231,7 @@ function ProtectPromo({ d }: { d: MemberDevice }) {
         <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full border-[18px] border-white/15" />
         <h2 className="text-[22px] font-extrabold">You're covered. Relax.</h2>
         <p className="mt-2 max-w-sm text-[14px] text-white/95">
-          Repair or replace your {d.brand} {d.name} as soon as the same day — $0 deductible.
+          Repair or replace your {d.brand} {d.name} as soon as the same day.
         </p>
         <Link
           to="/myatt/claims/new"

@@ -108,7 +108,7 @@ function CartPage() {
                         AT&amp;T Protect Advantage {protectionTier.name}
                       </p>
                       <p className="text-xs text-[#686E74]">
-                        {protectionTier.devices} · $0 deductible · 15-minute swaps
+                        {protectionTier.devices} · no hidden fees · 15-minute swaps
                       </p>
                       <button
                         onClick={() => setProtection(null)}

@@ -103,7 +103,7 @@ function Overview() {
                 {tier?.name} · ${m.tierPrice}/mo.
               </p>
               <p className="mt-1 text-sm text-white/90">
-                {m.devices.filter((d) => d.protected).length} devices covered · $0 deductible
+                {m.devices.filter((d) => d.protected).length} devices covered
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Link

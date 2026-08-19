@@ -42,8 +42,8 @@ function DeviceFlexLanding() {
             Protection that works every month — not just when you break it.
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-white/95">
-            The AI-powered device membership: 15-minute swaps, $0 deductible, free loaners, a family
-            device pool, and a data vault that follows you everywhere.
+            The AI-powered device membership: 15-minute swaps, upfront pricing, free loaners, a
+            family device pool, and a data vault that follows you everywhere.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a
@@ -69,7 +69,7 @@ function DeviceFlexLanding() {
             )}
           </div>
           <div className="mt-8 flex flex-wrap gap-x-8 gap-y-2 text-sm font-semibold text-white/90">
-            <span>✓ $0 deductible</span>
+            <span>✓ No hidden fees</span>
             <span>✓ 15-minute in-store swap</span>
             <span>✓ Up to 5 devices</span>
             <span>✓ New, not refurbished</span>
@@ -102,7 +102,7 @@ function DeviceFlexLanding() {
         <div className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6 lg:px-10">
           <h2 className="text-center text-3xl font-extrabold md:text-4xl">Pick your membership</h2>
           <p className="mt-3 text-center text-[15px] text-[#686E74]">
-            All tiers include AI claims, instant swaps, and a $0 deductible.
+            All tiers include AI-guided claims, instant swaps, and upfront pricing.
           </p>
           <div className="mt-10">
             <TierCards selected={tier} onSelect={start} ctaLabel="Choose plan" />
@@ -132,7 +132,7 @@ function DeviceFlexLanding() {
           <div className="grid grid-cols-3 gap-4">
             {[
               ["Store", Store, "Retail reactivated"],
-              ["Wallet", Wallet, "$0 deductible"],
+              ["Wallet", Wallet, "Upfront pricing"],
               ["Perk", Sparkles, "Annual accessory"],
             ].map(([k, Icon, label]) => {
               const I = Icon as typeof Store;
@@ -163,11 +163,11 @@ function RoiCalculator() {
   const [tierId, setTierId] = useState<Tier["id"]>("family");
   const tier = TIERS.find((t) => t.id === tierId)!;
   // Illustrative model: avoided out-of-pocket per protected line per year.
-  const avoidedDeductibles = lines * 129; // avg deductible avoided
+  const avoidedRepairCosts = lines * 129; // avg out-of-pocket repair avoided per line
   const annualPerkValue = tierId === "basic" ? 0 : tierId === "plus" ? 40 : 80;
   const loanerValue = lines * 45;
   const memberCost = tier.price * 12;
-  const totalValue = avoidedDeductibles + annualPerkValue + loanerValue;
+  const totalValue = avoidedRepairCosts + annualPerkValue + loanerValue;
   const net = totalValue - memberCost;
 
   return (
@@ -215,7 +215,7 @@ function RoiCalculator() {
           <div className="rounded-2xl bg-white p-6 text-[#1D2329]">
             <p className="text-sm font-bold text-[#686E74]">Estimated annual value</p>
             <div className="mt-3 space-y-2 text-sm">
-              <Row label="Deductibles avoided" value={`$${avoidedDeductibles.toLocaleString()}`} />
+              <Row label="Repair costs avoided" value={`$${avoidedRepairCosts.toLocaleString()}`} />
               <Row label="Free loaner value" value={`$${loanerValue.toLocaleString()}`} />
               <Row label="Annual accessory perk" value={`$${annualPerkValue.toLocaleString()}`} />
               <div className="my-2 border-t border-[#DCDFE3]" />

@@ -89,7 +89,7 @@ function Manage() {
             </p>
             <h1 className="mt-1 text-3xl font-extrabold md:text-4xl">AT&amp;T Protect Advantage</h1>
             <p className="mt-1 text-sm text-[#686E74]">
-              {tier?.name} · ${m.tierPrice}/mo. · {poolStatus(m).label} · $0 deductible
+              {tier?.name} · ${m.tierPrice}/mo. · {poolStatus(m).label}
             </p>
           </div>
           <Link to="/myatt/claims/new" search={{ device: "" }} className="btn-primary">

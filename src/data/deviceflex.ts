@@ -19,9 +19,9 @@ export const TIERS: Tier[] = [
     name: "Basic",
     price: 15,
     devices: "1 device",
-    blurb: "Instant swaps and AI claims with a $0 deductible.",
+    blurb: "Instant swaps and AI-guided claims, with your cost shown before you book.",
     highlights: [
-      "15-min in-store swap · $0 deductible",
+      "15-min in-store swap · no hidden fees",
       "Damage, loss, theft & out-of-warranty malfunction",
       "Free loaner during repair",
       "DeviceFlex AI claim + 24/7 chat support",
@@ -121,7 +121,7 @@ export const CLAIM_REASONS: ClaimReason[] = [
 export const CAPABILITIES = [
   {
     title: "15-minute Instant Swap",
-    body: "Hand over a damaged, lost or stolen device in-store and walk out in ~15 minutes with a configured replacement. $0 deductible.",
+    body: "Hand over a damaged, lost or stolen device in-store and walk out in ~15 minutes with a configured replacement. Your cost is confirmed before you book — no surprises at the counter.",
   },
   {
     title: "DeviceFlex AI claim",

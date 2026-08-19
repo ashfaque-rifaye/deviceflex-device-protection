@@ -229,8 +229,8 @@ function Family() {
       </div>
 
       <div className="mt-6 rounded-2xl bg-[#E7F5FB] p-5 text-sm">
-        <b>Household lock-in:</b> everyone shares one vault, one perk pool, and $0-deductible swaps
-        — the reason families stay.
+        <b>Household lock-in:</b> everyone shares one vault, one perk pool, and same-day swaps — the
+        reason families stay.
       </div>
 
       {/* Remove confirmation — this drops coverage, so it asks first */}
@@ -249,9 +249,8 @@ function Family() {
             </span>
             <h2 className="mt-4 text-xl font-extrabold">Remove this device from your plan?</h2>
             <p className="mt-2 text-sm text-[#686E74]">
-              {m.devices.find((d) => d.id === confirmRemove)?.name} loses $0-deductible cover for
-              damage, loss, theft and malfunction immediately. Its vault backup stays until you
-              delete it.
+              {m.devices.find((d) => d.id === confirmRemove)?.name} loses cover for damage, loss,
+              theft and malfunction immediately. Its vault backup stays until you delete it.
             </p>
             <div className="mt-5 flex gap-3">
               <button onClick={() => setConfirmRemove(null)} className="btn-secondary flex-1">

@@ -25,7 +25,7 @@ import caseChrome from "@/assets/case-chrome.jpg";
 export const Route = createFileRoute("/buy/addons")({ component: AddonsPage });
 
 const BENEFITS = [
-  "15-minute in-store swaps with a $0 deductible",
+  "15-minute in-store swaps, with your cost confirmed upfront",
   "Free loaner phone for the entire repair",
   "AI Damage Assessment — 3 photos, auto-booked",
   "Smart Restore — your data back in under 2 minutes",
@@ -160,7 +160,7 @@ function AddonsPage() {
               Choose your Protect Advantage membership
             </p>
             <p className="mt-1 text-center text-sm text-[#686E74]">
-              All tiers include AI claims, 15-minute swaps, and a $0 deductible.
+              All tiers include AI-guided claims, 15-minute swaps, and upfront pricing.
             </p>
             <div className="mt-6">
               <TierCards

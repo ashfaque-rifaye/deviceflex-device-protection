@@ -181,6 +181,8 @@ export type ClaimOption = {
   id: "repair" | "home-repair" | "swap" | "ship" | "upgrade" | "battery";
   title: string;
   detail: string;
+  /** What this path costs the member. "Covered" where the plan absorbs it;
+   *  a real figure once the deductible schedule is wired in. */
   price: string;
   time: string;
   recommended?: boolean;
@@ -215,7 +217,7 @@ export function resolutionOptions(
           id: "home-repair",
           title: "Home screen repair",
           detail: `A technician comes to you and repairs the screen in about ${HOME_REPAIR.etaMinutes} minutes. You keep your device — nothing to restore.`,
-          price: "$0",
+          price: "Covered",
           time: HOME_REPAIR.windows[0],
           recommended: true,
           restore: "none",
@@ -228,7 +230,7 @@ export function resolutionOptions(
           id: "repair",
           title: "Repair at an AT&T store",
           detail: `Drop in and we'll repair the screen while you wait. ${repairStore.reason}.`,
-          price: "$0",
+          price: "Covered",
           time: `~45 min · ${at(repairStore)}`,
           restore: "none",
           outcome: "Your own device, repaired",
@@ -243,7 +245,7 @@ export function resolutionOptions(
         id: "swap",
         title: "15-minute in-store swap",
         detail: `Hand over the damaged device, walk out with a replacement. ${swapStore.reason}. Smart Restore runs in store on your new device.`,
-        price: "$0",
+        price: "Covered",
         time: `~15 min · ${at(swapStore)}`,
         recommended: !!beyond,
         restore: "in-store",
@@ -261,7 +263,7 @@ export function resolutionOptions(
         id: "swap",
         title: "Same-day in-store replacement",
         detail: `Pick up a replacement today. We'll suspend the old line and Smart Restore your data in store. ${swapStore.reason}.`,
-        price: "$0",
+        price: "Covered",
         time: `Today · ${at(swapStore)}`,
         recommended: true,
         restore: "in-store",
@@ -276,7 +278,7 @@ export function resolutionOptions(
       title: "Ship a replacement to me",
       detail:
         "Next-day delivery. Smart Restore runs automatically when your device arrives and you sign in.",
-      price: "$0",
+      price: "Covered",
       time: "Arrives tomorrow",
       restore: "on-arrival",
       outcome: `A factory-new ${device.name}, delivered`,
@@ -291,7 +293,7 @@ export function resolutionOptions(
         id: "repair",
         title: "Manufacturer warranty repair",
         detail: `Your ${device.name} is still in warranty — repair is handled under the manufacturer's warranty at no cost.`,
-        price: "$0",
+        price: "Covered",
         time: "3–5 days",
         recommended: true,
         restore: "none",
@@ -304,7 +306,7 @@ export function resolutionOptions(
         id: "swap",
         title: "Replace under Protect Advantage",
         detail: `Out-of-warranty mechanical or electrical failure is covered. ${swapStore.reason}.`,
-        price: "$0",
+        price: "Covered",
         time: `~15 min · ${at(swapStore)}`,
         recommended: device.warranty === "Out of warranty",
         restore: "in-store",
@@ -325,7 +327,7 @@ export function resolutionOptions(
         detail: failing
           ? `Battery health is ${device.batteryHealth}% — below the 80% threshold, so replacement is included in your plan.`
           : `Health is ${device.batteryHealth}%. We'll test in store; if it reads under 80% the replacement is included.`,
-        price: "$0",
+        price: "Covered",
         time: `~45 min · ${at(batteryStore)}`,
         recommended: true,
         restore: "none",
@@ -380,8 +382,8 @@ export function advise(
     return {
       headline: `Replace it — repair isn't worth it on this one`,
       reasoning: upgrade
-        ? `A repair would run about ${money(damage.retailRepairCost)} against a device worth ${money(device.retail)}, and the frame damage means it won't hold a new screen properly. A swap gets you a factory-new ${device.name} in 15 minutes at no cost. You're also on Next Up Anytime, so upgrading with your ${money(device.tradeIn)} trade-in is a real alternative if you'd rather move up a model.`
-        : `A repair would run about ${money(damage.retailRepairCost)} against a device worth ${money(device.retail)}, and the frame damage means it won't hold a new screen properly. A swap gets you a factory-new ${device.name} in 15 minutes at no cost.`,
+        ? `A repair would run about ${money(damage.retailRepairCost)} against a device worth ${money(device.retail)}, and the frame damage means it won't hold a new screen properly. A swap gets you a factory-new ${device.name} in 15 minutes, with your cost confirmed before you book. You're also on Next Up Anytime, so upgrading with your ${money(device.tradeIn)} trade-in is a real alternative if you'd rather move up a model.`
+        : `A repair would run about ${money(damage.retailRepairCost)} against a device worth ${money(device.retail)}, and the frame damage means it won't hold a new screen properly. A swap gets you a factory-new ${device.name} in 15 minutes, with your cost confirmed before you book.`,
       pick: pick.id,
     };
   }
@@ -395,7 +397,7 @@ export function advise(
   if (reason === "loss" || reason === "theft") {
     return {
       headline: "Replace today, and suspend the old line first",
-      reasoning: `${reason === "theft" ? "Theft" : "Loss"} is covered at a $0 deductible. Picking up in store is faster than shipping and lets Smart Restore run on the spot, so you leave with your photos and messages already back. Without coverage a replacement would be ${money(device.retail)}.`,
+      reasoning: `${reason === "theft" ? "Theft" : "Loss"} is covered. Picking up in store is faster than shipping and lets Smart Restore run on the spot, so you leave with your photos and messages already back. Without coverage a replacement would be ${money(device.retail)}.`,
       pick: pick.id,
     };
   }
@@ -419,7 +421,7 @@ export function advise(
         : "Get it tested, it's close to the threshold",
     reasoning:
       device.batteryHealth < 80
-        ? `Health is ${device.batteryHealth}%, under the 80% line, so the replacement is included at no cost.`
+        ? `Health is ${device.batteryHealth}%, under the 80% line, so the replacement is included in your plan.`
         : `Health is ${device.batteryHealth}%, so it's above the covered threshold today. A store test settles it — if it reads under 80% the replacement is free, and if not you'll know where you stand.`,
     pick: pick.id,
   };
@@ -557,7 +559,7 @@ export function runProactiveScan(m: Member): Nudge[] {
         text: `${d.owner.split(" ")[0]}'s ${d.name} — battery at ${d.batteryHealth}%`,
         detail:
           d.batteryHealth < 80
-            ? "Below 80% — a replacement is included in your plan at no cost."
+            ? "Below 80% — a replacement is included in your plan."
             : "Approaching the 80% mark. Once it crosses, replacement is free on your plan.",
         action: { kind: "battery", label: "Book a check", deviceId: d.id },
       }),
@@ -804,7 +806,7 @@ export function assistantReply(input: string, ctx: ChatContext): ChatMessage {
     const elig = m.devices.filter((d) => d.eligible).length;
     return {
       role: "agent",
-      text: `You're not on AT&T Protect Advantage yet, so a cracked screen or a lost phone would be full retail today. You have ${elig} eligible device${elig === 1 ? "" : "s"} — coverage is $0 deductible for damage, loss, theft and out-of-warranty malfunction, from $15/mo.`,
+      text: `You're not on AT&T Protect Advantage yet, so a cracked screen or a lost phone would be full retail today. You have ${elig} eligible device${elig === 1 ? "" : "s"} — coverage starts at $15/mo. and includes damage, loss, theft and out-of-warranty malfunction, with any claim cost shown before you commit.`,
       actions: [
         { label: "See my options", to: "/myatt/enroll" },
         { label: "Compare tiers", to: "/deviceflex" },
@@ -815,7 +817,7 @@ export function assistantReply(input: string, ctx: ChatContext): ChatMessage {
   if (/(crack|screen|broke|shatter|drop|damag)/.test(q)) {
     return {
       role: "agent",
-      text: "Yes — accidental damage including cracked screens is covered at a $0 deductible. Send three photos and the assessment comes back in seconds, then you pick a home repair, an in-store repair, or a 15-minute swap.",
+      text: "Yes — accidental damage including cracked screens is covered. Send three photos and the assessment comes back in seconds, then you pick a home repair, an in-store repair, or a 15-minute swap. Your cost is confirmed before you book anything.",
       actions: [
         { label: "Start a claim", to: "/myatt/claims/new" },
         { ask: "Where is my nearest store?", label: "Nearest store" },
@@ -859,8 +861,8 @@ export function assistantReply(input: string, ctx: ChatContext): ChatMessage {
     return {
       role: "agent",
       text: enrolled
-        ? `Your deductible is $0 on every covered claim — no hidden fees. You're on ${tierName} at $${m?.tierPrice}/mo., which covers ${poolStatus(m!).capacity} device${poolStatus(m!).capacity > 1 ? "s" : ""}, ${m?.perks.accessoryTotal} free annual accessor${m?.perks.accessoryTotal === 1 ? "y" : "ies"} and a ${formatCapacity(m!.vault.totalGB)} vault.`
-        : "Protect Advantage runs $15/mo. for one device, $25 with home repair and the accessory perk, or $40 for up to five devices. Every tier has a $0 deductible.",
+        ? `Your deductible depends on the device and the type of claim — I show you the exact amount before you confirm anything, so there is nothing to discover later. You're on ${tierName} at $${m?.tierPrice}/mo., which covers ${poolStatus(m!).capacity} device${poolStatus(m!).capacity > 1 ? "s" : ""}, ${m?.perks.accessoryTotal} free annual accessor${m?.perks.accessoryTotal === 1 ? "y" : "ies"} and a ${formatCapacity(m!.vault.totalGB)} vault.`
+        : "Protect Advantage runs $15/mo. for one device, $25 with home repair and the accessory perk, or $40 for up to five devices. Any claim deductible is shown upfront before you commit.",
       actions: enrolled
         ? [{ label: "See my plan", to: "/myatt/protection" }]
         : [{ label: "Compare tiers", to: "/deviceflex" }],
@@ -960,7 +962,7 @@ export function assistantReply(input: string, ctx: ChatContext): ChatMessage {
   if (/(cover|what.*includ|protect)/.test(q)) {
     return {
       role: "agent",
-      text: "Protect Advantage covers accidental damage, loss, theft, and out-of-warranty mechanical or electrical failure — all at a $0 deductible. It also includes battery replacement under 80% health, a secure data vault, and a free accessory each year on Plus and Family.",
+      text: "Protect Advantage covers accidental damage, loss, theft, and out-of-warranty mechanical or electrical failure. It also includes battery replacement under 80% health, a secure data vault, and a free accessory each year on Plus and Family. Whatever a claim costs, you see it before you book.",
       actions: enrolled
         ? [
             { label: "See my plan", to: "/myatt/protection" },
