@@ -1,0 +1,26 @@
+{
+  "heroes": {
+    "samsung-galaxy-z-fold8-ultra": "/att/devices/samsung-galaxy-z-fold8-ultra/cream-hero.png",
+    "apple-iphone-17-pro": "/att/devices/apple-iphone-17-pro/silver-hero.webp",
+    "samsung-galaxy-z-fold8": "/att/devices/samsung-galaxy-z-fold8/graphite-hero.png",
+    "samsung-galaxy-z-flip8": "/att/devices/samsung-galaxy-z-flip8/graphite-hero.png",
+    "motorola-moto-g-2026": "/att/devices/motorola-moto-g-2026/pantone-slipstream-hero.png",
+    "samsung-galaxy-s26-plus": "/att/devices/samsung-galaxy-s26-plus/black-hero.png",
+    "motorola-edge-2026": "/att/devices/motorola-edge-2026/pantone-martini-olive-hero.png",
+    "samsung-galaxy-a17-5g": "/att/devices/samsung-galaxy-a17-5g/black-hero.png",
+    "samsung-galaxy-a37-5g": "/att/devices/samsung-galaxy-a37-5g/awesome-charcoal-hero.png",
+    "google-pixel-10a": "/att/devices/google-pixel-10a/obsidian-hero.png"
+  },
+  "mkt": {
+    "reward800": "/att/plp/reward800.jpg",
+    "bts200off": "/att/plp/bts200off.jpg",
+    "btsnewphone": "/att/plp/btsnewphone.jpg",
+    "btsfreeship": "/att/plp/btsfreeship.jpg",
+    "ed-activate": "/att/plp/ed-activate.jpg",
+    "ed-aal": "/att/plp/ed-aal.jpg",
+    "ed-5g": "/att/plp/ed-5g.jpg",
+    "ed-discount": "/att/plp/ed-discount.jpg",
+    "ed-foldable": "/att/plp/ed-foldable.jpg",
+    "ed-kids": "/att/plp/ed-kids.jpg"
+  }
+}

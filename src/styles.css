@@ -1,0 +1,111 @@
+@import "tailwindcss" source(none);
+@source "../src";
+
+@theme {
+  --color-att-blue: #009fdb;
+  --color-att-deep: #0072b2;
+  --color-att-navy: #0057b8;
+  --color-att-navy-dark: #00388f;
+  --color-att-ink: #1d2329;
+  --color-att-gray: #686e74;
+  --color-att-bg: #f3f4f6;
+  --color-att-pale: #e7f5fb;
+  --color-att-border: #dcdfe3;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "AT&T Aleck Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* AT&T Aleck Sans (Bold) — official brand typeface, used for headings/bold text */
+@font-face {
+  font-family: "AT&T Aleck Sans";
+  src: url("/fonts/ATTAleckSans-Bold.woff2") format("woff2");
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #1d2329;
+}
+
+@layer base {
+  html,
+  body {
+    background: #ffffff;
+    color: #1d2329;
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a {
+    color: inherit;
+  }
+  /* Aleck Sans on headings + heavy weights, mirroring att.com */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-bold,
+  .font-semibold,
+  .font-extrabold,
+  strong,
+  b {
+    font-family: "AT&T Aleck Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+/* Two-tone line icons (att.com "Explore more" style) */
+.svg-base {
+  fill: #1d2329;
+}
+.svg-accent {
+  fill: #009fdb;
+}
+
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #0057b8;
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.85rem 1.75rem;
+  font-size: 1rem;
+  line-height: 1;
+  transition: background-color 0.15s ease;
+  &:hover {
+    background-color: #00388f;
+  }
+}
+
+@utility btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  color: #0057b8;
+  font-weight: 700;
+  padding: 0.85rem 1.75rem;
+  font-size: 1rem;
+  line-height: 1;
+  border: 1.5px solid #0057b8;
+  transition: background-color 0.15s ease;
+  &:hover {
+    background-color: #f3f4f6;
+  }
+}
+
+@utility link-blue {
+  color: #0057b8;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  &:hover {
+    color: #009fdb;
+  }
+}

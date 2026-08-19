@@ -1,0 +1,216 @@
+{
+  "devices": [
+    {
+      "slug": "apple-iphone-17-pro-max",
+      "brand": "Apple",
+      "name": "iPhone 17 Pro Max",
+      "colors": [
+        {
+          "name": "Cosmic Orange",
+          "slug": "cosmic-orange",
+          "hero": "/att/devices/apple-iphone-17-pro-max/cosmic-orange-hero.webp",
+          "gallery": [
+            "/att/devices/apple-iphone-17-pro-max/cosmic-orange-hero.webp",
+            "/att/devices/apple-iphone-17-pro-max/cosmic-orange-1.webp",
+            "/att/devices/apple-iphone-17-pro-max/cosmic-orange-2.webp",
+            "/att/devices/apple-iphone-17-pro-max/cosmic-orange-3.webp",
+            "/att/devices/apple-iphone-17-pro-max/cosmic-orange-4.webp",
+            "/att/devices/apple-iphone-17-pro-max/cosmic-orange-5.webp",
+            "/att/devices/apple-iphone-17-pro-max/cosmic-orange-6.webp",
+            "/att/devices/apple-iphone-17-pro-max/cosmic-orange-7.webp"
+          ]
+        },
+        {
+          "name": "Deep Blue",
+          "slug": "deep-blue",
+          "hero": "/att/devices/apple-iphone-17-pro-max/deep-blue-hero.webp",
+          "gallery": [
+            "/att/devices/apple-iphone-17-pro-max/deep-blue-hero.webp"
+          ]
+        },
+        {
+          "name": "Silver",
+          "slug": "silver",
+          "hero": "/att/devices/apple-iphone-17-pro-max/silver-hero.webp",
+          "gallery": [
+            "/att/devices/apple-iphone-17-pro-max/silver-hero.webp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "apple-iphone-17-pro",
+      "brand": "Apple",
+      "name": "iPhone 17 Pro",
+      "colors": [
+        {
+          "name": "Cosmic Orange",
+          "slug": "cosmic-orange",
+          "hero": "/att/devices/apple-iphone-17-pro/cosmic-orange-hero.webp",
+          "gallery": [
+            "/att/devices/apple-iphone-17-pro/cosmic-orange-hero.webp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "apple-iphone-17",
+      "brand": "Apple",
+      "name": "iPhone 17",
+      "colors": [
+        {
+          "name": "Black",
+          "slug": "black",
+          "hero": "/att/devices/apple-iphone-17/black-hero.webp",
+          "gallery": [
+            "/att/devices/apple-iphone-17/black-hero.webp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "apple-iphone-air",
+      "brand": "Apple",
+      "name": "iPhone Air",
+      "colors": [
+        {
+          "name": "Space Black",
+          "slug": "space-black",
+          "hero": "/att/devices/apple-iphone-air/space-black-hero.webp",
+          "gallery": [
+            "/att/devices/apple-iphone-air/space-black-hero.webp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "apple-iphone-17e",
+      "brand": "Apple",
+      "name": "iPhone 17e",
+      "colors": [
+        {
+          "name": "Soft Pink",
+          "slug": "soft-pink",
+          "hero": "/att/devices/apple-iphone-17e/soft-pink-hero.png",
+          "gallery": [
+            "/att/devices/apple-iphone-17e/soft-pink-hero.png"
+          ]
+        },
+        {
+          "name": "Black",
+          "slug": "black",
+          "hero": "/att/devices/apple-iphone-17e/black-hero.png",
+          "gallery": [
+            "/att/devices/apple-iphone-17e/black-hero.png"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "apple-iphone-16",
+      "brand": "Apple",
+      "name": "iPhone 16",
+      "colors": [
+        {
+          "name": "Black",
+          "slug": "black",
+          "hero": "/att/devices/apple-iphone-16/black-hero.webp",
+          "gallery": [
+            "/att/devices/apple-iphone-16/black-hero.webp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "samsung-galaxy-s26-ultra",
+      "brand": "Samsung",
+      "name": "Galaxy S26 Ultra",
+      "colors": [
+        {
+          "name": "Black",
+          "slug": "black",
+          "hero": "/att/devices/samsung-galaxy-s26-ultra/black-hero.png",
+          "gallery": [
+            "/att/devices/samsung-galaxy-s26-ultra/black-hero.png"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "samsung-galaxy-s26",
+      "brand": "Samsung",
+      "name": "Galaxy S26",
+      "colors": [
+        {
+          "name": "Black",
+          "slug": "black",
+          "hero": "/att/devices/samsung-galaxy-s26/black-hero.png",
+          "gallery": [
+            "/att/devices/samsung-galaxy-s26/black-hero.png"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "samsung-galaxy-z-fold7",
+      "brand": "Samsung",
+      "name": "Galaxy Z Fold7",
+      "colors": [
+        {
+          "name": "Jetblack",
+          "slug": "jetblack",
+          "hero": "/att/devices/samsung-galaxy-z-fold7/jetblack-hero.webp",
+          "gallery": [
+            "/att/devices/samsung-galaxy-z-fold7/jetblack-hero.webp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "google-pixel-10-pro-xl",
+      "brand": "Google",
+      "name": "Pixel 10 Pro XL",
+      "colors": [
+        {
+          "name": "Obsidian",
+          "slug": "obsidian",
+          "hero": "/att/devices/google-pixel-10-pro-xl/obsidian-hero.webp",
+          "gallery": [
+            "/att/devices/google-pixel-10-pro-xl/obsidian-hero.webp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "google-pixel-10-pro",
+      "brand": "Google",
+      "name": "Pixel 10 Pro",
+      "colors": [
+        {
+          "name": "Obsidian",
+          "slug": "obsidian",
+          "hero": "/att/devices/google-pixel-10-pro/obsidian-hero.webp",
+          "gallery": [
+            "/att/devices/google-pixel-10-pro/obsidian-hero.webp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "motorola-razr-plus-2026",
+      "brand": "Motorola",
+      "name": "razr+ 2026",
+      "colors": [
+        {
+          "name": "Mountain View",
+          "slug": "pantone-mountain-view",
+          "hero": "/att/devices/motorola-razr-plus-2026/pantone-mountain-view-hero.png",
+          "gallery": [
+            "/att/devices/motorola-razr-plus-2026/pantone-mountain-view-hero.png"
+          ]
+        }
+      ]
+    }
+  ],
+  "guarantee": "/att/misc/att-guarantee.jpg"
+}

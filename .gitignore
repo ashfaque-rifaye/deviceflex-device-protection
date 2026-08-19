@@ -1,0 +1,19 @@
+node_modules
+dist
+.output
+.nitro
+.vinxi
+.wrangler
+.tanstack
+*.local
+.env
+.DS_Store
+src/routeTree.gen.ts
+dev.log
+
+# Working material, not app source. Kept out of the repo on purpose:
+# Screenshots/ and chat-images/ contain captures of a real myAT&T account
+# (account numbers, balances, billing pages) and must not be published.
+Screenshots/
+chat-images/
+First Document.docx
