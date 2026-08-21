@@ -58,7 +58,7 @@ function LoginPage() {
               <button
                 type="submit"
                 disabled={!userId}
-                className={`mt-6 w-full rounded-full py-3.5 text-base font-bold text-white ${userId ? "bg-[#0057B8] hover:bg-[#00388F]" : "bg-[#9BB6D6]"}`}
+                className={`mt-6 w-full rounded-full py-3.5 text-base font-bold text-white ${userId ? "bg-[#0057B8] hover:bg-[#00388F]" : "bg-[#DCDFE3]"}`}
               >
                 Continue
               </button>

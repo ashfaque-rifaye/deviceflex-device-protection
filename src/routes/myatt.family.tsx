@@ -179,7 +179,7 @@ function Family() {
             return (
               <div
                 key={d.id}
-                className="flex flex-col rounded-2xl border-2 border-dashed border-[#6495ED] bg-[#F2FAFD] p-5"
+                className="flex flex-col rounded-2xl border-2 border-dashed border-[#0072B2] bg-[#F2FAFD] p-5"
               >
                 <div className="flex gap-4">
                   <img

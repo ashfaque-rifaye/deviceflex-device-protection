@@ -389,7 +389,6 @@ export function advise(
   const pick = options.find((o) => o.recommended) ?? options[0] ?? null;
   if (!pick) return { headline: "No options available", reasoning: "", pick: null };
 
-  const repairFee = deductibleFor(device, "screen-repair").amount;
   const replaceFee = deductibleFor(device, "replacement").amount;
   const tier = deviceTier(device);
 
@@ -398,15 +397,15 @@ export function advise(
     return {
       headline: `Replace it — repair isn't worth it on this one`,
       reasoning: upgrade
-        ? `The frame damage means it won't hold a new screen properly, so the ${money(repairFee)} repair isn't an option here. A swap is ${money(replaceFee)} — your Tier ${tier} replacement deductible — against ${money(device.retail)} to buy the device outright. You're also on Next Up Anytime, and an upgrade carries no deductible at all, so if you'd rather move up a model that's the cheaper path today.`
-        : `The frame damage means it won't hold a new screen properly, so the ${money(repairFee)} repair isn't an option here. A swap is ${money(replaceFee)} — your Tier ${tier} replacement deductible — against ${money(device.retail)} to buy the device outright.`,
+        ? `The frame damage means it won't hold a new screen properly, so the free screen repair isn't an option here — the glass won't seat against a bent frame. A swap is ${money(replaceFee)}, your Tier ${tier} replacement deductible, against ${money(device.retail)} to buy the device outright. You're also on Next Up Anytime, and an upgrade carries no deductible at all, so if you'd rather move up a model that's the cheaper path today.`
+        : `The frame damage means it won't hold a new screen properly, so the free screen repair isn't an option here — the glass won't seat against a bent frame. A swap is ${money(replaceFee)}, your Tier ${tier} replacement deductible, against ${money(device.retail)} to buy the device outright.`,
       pick: pick.id,
     };
   }
   if (reason === "damage") {
     return {
-      headline: `Repair it — ${money(repairFee)} instead of ${money(replaceFee)}`,
-      reasoning: `The damage is limited to the front glass and everything else tests clean, so there's no reason to give up your ${device.name}. Screen repair is a flat ${money(repairFee)} service fee; swapping the device would trigger your Tier ${tier} replacement deductible of ${money(replaceFee)}. Repair also keeps your data where it is, so nothing needs restoring. Without any coverage this repair would be ${money(damage?.retailRepairCost ?? 329)}.`,
+      headline: `Repair it — free, instead of a ${money(replaceFee)} deductible`,
+      reasoning: `The damage is limited to the front glass and everything else tests clean, so there's no reason to give up your ${device.name}. Screen and back-glass repair costs nothing on your plan and there's no limit on how often you use it; swapping the device instead would trigger your Tier ${tier} replacement deductible of ${money(replaceFee)}. Repair also keeps your data where it is, so nothing needs restoring. Without any coverage this repair would be ${money(damage?.retailRepairCost ?? 329)}.`,
       pick: pick.id,
     };
   }
@@ -425,7 +424,7 @@ export function advise(
           : "Replace it under Protect Advantage",
       reasoning:
         device.warranty === "In warranty"
-          ? `Your ${device.name} is still inside the manufacturer's warranty, so the repair costs nothing, carries no deductible, and doesn't use one of your ${ASURION.claimLimit} claims. We only use Protect Advantage once that warranty is done.`
+          ? `Your ${device.name} is still inside the manufacturer's warranty, so the repair costs nothing, carries no deductible, and doesn't use a claim at all. We only use Protect Advantage once that warranty is done.`
           : `The warranty has expired and the diagnostics point at a hardware fault, which is exactly what out-of-warranty malfunction cover is for. A swap costs your Tier ${tier} deductible of ${money(replaceFee)}, against ${money(device.retail)} to replace it yourself.`,
       pick: pick.id,
     };
@@ -445,7 +444,7 @@ export function advise(
 
 // ═════════════════════════════════════════════════════════════════════════════
 // AGENT 4 — Smart Restore
-// Moves a member's vault onto a loaner or replacement. Reports what it will
+// Moves a member's vault onto a replacement device. Reports what it will
 // move before it moves it, because "trust us" is not a feature.
 // ═════════════════════════════════════════════════════════════════════════════
 
@@ -715,13 +714,13 @@ export function fraudCheck(
     },
     {
       id: "velocity",
-      level: priorTotal >= ASURION.claimLimit ? "review" : "clear",
-      label: "Claim limits",
-      running: `Counting claims against the ${ASURION.claimLimitWindow} limit…`,
+      level: priorTotal >= 4 ? "review" : "clear",
+      label: "Claim history",
+      running: "Reviewing claim frequency on this account…",
       note:
-        priorTotal >= ASURION.claimLimit
-          ? `${priorTotal} claims in the last ${ASURION.claimLimitWindow} — at the limit of ${ASURION.claimLimit}, so Asurion reviews this one`
-          : `${priorTotal} of ${ASURION.claimLimit} claims used in the last ${ASURION.claimLimitWindow}` +
+        priorTotal >= 4
+          ? `${priorTotal} claims in the last ${ASURION.claimLimitWindow} — claims are unlimited, but this rate is high enough that Asurion looks at it`
+          : `${priorTotal} claim${priorTotal === 1 ? "" : "s"} in the last ${ASURION.claimLimitWindow} · claims are unlimited on this plan` +
             (priorOnDevice ? ` · ${priorOnDevice} on this device` : ""),
     },
     {
@@ -823,7 +822,7 @@ export type VaultShare = { device: MemberDevice; gb: number; pct: number };
 
 /** Who is actually consuming the shared vault — the family lock-in argument, shown. */
 export function vaultShares(m: Member): VaultShare[] {
-  const backed = m.devices.filter((d) => d.backedUp);
+  const backed = m.devices.filter((d) => d.backedUp && d.protected);
   const total = backed.reduce((n, d) => n + deviceVaultGB(d), 0) || 1;
   return backed
     .map((d) => ({ device: d, gb: deviceVaultGB(d), pct: (deviceVaultGB(d) / total) * 100 }))

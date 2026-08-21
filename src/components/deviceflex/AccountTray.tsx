@@ -106,7 +106,7 @@ export function AccountTray({ onClose }: { onClose: () => void }) {
               <a
                 key={q}
                 href="#"
-                className={`relative mr-3 pr-3 text-[12px] font-bold text-[#0072B2] hover:underline ${i < arr.length - 1 ? "after:absolute after:right-0 after:top-1/2 after:h-4 after:w-px after:-translate-y-1/2 after:bg-[#E6E9EC]" : ""}`}
+                className={`relative mr-3 pr-3 text-[12px] font-bold text-[#0072B2] hover:underline ${i < arr.length - 1 ? "after:absolute after:right-0 after:top-1/2 after:h-4 after:w-px after:-translate-y-1/2 after:bg-[#DCDFE3]" : ""}`}
               >
                 {q}
               </a>

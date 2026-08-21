@@ -135,7 +135,7 @@ function Detail() {
                   ${d.protected ? `${m.tierPrice}.00` : "80.99"}
                   <span className="text-[14px] font-normal">/mo</span>
                 </p>
-                <span className="rounded-full border border-dashed border-[#2D7E24] px-3 py-1 text-[11px] font-bold text-[#2D7E24]">
+                <span className="rounded-full border border-dashed border-[#1F7A3D] px-3 py-1 text-[11px] font-bold text-[#1F7A3D]">
                   Save $10 per line with AutoPay &amp; paperless billing. <u>Sign up now</u>
                 </span>
               </div>
@@ -172,11 +172,11 @@ function Detail() {
                     "Your cost confirmed before you book",
                     "Accidental damage, loss, theft & malfunction",
                     "15-minute in-store swap",
-                    "Free loaner during repair",
+                    "Unlimited battery replacement",
                     "Secure data vault + Smart Restore",
                   ].map((x) => (
                     <li key={x} className="flex items-start gap-2">
-                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#2D7E24]" />
+                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#1F7A3D]" />
                       {x}
                     </li>
                   ))}
@@ -194,7 +194,7 @@ function Detail() {
               <p className="text-[13px] text-[#454B52]">
                 Search for your travel destination or cruise line to check if it's covered.
               </p>
-              <div className="mt-3 flex overflow-hidden rounded-full border border-[#BDC2C7] p-1">
+              <div className="mt-3 flex overflow-hidden rounded-full border border-[#878C94] p-1">
                 <button className="flex-1 rounded-full bg-[#00388F] py-2 text-[13px] font-bold text-white">
                   Destination
                 </button>
@@ -213,8 +213,8 @@ function Detail() {
               </label>
               <p className="mt-4 flex items-start gap-2 text-[13px] text-[#454B52]">
                 <Globe className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />
-                Protect Advantage covers your device abroad — same cover, with a loaner shipped to
-                your hotel.
+                Protect Advantage covers your device abroad — same cover, with a replacement shipped
+                to your hotel.
               </p>
             </section>
           </div>
@@ -413,7 +413,7 @@ function TabData({ d }: { d: MemberDevice }) {
           className="relative my-2 h-2 overflow-hidden rounded-full bg-[#DCDFE3]"
         >
           <div
-            className="absolute left-0 top-0 h-full rounded-full bg-[#91DC00]"
+            className="absolute left-0 top-0 h-full rounded-full bg-[#1F7A3D]"
             style={{ width: "62%" }}
           />
         </div>

@@ -111,7 +111,6 @@ export type Member = {
     accessoryCredits: number; // free accessories left this year
     accessoryTotal: number; // allowance for the tier
     resetsOn: string;
-    freeLoanersUsed: number;
     redemptions: Redemption[];
   };
   claims: Claim[];
@@ -135,9 +134,13 @@ const IMG = {
 export const deviceVaultGB = (d: MemberDevice) =>
   d.vault.photos + d.vault.videos + d.vault.messages + d.vault.apps + d.vault.contacts;
 
-/** Total vault usage across every device that has actually backed up. */
+/**
+ * Vault usage — only devices that are BOTH covered and backed up occupy the plan's
+ * allowance. Drop a device from the plan and its backup stops counting against you,
+ * which is why the usage figure and the device list below it always agree.
+ */
 export const vaultUsedGB = (m: Member) =>
-  m.devices.filter((d) => d.backedUp).reduce((n, d) => n + deviceVaultGB(d), 0);
+  m.devices.filter((d) => d.backedUp && d.protected).reduce((n, d) => n + deviceVaultGB(d), 0);
 
 /** Vault capacity that reads the way AT&T writes it: "50 GB", "500 GB", "1 TB". */
 export function formatCapacity(gb: number): string {
@@ -149,8 +152,25 @@ export function formatCapacity(gb: number): string {
   return `${Math.round(gb)} GB`;
 }
 
-/** Vault size that comes with each tier. */
+/** Vault size that comes with each tier — the ceiling, not the starting point. */
 export const TIER_VAULT_GB: Record<TierId, number> = { basic: 50, plus: 500, family: 1024 };
+
+/**
+ * On Family the vault grows with the household: each covered device brings its own
+ * allocation, up to the tier ceiling. A family of three isn't paying for a terabyte
+ * they don't use, and adding a fourth device visibly adds room.
+ */
+export const VAULT_PER_DEVICE_GB: Record<TierId, number> = { basic: 50, plus: 500, family: 205 };
+
+export function vaultCapacityGB(m: Pick<Member, "tier" | "devices">): number {
+  if (!m.tier) return 0;
+  const covered = m.devices.filter((d) => d.protected).length;
+  const perDevice = VAULT_PER_DEVICE_GB[m.tier];
+  return Math.min(TIER_VAULT_GB[m.tier], Math.max(perDevice, perDevice * covered));
+}
+
+/** What one more covered device would add, for the "add a device" nudge. */
+export const vaultGrowthPerDevice = (tier?: TierId) => (tier ? VAULT_PER_DEVICE_GB[tier] : 0);
 /** How many devices each tier can pool. */
 export const TIER_POOL: Record<TierId, number> = { basic: 1, plus: 1, family: 5 };
 /** Free annual accessory credits per tier. */
@@ -330,7 +350,6 @@ export const MEMBER_ENROLLED: Member = {
     accessoryCredits: 2,
     accessoryTotal: 2,
     resetsOn: "Jan 1, 2027",
-    freeLoanersUsed: 1,
     redemptions: [],
   },
   claims: [
@@ -463,7 +482,6 @@ export const MEMBER_UNENROLLED: Member = {
     accessoryCredits: 0,
     accessoryTotal: 0,
     resetsOn: "—",
-    freeLoanersUsed: 0,
     redemptions: [],
   },
   claims: [],

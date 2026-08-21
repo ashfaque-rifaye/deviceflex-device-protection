@@ -94,7 +94,7 @@ export function DeviceCard({ d }: { d: MemberDevice }) {
                     setMenu(false);
                     (fn as () => void)();
                   }}
-                  className="block w-full px-4 py-2.5 text-left hover:bg-[#EBF4F9] hover:text-[#0072B2]"
+                  className="block w-full px-4 py-2.5 text-left hover:bg-[#F2FAFD] hover:text-[#0072B2]"
                 >
                   {label as string}
                 </button>
@@ -219,7 +219,7 @@ export function DeviceCard({ d }: { d: MemberDevice }) {
             style={{
               width: `${d.batteryHealth}%`,
               backgroundColor:
-                d.batteryHealth < 80 ? "#C70032" : d.batteryHealth < 85 ? "#FF8500" : "#91DC00",
+                d.batteryHealth < 80 ? "#C70032" : d.batteryHealth < 85 ? "#9E5D00" : "#1F7A3D",
             }}
           />
         </div>
@@ -232,7 +232,7 @@ export function DeviceCard({ d }: { d: MemberDevice }) {
                   ? "#C70032"
                   : d.screenRisk === "Medium"
                     ? "#9E5D00"
-                    : "#2D7E24",
+                    : "#1F7A3D",
             }}
           >
             {d.screenRisk}
@@ -279,7 +279,7 @@ export function AddDevicePanel() {
     { Icon: IconCar, label: "Connected Car" },
   ];
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#6495ED] bg-[#F2FAFD] px-6 py-8">
+    <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#0072B2] bg-[#F2FAFD] px-6 py-8">
       <h2 className="text-[20px] font-bold">Add device</h2>
       <ul className="mt-6 w-full">
         {tiles.map(({ Icon, label }) => (

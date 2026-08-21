@@ -19,13 +19,14 @@ export const TIERS: Tier[] = [
     name: "Basic",
     price: 15,
     devices: "1 device",
-    blurb: "Instant swaps and AI-guided claims, with your cost shown before you book.",
+    blurb: "Unlimited claims and $0 screen repair, with your cost shown before you book.",
     highlights: [
-      "15-min in-store swap · no hidden fees",
-      "Damage, loss, theft & out-of-warranty malfunction",
-      "Free loaner during repair",
-      "DeviceFlex AI claim + 24/7 chat support",
-      "50 GB secure data vault",
+      "Unlimited claims — damage, loss, theft & out-of-warranty malfunction",
+      "$0 screen & back-glass repair, unlimited",
+      "Unlimited battery replacement",
+      "ProTech expert support, 24/7",
+      "Same-day replacement & setup",
+      "50 GB Data Vault",
     ],
   },
   {
@@ -34,13 +35,14 @@ export const TIERS: Tier[] = [
     price: 25,
     devices: "1 device",
     ribbon: "Most popular",
-    blurb: "Everything in Basic, plus home repair and the gadget library.",
+    blurb: "Everything in Basic, plus repair that comes to you and a bigger vault.",
     highlights: [
       "Everything in Basic",
-      "Home screen repair included",
-      "Gadget & accessory library",
-      "500 GB secure data vault",
+      "Home screen repair — a technician comes to you",
+      "ActiveArmor® Advanced security & identity monitoring",
+      "500 GB Data Vault",
       "1 FREE annual accessory",
+      "Guaranteed trade-in value, locked",
       "“New, not refurbished” guarantee",
     ],
   },
@@ -50,13 +52,14 @@ export const TIERS: Tier[] = [
     price: 40,
     devices: "Up to 5 devices",
     ribbon: "Best value",
-    blurb: "One membership for the whole household — up to 5 devices.",
+    blurb: "One membership for the whole household — up to 5 devices, one shared vault.",
     highlights: [
       "Everything in Plus, for up to 5 devices",
       "Shared family device pool",
-      "1 TB shared data vault",
+      "1 TB shared Data Vault",
       "2 FREE annual accessories",
-      "Parental controls & shared vault",
+      "Parental controls on kids' devices",
+      "Priority in-store appointments",
       "“New, not refurbished” guarantee",
     ],
   },
@@ -120,28 +123,40 @@ export const CLAIM_REASONS: ClaimReason[] = [
 
 export const CAPABILITIES = [
   {
-    title: "15-minute Instant Swap",
-    body: "Hand over a damaged, lost or stolen device in-store and walk out in ~15 minutes with a configured replacement. Your cost is confirmed before you book — no surprises at the counter.",
+    title: "$0 screen & back-glass repair",
+    body: "Cracked glass is repaired at no charge, as many times as you need it, at an AT&T store or one of 700+ uBreakiFix by Asurion locations.",
+  },
+  {
+    title: "Same-day replacement & setup",
+    body: "If a device can't be repaired, walk out with a replacement the same day — configured, activated and restored before you leave.",
   },
   {
     title: "DeviceFlex AI claim",
-    body: "Tell us what happened. AI assesses damage from 3 photos, or runs guided diagnostics for malfunctions, then books the fastest fix.",
+    body: "Tell us what happened. AI assesses damage from your photos, or runs remote diagnostics across sensors, battery and housing, then books the fastest fix.",
+  },
+  {
+    title: "Remote phone diagnostics",
+    body: "A full hardware inspection from your own device — touch, cameras, audio, motion sensors, true battery capacity and a vision scan of the housing.",
   },
   {
     title: "AI chat that knows your plan",
     body: "The AT&T chat, upgraded. It answers “am I covered?” in plain English, shows fees upfront, and takes you straight to the claim, vault or perk you asked about.",
   },
   {
-    title: "Secure data vault + Smart Restore",
-    body: "Photos, contacts and apps sync to a secure AT&T vault and restore onto your replacement device in under 2 minutes.",
+    title: "Data Vault, powered by AI",
+    body: "Photos, messages, contacts and apps sync to a secure AT&T vault that grows with your plan, and Smart Restore puts them on a replacement device in under 2 minutes.",
   },
   {
-    title: "Free loaner during repair",
-    body: "Device in for repair? Keep a fully working loaner for the whole duration. Never phoneless.",
+    title: "ProTech expert support",
+    body: "Unlimited one-to-one help from AT&T's device experts — setup, transfers, troubleshooting, whether or not anything is broken.",
+  },
+  {
+    title: "Unlimited battery replacement",
+    body: "Once ProTech testing confirms a battery won't hold a charge, it's replaced at no cost — with no limit on how often.",
   },
   {
     title: "Family device pool",
-    body: "One Family plan covers up to 5 devices — phones, tablets, kids' devices — under a single subscription.",
+    body: "One Family plan covers up to 5 devices — phones, tablets, kids' devices — under a single subscription with a shared vault.",
   },
 ];
 

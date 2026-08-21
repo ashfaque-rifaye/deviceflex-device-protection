@@ -22,9 +22,9 @@ export function DeductibleCard({
 
   const rows = [
     {
-      label: "Cracked screen repair",
-      value: `$${d.screenRepair}`,
-      note: "Flat fee, every device tier",
+      label: "Screen & back-glass repair",
+      value: "No charge",
+      note: "Unlimited, every device tier",
     },
     {
       label: "Replacement — damage, loss or theft",
@@ -38,7 +38,7 @@ export function DeductibleCard({
   if (compact) {
     return (
       <p className="text-xs text-[#686E74]">
-        Deductible if you claim: <b className="text-[#1D2329]">${d.screenRepair} screen repair</b> ·{" "}
+        If you claim: <b className="text-[#1D2329]">$0 screen repair</b> ·{" "}
         <b className="text-[#1D2329]">${d.replacement} replacement</b>{" "}
         <span className="whitespace-nowrap">(Tier {d.tier})</span>
       </p>
@@ -78,9 +78,9 @@ export function DeductibleCard({
 
       <p className="mt-3 flex items-start gap-2 text-[11px] leading-relaxed text-[#686E74]">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0057B8]" />
-        Up to {ASURION.claimLimit} claims in any {ASURION.claimLimitWindow}. Report within{" "}
-        {ASURION.filingWindowDays} days of the incident. Administered by {ASURION.administrator},
-        underwritten by {ASURION.underwriter}.
+        {ASURION.claimLimit} claims. Report within {ASURION.filingWindowDays} days of the incident.
+        Repairs at AT&amp;T stores and {ASURION.repairStores}+ {ASURION.repairNetwork} locations.
+        Administered by {ASURION.administrator}, underwritten by {ASURION.underwriter}.
       </p>
     </section>
   );
@@ -91,7 +91,7 @@ export function DeductibleInline({ device }: { device: TieredDevice }) {
   const d = deductibleSummary(device);
   return (
     <span className="whitespace-nowrap text-[11px] text-[#686E74]">
-      ${SCREEN_REPAIR_FEE} repair · ${d.replacement} replace
+      Free repair · ${d.replacement} replace
     </span>
   );
 }

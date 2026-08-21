@@ -114,7 +114,7 @@ export function FraudCheckRun({
               </span>
               <span className="min-w-0 flex-1">
                 <span
-                  className={`block text-sm font-bold ${state === "waiting" ? "text-[#B7BFC7]" : ""}`}
+                  className={`block text-sm font-bold ${state === "waiting" ? "text-[#878C94]" : ""}`}
                 >
                   {s.label}
                 </span>

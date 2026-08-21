@@ -42,35 +42,29 @@ function DeviceFlexLanding() {
             Protection that works every month — not just when you break it.
           </h1>
           <p className="mt-5 max-w-2xl text-lg text-white/95">
-            The AI-powered device membership: 15-minute swaps, upfront pricing, free loaners, a
+            The AI-powered device membership: $0 screen repair, upfront pricing, same-day swaps, a
             family device pool, and a data vault that follows you everywhere.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="#tiers"
-              className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-base font-bold text-[#0057B8] hover:bg-white/90"
-            >
+            <a href="#tiers" className="att-btn btn-primary btn-inverse">
               Choose a plan
             </a>
-            {isAuthed ? (
-              <button
-                onClick={() => navigate({ to: "/myatt" })}
-                className="inline-flex items-center justify-center rounded-full border border-white px-7 py-3.5 text-base font-bold text-white hover:bg-white/10"
-              >
-                Go to my dashboard
-              </button>
-            ) : (
-              <button
-                onClick={() => navigate({ to: "/login", search: { returnTo: "/myatt" } as never })}
-                className="inline-flex items-center justify-center rounded-full border border-white px-7 py-3.5 text-base font-bold text-white hover:bg-white/10"
-              >
-                Sign in to manage
-              </button>
-            )}
+            {/* One button either way — signed out, it routes through sign-in and
+                comes back to the dashboard rather than bouncing off a gate. */}
+            <button
+              onClick={() =>
+                isAuthed
+                  ? navigate({ to: "/myatt" })
+                  : navigate({ to: "/login", search: { returnTo: "/myatt" } })
+              }
+              className="att-btn btn-secondary btn-on-dark"
+            >
+              {isAuthed ? "Go to my dashboard" : "Sign in to my dashboard"}
+            </button>
           </div>
           <div className="mt-8 flex flex-wrap gap-x-8 gap-y-2 text-sm font-semibold text-white/90">
-            <span>✓ No hidden fees</span>
-            <span>✓ 15-minute in-store swap</span>
+            <span>✓ $0 screen &amp; back-glass repair</span>
+            <span>✓ Same-day replacement</span>
             <span>✓ Up to 5 devices</span>
             <span>✓ New, not refurbished</span>
           </div>
@@ -124,7 +118,7 @@ function DeviceFlexLanding() {
               Better for your budget — and the planet
             </h2>
             <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-[#686E74]">
-              Loaners, in-place repairs, borrowable gadgets, and refurb-avoidance keep working
+              In-place repairs, unlimited battery replacement and refurb-avoidance keep working
               devices in use longer. DeviceFlex turns protection into a circular, lower-waste model
               — fewer devices in landfills, more value for members.
             </p>
@@ -165,9 +159,9 @@ function RoiCalculator() {
   // Illustrative model: avoided out-of-pocket per protected line per year.
   const avoidedRepairCosts = lines * 129; // avg out-of-pocket repair avoided per line
   const annualPerkValue = tierId === "basic" ? 0 : tierId === "plus" ? 40 : 80;
-  const loanerValue = lines * 45;
+  const protechValue = lines * 45;
   const memberCost = tier.price * 12;
-  const totalValue = avoidedRepairCosts + annualPerkValue + loanerValue;
+  const totalValue = avoidedRepairCosts + annualPerkValue + protechValue;
   const net = totalValue - memberCost;
 
   return (
@@ -216,7 +210,7 @@ function RoiCalculator() {
             <p className="text-sm font-bold text-[#686E74]">Estimated annual value</p>
             <div className="mt-3 space-y-2 text-sm">
               <Row label="Repair costs avoided" value={`$${avoidedRepairCosts.toLocaleString()}`} />
-              <Row label="Free loaner value" value={`$${loanerValue.toLocaleString()}`} />
+              <Row label="ProTech support value" value={`$${protechValue.toLocaleString()}`} />
               <Row label="Annual accessory perk" value={`$${annualPerkValue.toLocaleString()}`} />
               <div className="my-2 border-t border-[#DCDFE3]" />
               <Row label="Total value" value={`$${totalValue.toLocaleString()}`} bold />

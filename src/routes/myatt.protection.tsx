@@ -21,6 +21,7 @@ import { ProtectionScore } from "@/components/deviceflex/ProtectionScore";
 import { RequireAuth, useAuth } from "@/lib/auth";
 import { poolStatus } from "@/lib/ai";
 import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
+import { PlanChangeFlow } from "@/components/deviceflex/PlanChangeFlow";
 import { TIER_POOL, formatCapacity } from "@/data/member";
 import { getTier, TIERS } from "@/data/deviceflex";
 import type { Member } from "@/data/member";
@@ -299,7 +300,7 @@ function Manage() {
                   {m.guarantees.map((g) => (
                     <li
                       key={g.id}
-                      className="rounded-xl border-2 border-[#BFE3CB] bg-[#F6FCF8] p-4"
+                      className="rounded-xl border-2 border-[#BFE3CB] bg-[#EAF7EE] p-4"
                     >
                       <p className="text-sm font-extrabold">{g.deviceName}</p>
                       <p className="mt-1 text-xs text-[#1F7A3D]">{g.condition}</p>
@@ -365,40 +366,19 @@ function Manage() {
         </div>
       </div>
 
-      {/* Switching down can drop devices, so say so before it happens */}
+      {/* Changing tier is a coverage decision, so it gets a real flow rather than
+          a one-click swap — which devices carry over, which can be added, what the
+          bill does. */}
       {confirmTier && (
-        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/50 px-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
-            <h2 className="text-xl font-extrabold">
-              Switch to {TIERS.find((t) => t.id === confirmTier)?.name}?
-            </h2>
-            <p className="mt-2 text-sm text-[#686E74]">
-              ${TIERS.find((t) => t.id === confirmTier)?.price}/mo. from your next bill, covering{" "}
-              {TIER_POOL[confirmTier]} device{TIER_POOL[confirmTier] > 1 ? "s" : ""}.
-            </p>
-            {TIER_POOL[confirmTier] < m.devices.filter((d) => d.protected).length && (
-              <p className="mt-3 rounded-xl bg-[#FFF3E0] p-3 text-sm">
-                You currently cover {m.devices.filter((d) => d.protected).length} devices. The{" "}
-                {m.devices.filter((d) => d.protected).length - TIER_POOL[confirmTier]} most recently
-                added will lose coverage.
-              </p>
-            )}
-            <div className="mt-5 flex gap-3">
-              <button onClick={() => setConfirmTier(null)} className="btn-secondary flex-1">
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  changeTier(confirmTier);
-                  setConfirmTier(null);
-                }}
-                className="btn-primary flex-1"
-              >
-                Confirm switch
-              </button>
-            </div>
-          </div>
-        </div>
+        <PlanChangeFlow
+          member={m}
+          target={confirmTier}
+          onClose={() => setConfirmTier(null)}
+          onConfirm={(t, ids) => {
+            changeTier(t, ids);
+            setConfirmTier(null);
+          }}
+        />
       )}
     </>
   );

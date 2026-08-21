@@ -143,7 +143,7 @@ export const TraySwoosh = ({ className }: P) => (
       />
       <path
         d="M0.13889 0C0.667779 0.555328 2.51511 2.50845 2.51511 2.50845C10.0782 10.4644 17.2824 19.1684 23.8331 28.0047C84.4967 112.487 102.384 227.237 91.2816 329.116C88.1914 355.882 82.7551 382.402 74.2438 408C83.1934 382.542 89.0942 356.033 92.6416 329.286C106.85 218.892 85.9285 85.5629 10.0782 0L0.135114 0Z"
-        fill="#00C9FF"
+        fill="#009FDB"
       />
     </g>
     <defs>
@@ -155,9 +155,9 @@ export const TraySwoosh = ({ className }: P) => (
         y2="0"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stopColor="#00C9FF" />
+        <stop stopColor="#009FDB" />
         <stop offset="0.5" stopColor="#009FDB" />
-        <stop offset="1" stopColor="#0079B1" />
+        <stop offset="1" stopColor="#0072B2" />
       </linearGradient>
       <linearGradient
         id="tg1"
@@ -167,9 +167,9 @@ export const TraySwoosh = ({ className }: P) => (
         y2="0"
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset="0.36" stopColor="#0079B1" />
+        <stop offset="0.36" stopColor="#0072B2" />
         <stop offset="0.73" stopColor="#009FDB" />
-        <stop offset="1" stopColor="#00C9FF" />
+        <stop offset="1" stopColor="#009FDB" />
       </linearGradient>
       <clipPath id="tclip">
         <rect width="103" height="400" fill="#fff" />

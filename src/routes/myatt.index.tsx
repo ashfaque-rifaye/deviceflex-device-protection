@@ -142,17 +142,25 @@ function Overview() {
           )}
         </div>
 
-        {/* Protection Score — Proactive Care, on the dashboard where it belongs */}
+        {/* Protection Score — Proactive Care, as a proper tile on the dashboard */}
         {m.enrolled && (
-          <div className="mt-6">
-            <ProtectionScore member={m} compact limit={3} />
-          </div>
+          <section className="mt-8">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="att-h3">Your protection health</h2>
+              <Link to="/myatt/protection" search={{ device: "" }} className="link-blue text-sm">
+                Manage protection
+              </Link>
+            </div>
+            <div className="mt-4">
+              <ProtectionScore member={m} compact limit={3} />
+            </div>
+          </section>
         )}
 
         {/* I need to */}
         <section className="mt-6 rounded-2xl border border-[#DCDFE3] bg-white p-5">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <span className="text-lg font-extrabold">I need to:</span>
+            <span className="att-h4">I need to:</span>
             {m.enrolled && <Quick to="/myatt/claims/new" Icon={Camera} label="File a claim" />}
             <ChatQuick />
             {m.enrolled ? (
@@ -176,7 +184,7 @@ function Overview() {
         {/* My devices — AT&T style, each with Manage Plan */}
         <section className="mt-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-extrabold">My devices</h2>
+            <h2 className="att-h3">My devices</h2>
             {m.enrolled && (
               <Link to="/myatt/family" className="text-sm font-bold text-[#0057B8] hover:underline">
                 Manage family &gt;

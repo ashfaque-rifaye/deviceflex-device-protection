@@ -49,9 +49,12 @@ import {
   type FraudVerdict,
 } from "@/lib/ai";
 import type { Member, MemberDevice, Claim } from "@/data/member";
+import type { DiagnosticReport } from "@/lib/diagnostics";
 import { analyzeDamage, type AssessResponse } from "@/lib/assess";
 import { FraudCheckRun } from "@/components/deviceflex/FraudCheckRun";
 import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
+import { AdvisorPanel } from "@/components/deviceflex/AdvisorPanel";
+import { DiagnosticsModal } from "@/components/deviceflex/DiagnosticsModal";
 import { Field } from "@/components/att/Field";
 import { deductibleFor, ASURION } from "@/data/deductibles";
 import {
@@ -113,7 +116,8 @@ function Flow() {
   const [busy, setBusy] = useState(false);
   const [damage, setDamage] = useState<AssessResponse | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
-  const [diags, setDiags] = useState<Diagnostic[] | null>(null);
+  const [diagReport, setDiagReport] = useState<DiagnosticReport | null>(null);
+  const [diagOpen, setDiagOpen] = useState(false);
   const [verified, setVerified] = useState(false);
   const [incident, setIncident] = useState<IncidentDetails>({});
   const [verdictFraud, setVerdictFraud] = useState<FraudVerdict | null>(null);
@@ -154,13 +158,6 @@ function Flow() {
     } finally {
       setBusy(false);
     }
-  };
-  const doDiagnostics = () => {
-    setBusy(true);
-    setTimeout(() => {
-      setDiags(runDiagnostics(device, reason!));
-      setBusy(false);
-    }, 1500);
   };
   // Verification is now a sequence the member watches — see <FraudCheckRun />.
   const signals = reason ? fraudCheck(m, reason, device, incident) : [];
@@ -222,10 +219,12 @@ function Flow() {
             findings: damage.detected,
             confidence: damage.confidence,
           }
-        : diags
+        : diagReport
           ? {
               source: "diagnostics",
-              findings: diags.map((d) => `${d.label}: ${d.result}`),
+              findings: [...diagReport.failures, ...diagReport.warnings].map(
+                (c) => `${c.label}: ${c.result}`,
+              ),
             }
           : { source: "attested" },
       identityVerified: verified,
@@ -284,7 +283,7 @@ function Flow() {
           {STEPS.map((s, i) => (
             <li
               key={s}
-              className={`flex items-center gap-2 ${i === step ? "text-[#0057B8]" : i < step ? "text-[#1F7A3D]" : "text-[#B7BFC7]"}`}
+              className={`flex items-center gap-2 ${i === step ? "text-[#0057B8]" : i < step ? "text-[#1F7A3D]" : "text-[#878C94]"}`}
             >
               <span
                 className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${
@@ -408,7 +407,13 @@ function Flow() {
                 </label>
               ))}
             </div>
-            <p className="mt-3 text-xs text-[#686E74]">{filled}/3 photos added</p>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-[#686E74]">{filled}/3 photos added</p>
+              <p className="flex items-center gap-1.5 text-xs text-[#686E74]">
+                <Sparkle className="h-3.5 w-3.5 text-[#00388F]" />A vision model reads these to
+                identify the damage and its severity
+              </p>
+            </div>
             {photoError && (
               <p className="mt-2 flex items-start gap-2 rounded-xl bg-[#FDE9EE] p-3 text-sm text-[#C70032]">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -417,7 +422,7 @@ function Flow() {
             )}
             <Nav
               onBack={back}
-              nextLabel={busy ? "Analysing your photos…" : "Analyse with AI"}
+              nextLabel={busy ? "Reviewing your photos…" : "Continue"}
               nextDisabled={filled < 3 || busy}
               onNext={analyzePhotos}
               busy={busy}
@@ -533,64 +538,97 @@ function Flow() {
           </div>
         )}
 
-        {/* ── Step 2c — diagnostics ────────────────────────────────── */}
+        {/* ── Step 2c — remote diagnostics ─────────────────────────── */}
         {!done && step === 2 && cfg?.needsDiagnostics && (
           <div>
-            <h2 className="text-xl font-extrabold">Let's run a quick diagnostic</h2>
-            <p className="mt-1 text-sm text-[#686E74]">
-              No photos needed for {reason === "battery" ? "battery issues" : "a malfunction"}.
-              We'll check the device remotely and confirm what's covered.
+            <h2 className="att-h3">Let&rsquo;s inspect the device</h2>
+            <p className="att-small mt-1">
+              No photos needed for {reason === "battery" ? "a battery issue" : "a malfunction"}. We
+              read the sensors, battery controller and system logs straight from your {device.name}{" "}
+              — {reason === "battery" ? "true capacity" : "the fault"} shows up in the telemetry.
             </p>
-            {!diags ? (
-              <div className="mt-6 grid place-items-center rounded-xl bg-[#F3F4F6] p-10 text-center">
-                <Stethoscope className="h-8 w-8 text-[#0057B8]" />
-                <p className="mt-3 text-sm text-[#686E74]">
-                  We'll read device telemetry from your {device.name}.
+
+            {!diagReport ? (
+              <div className="mt-6 grid place-items-center rounded-2xl border border-[#DCDFE3] bg-[#F3F4F6] p-10 text-center">
+                <span className="grid h-14 w-14 place-items-center rounded-full bg-white">
+                  <Stethoscope className="h-7 w-7 text-[#00388F]" />
+                </span>
+                <p className="att-body mt-3 max-w-sm">
+                  A full hardware inspection — 19 checks across sensors, battery, housing and device
+                  identity. About 15 seconds.
                 </p>
-                <button onClick={doDiagnostics} disabled={busy} className="btn-primary mt-4">
-                  {busy ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" /> Running…
-                    </span>
-                  ) : (
-                    "Run diagnostics"
-                  )}
+                <button onClick={() => setDiagOpen(true)} className="btn-primary mt-4">
+                  Run diagnostics
                 </button>
               </div>
             ) : (
               <>
-                <ul className="mt-5 divide-y divide-[#DCDFE3] rounded-xl border border-[#DCDFE3]">
-                  {diags.map((d) => (
-                    <li
-                      key={d.label}
-                      className="flex items-center justify-between gap-3 p-3.5 text-sm"
-                    >
-                      <span className="text-[#686E74]">{d.label}</span>
-                      <span
-                        className={`inline-flex items-center gap-1.5 font-bold ${d.ok ? "text-[#1F7A3D]" : "text-[#C70032]"}`}
+                <div
+                  className={`mt-5 rounded-2xl border p-5 ${
+                    diagReport.condition === "damaged"
+                      ? "border-[#F0C2CE] bg-[#FDF3F5]"
+                      : diagReport.condition === "impaired"
+                        ? "border-[#E8D3A8] bg-[#FFF3E0]"
+                        : "border-[#BFE3CB] bg-[#EAF7EE]"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center gap-3">
+                    <p className="att-h4">{diagReport.headline}</p>
+                    <span className="ml-auto rounded-full bg-white px-3 py-1 text-xs font-bold tabular-nums">
+                      Hardware health {diagReport.healthScore}/100
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed">{diagReport.summary}</p>
+                </div>
+
+                {(diagReport.failures.length > 0 || diagReport.warnings.length > 0) && (
+                  <ul className="mt-4 divide-y divide-[#DCDFE3] rounded-xl border border-[#DCDFE3]">
+                    {[...diagReport.failures, ...diagReport.warnings].map((c) => (
+                      <li
+                        key={c.id}
+                        className="flex items-center justify-between gap-3 p-3.5 text-sm"
                       >
-                        {d.ok ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
-                        {d.result}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                        <span className="text-[#686E74]">{c.label}</span>
+                        <span
+                          className={`inline-flex items-center gap-1.5 font-bold ${c.status === "fail" ? "text-[#C70032]" : "text-[#9E5D00]"}`}
+                        >
+                          {c.status === "fail" ? (
+                            <X className="h-4 w-4" />
+                          ) : (
+                            <AlertTriangle className="h-4 w-4" />
+                          )}
+                          {c.result}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
                 <div className="mt-4 rounded-xl bg-[#E7F5FB] p-4 text-sm">
-                  <b>Result:</b>{" "}
+                  <b>What that means for this claim:</b>{" "}
                   {reason === "battery"
                     ? device.batteryHealth < 80
-                      ? "Battery health is below 80% — a free replacement is included in your plan."
-                      : `Battery health is ${device.batteryHealth}%, still above the 80% threshold. We'll test in store and replace it free if it's under.`
+                      ? `True capacity is ${device.batteryHealth}%, under the 80% threshold — battery replacement carries no service fee and there's no limit on how often you use it.`
+                      : `True capacity is ${device.batteryHealth}%, still above the 80% threshold. A store test settles it, and if it reads under, the replacement is free.`
                     : device.warranty === "In warranty"
-                      ? "Hardware failure confirmed. This device is still in the manufacturer's warranty, so repair is handled there at no cost."
-                      : "Hardware failure confirmed and the manufacturer's warranty has expired — Protect Advantage covers the replacement."}
+                      ? "Hardware fault confirmed. This device is still inside the manufacturer's warranty, so the repair is handled there at no cost and doesn't use a claim."
+                      : "Hardware fault confirmed and the manufacturer's warranty has expired — out-of-warranty malfunction is exactly what Protect Advantage covers."}
                 </div>
+
+                <button
+                  onClick={() => setDiagOpen(true)}
+                  className="att-link-arrow mt-3 text-sm"
+                  type="button"
+                >
+                  See all {diagReport.passes.reduce((n, p) => n + p.checks.length, 0)} checks
+                </button>
               </>
             )}
+
             <Nav
               onBack={back}
               nextLabel="See my options"
-              nextDisabled={!diags}
+              nextDisabled={!diagReport}
               onNext={() => setStep(3)}
             />
           </div>
@@ -625,41 +663,15 @@ function Flow() {
                     </li>
                   ))}
                 </ul>
-
-                {/* Where this verdict came from — never pass a simulation off as a model. */}
-                {damage.source === "model" ? (
-                  <p className="mt-4 flex items-start gap-2 text-[11px] text-[#686E74]">
-                    <Sparkle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#1F7A3D]" />
-                    Assessed from your photos by <span className="font-mono">{damage.model}</span>.
-                    A store associate confirms the final path before anything is actioned.
-                  </p>
-                ) : (
-                  <p className="mt-4 flex items-start gap-2 rounded-xl bg-[#FFF3E0] p-3 text-[11px] text-[#7A4A00]">
-                    <WifiOff className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                    <span>
-                      <b>Offline assessment.</b> {damage.fallbackReason} — this reading comes from
-                      the on-device model using your device's history, not from your photos.
-                    </span>
-                  </p>
-                )}
               </>
             )}
 
-            {/* Claim-to-Upgrade Advisor. Guidance, not a control — flat panel with a
-                left accent rule, no border box and no hover, so it can't be mistaken
-                for something you're meant to press. */}
             {verdict && (
-              <div className="att-note mt-6">
-                <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#0057B8]">
-                  <Scale className="h-4 w-4" /> Claim-to-Upgrade Advisor
-                </p>
-                <p className="mt-2 text-lg font-extrabold">{verdict.headline}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-[#1D2329]">{verdict.reasoning}</p>
-                <p className="mt-3 flex items-start gap-1.5 text-[11px] text-[#00388F]">
-                  <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />A store associate confirms the
-                  final path with you before anything is actioned.
-                </p>
-              </div>
+              <AdvisorPanel
+                verdict={verdict}
+                options={options}
+                recommended={options.find((o) => o.recommended)}
+              />
             )}
 
             <div className="mt-7 flex flex-wrap items-baseline justify-between gap-2">
@@ -938,6 +950,15 @@ function Flow() {
           />
         )}
       </div>
+
+      {diagOpen && (
+        <DiagnosticsModal
+          device={device}
+          hasPhotos={filled > 0}
+          onClose={() => setDiagOpen(false)}
+          onComplete={(r) => setDiagReport(r)}
+        />
+      )}
     </div>
   );
 }

@@ -1,13 +1,17 @@
 // AT&T Protect Advantage deductible / service-fee schedule.
 //
-// These are the real published figures, not invented ones. Source: AT&T Protect Advantage
-// for 1 program brochure (49-state consumer edition) — the "Replacement Deductibles/Service
-// Fees", "Screen Repair Service Fees" and "Battery Replacement Repair Service Fee" tables.
+// Real published figures, not invented ones. Two sources, because they disagree and the
+// newer one wins:
+//   · Replacement deductibles by device tier come from the Protect Advantage for 1
+//     brochure (49-state consumer edition): Tier 1 $25 · Tier 2 $100 · Tier 3 $225 ·
+//     Tier 4 $275.
+//   · Screen and back-glass repair is $0 and uncapped on current Protect Advantage,
+//     alongside unlimited battery replacement, unlimited claims, same-day replacement
+//     and ProTech support. The $29 screen fee in the 2023 brochure is the old schedule.
 //
-// The point of surfacing these upfront is the whole ideation: today a customer discovers the
-// number at the counter. Here they see it before they choose, which is also what makes the
-// Claim-to-Upgrade Advisor's comparison meaningful — a cracked screen is $29 to repair and
-// $275 to replace, and that gap is the decision.
+// Surfacing these upfront is the whole ideation: today a customer finds the number out at
+// the counter. It is also what gives the Claim-to-Upgrade Advisor something real to argue
+// — the same cracked screen is $0 repaired and a tiered deductible replaced.
 
 export type DeviceTier = 1 | 2 | 3 | 4;
 
@@ -19,8 +23,14 @@ export const REPLACEMENT_DEDUCTIBLE: Record<DeviceTier, number> = {
   4: 275,
 };
 
-/** Screen repair is a flat service fee across every tier. */
-export const SCREEN_REPAIR_FEE = 29;
+/**
+ * Screen and back-glass repair carry no service fee on current Protect Advantage,
+ * and there is no cap on how many you can have. This is the single strongest thing
+ * about the plan and the reason the Advisor argues for repair over replacement:
+ * the same cracked screen is $0 repaired and a tiered deductible replaced.
+ */
+export const SCREEN_REPAIR_FEE = 0;
+export const BACK_GLASS_FEE = 0;
 
 /** Battery replacement on an eligible device carries no service fee. */
 export const BATTERY_FEE = 0;
@@ -40,9 +50,12 @@ export const ASURION = {
   claimsPhone: "888.562.8662",
   /** A claim must be reported within this many days of the incident. */
   filingWindowDays: 60,
-  /** Insurance claim limits over a rolling 12 months. */
-  claimLimit: 3,
+  /** Current Protect Advantage carries no claim cap. */
+  claimLimit: "Unlimited" as const,
   claimLimitWindow: "12 months",
+  /** Repairs are done in AT&T stores and Asurion's own uBreakiFix network. */
+  repairNetwork: "uBreakiFix by Asurion",
+  repairStores: 700,
   maxDeviceValue: 3500,
   hours: "Mon–Fri 8am–10pm ET · Sat–Sun 9am–9pm ET",
 } as const;
@@ -115,15 +128,17 @@ export function deductibleFor(device: TieredDevice, kind: FeeKind): Deductible {
     case "screen-repair":
       return {
         amount: SCREEN_REPAIR_FEE,
-        label: `$${SCREEN_REPAIR_FEE}`,
-        basis: "Flat screen repair service fee — the same on every device tier",
+        label: "No charge",
+        basis:
+          "Screen and back-glass repair carry no service fee, with no limit on how many times you use it",
         tier,
       };
     case "battery":
       return {
         amount: BATTERY_FEE,
         label: "No charge",
-        basis: "Battery replacement carries no service fee on an eligible device",
+        basis:
+          "Battery replacement carries no service fee, unlimited, once ProTech testing confirms it won't hold a charge",
         tier,
       };
     case "warranty":

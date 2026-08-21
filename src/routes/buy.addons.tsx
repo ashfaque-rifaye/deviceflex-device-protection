@@ -25,11 +25,11 @@ import caseChrome from "@/assets/case-chrome.jpg";
 export const Route = createFileRoute("/buy/addons")({ component: AddonsPage });
 
 const BENEFITS = [
-  "15-minute in-store swaps, with your cost confirmed upfront",
-  "Free loaner phone for the entire repair",
+  "Same-day replacement, with your cost confirmed upfront",
+  "$0 screen & back-glass repair, unlimited",
   "AI Damage Assessment — 3 photos, auto-booked",
   "Smart Restore — your data back in under 2 minutes",
-  "Family pool, gadget library & annual accessory perk",
+  "Family pool, shared Data Vault & annual accessory perk",
 ];
 
 const TABS = ["Cases", "Screen protectors", "Chargers", "Headphones", "Other top picks", "SALE"];

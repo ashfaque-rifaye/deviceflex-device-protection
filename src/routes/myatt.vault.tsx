@@ -17,17 +17,24 @@ import {
   ArrowRight,
   History,
   ShieldCheck,
+  Sparkle,
+  ArrowUpCircle,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalWidgets } from "@/components/site/GlobalWidgets";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AccountNav } from "@/components/deviceflex/AccountNav";
 import { RequireAuth, RequirePlan, useAuth } from "@/lib/auth";
-import { planRestore, smartRestoreSteps, vaultShares } from "@/lib/ai";
+import { vaultShares } from "@/lib/ai";
+import { SmartRestore } from "@/components/deviceflex/SmartRestore";
+import { TIERS } from "@/data/deviceflex";
 import {
   deviceVaultGB,
   vaultUsedGB,
   formatCapacity,
+  vaultCapacityGB,
+  vaultGrowthPerDevice,
+  TIER_VAULT_GB,
   type Member,
   type MemberDevice,
 } from "@/data/member";
@@ -41,8 +48,8 @@ function VaultPage() {
       <RequireAuth returnTo="/myatt/vault">
         <AccountNav active="Account" />
         <RequirePlan
-          title="The AI Data Vault comes with Protect Advantage"
-          blurb="Every plan includes a secure AT&T vault — 50 GB on Basic, 500 GB on Plus, and 1 TB shared across the household on Family."
+          title="The Data Vault comes with Protect Advantage"
+          blurb="Every plan includes a secure AT&T vault. Basic gives you 50 GB, Plus 500 GB, and on Family it grows with the household — 205 GB per covered device, up to 1 TB shared."
         >
           <Vault />
         </RequirePlan>
@@ -62,13 +69,19 @@ const CATS = [
 ];
 
 function Vault() {
-  const { user, backupDevice, backupAll, setAutoBackup, cleanVault } = useAuth();
+  const { user, backupDevice, backupAll, setAutoBackup, cleanVault, restoreTo } = useAuth();
+  const [restoreOpen, setRestoreOpen] = useState(false);
   const m = user as Member;
 
   const used = vaultUsedGB(m);
-  const total = m.vault.totalGB;
+  const total = vaultCapacityGB(m);
   const pct = total > 0 ? Math.min(100, (used / total) * 100) : 0;
-  const backed = m.devices.filter((d) => d.backedUp);
+  const over = used > total;
+  const nearFull = !over && total > 0 && used / total >= 0.85;
+  const nextTier = TIERS.find((t) => (m.tier === "basic" ? t.id === "plus" : t.id === "family"));
+  const growth = vaultGrowthPerDevice(m.tier);
+  const atTierCeiling = m.tier ? total >= TIER_VAULT_GB[m.tier] : false;
+  const backed = m.devices.filter((d) => d.backedUp && d.protected);
   const pending = m.devices.filter((d) => d.protected && !d.backedUp);
 
   const totals = CATS.map((c) => ({
@@ -89,10 +102,13 @@ function Vault() {
             <Database className="h-5 w-5 text-[#0057B8]" />
           </span>
           <div>
-            <h1 className="text-3xl font-extrabold md:text-4xl">AI Data Vault</h1>
-            <p className="text-sm text-[#686E74]">
-              Secure AT&amp;T vault · last backup {m.vault.lastBackup}
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="att-h1">Data Vault</h1>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#E7F5FB] px-2.5 py-1 text-[11px] font-bold text-[#00388F]">
+                <Sparkle className="h-3 w-3" /> Powered by AI
+              </span>
+            </div>
+            <p className="att-small">Secure AT&amp;T vault · last backup {m.vault.lastBackup}</p>
           </div>
         </div>
         {pending.length > 0 && (
@@ -115,7 +131,11 @@ function Vault() {
                   {m.tier === "family" ? " shared" : ""}
                 </span>
               </p>
-              <span className="text-sm font-bold text-[#0057B8]">{pct.toFixed(0)}% used</span>
+              <span
+                className={`text-sm font-bold ${over ? "text-[#C70032]" : nearFull ? "text-[#9E5D00]" : "text-[#00388F]"}`}
+              >
+                {pct.toFixed(0)}% used
+              </span>
             </div>
 
             {/* Stacked by content type — where the space actually went */}
@@ -146,6 +166,55 @@ function Vault() {
               <p className="mt-4 rounded-xl bg-[#FFF3E0] p-3 text-sm">
                 Nothing is in your vault yet. Back up a device and Smart Restore will have something
                 to work with.
+              </p>
+            )}
+
+            {/* Out of room. Offer the two honest ways to fix it: a bigger tier, or —
+                on Family — simply covering another device, which adds allocation. */}
+            {(over || nearFull) && (
+              <div
+                className={`mt-4 rounded-xl border p-4 ${over ? "border-[#F0C2CE] bg-[#FDF3F5]" : "border-[#E8D3A8] bg-[#FFF3E0]"}`}
+              >
+                <p className="flex items-center gap-2 text-sm font-extrabold">
+                  <ArrowUpCircle
+                    className={`h-4 w-4 ${over ? "text-[#C70032]" : "text-[#9E5D00]"}`}
+                  />
+                  {over
+                    ? `You're ${formatCapacity(used - total)} over your vault`
+                    : `You're using ${pct.toFixed(0)}% of your vault`}
+                </p>
+                <p className="mt-1.5 text-sm">
+                  {over
+                    ? "New backups will stop until there's room. Free some space with the cleaner, or add capacity."
+                    : "Worth adding room before it fills — a full vault means Smart Restore has less to bring back."}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {nextTier && (
+                    <Link
+                      to="/myatt/protection"
+                      search={{ device: "" }}
+                      className="btn-primary att-btn-sm"
+                    >
+                      Move to {nextTier.name} · {formatCapacity(TIER_VAULT_GB[nextTier.id])}
+                    </Link>
+                  )}
+                  {m.tier === "family" && !atTierCeiling && (
+                    <Link to="/myatt/family" className="btn-secondary att-btn-sm">
+                      Cover another device · +{formatCapacity(growth)}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* How the allowance is built, so the number isn't a mystery. */}
+            {m.tier === "family" && (
+              <p className="att-small mt-4">
+                {formatCapacity(growth)} per covered device ·{" "}
+                {m.devices.filter((d) => d.protected).length} covered ·{" "}
+                {atTierCeiling
+                  ? "at the Family ceiling of 1 TB"
+                  : `covering one more adds ${formatCapacity(growth)}`}
               </p>
             )}
           </section>
@@ -203,13 +272,33 @@ function Vault() {
 
         {/* ── Smart Restore ─────────────────────────────────────────── */}
         <div className="space-y-6">
-          <SmartRestore member={m} />
+          <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-full bg-[#E7F5FB]">
+                <Sparkles className="h-5 w-5 text-[#00388F]" />
+              </span>
+              <h2 className="att-h4">Smart Restore</h2>
+            </div>
+            <p className="att-small mt-3">
+              Move everything from one device&rsquo;s backup onto another — or just the parts you
+              want. Photos, videos, messages, contacts and apps, in under two minutes.
+            </p>
+            {backed.length === 0 ? (
+              <p className="mt-4 rounded-xl bg-[#FFF3E0] p-3 text-sm">
+                Back up a device first — there&rsquo;s nothing in the vault to restore yet.
+              </p>
+            ) : (
+              <button onClick={() => setRestoreOpen(true)} className="btn-primary mt-4 w-full">
+                Restore to a device
+              </button>
+            )}
+          </section>
 
           {m.restores.length > 0 && (
             <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
               <div className="flex items-center gap-2">
-                <History className="h-4 w-4 text-[#0057B8]" />
-                <h2 className="text-base font-extrabold">Restore history</h2>
+                <History className="h-4 w-4 text-[#00388F]" />
+                <h2 className="att-h4">Restore history</h2>
               </div>
               <ul className="mt-3 space-y-3 text-sm">
                 {m.restores.map((r) => (
@@ -217,7 +306,7 @@ function Vault() {
                     <p className="font-bold">
                       {r.fromDevice} → {r.toDevice}
                     </p>
-                    <p className="text-xs text-[#686E74]">
+                    <p className="att-small">
                       {r.date} · {formatCapacity(r.gb)} · {r.items.toLocaleString()} items
                     </p>
                   </li>
@@ -227,6 +316,14 @@ function Vault() {
           )}
         </div>
       </div>
+
+      {restoreOpen && (
+        <SmartRestore
+          member={m}
+          onClose={() => setRestoreOpen(false)}
+          onRestore={(fromId, toId) => restoreTo(fromId, toId)}
+        />
+      )}
     </div>
   );
 }
@@ -399,167 +496,6 @@ function Cleaner({ member, onClean }: { member: Member; onClean: () => void }) {
         <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#EAF7EE] px-3 py-1.5 text-sm font-bold text-[#1F7A3D]">
           <Check className="h-4 w-4" /> Vault is clean — no duplicates found
         </p>
-      )}
-    </section>
-  );
-}
-
-// ── Smart Restore ────────────────────────────────────────────────────────────
-function SmartRestore({ member }: { member: Member }) {
-  const { restoreTo } = useAuth();
-  const backed = member.devices.filter((d) => d.backedUp);
-  const [open, setOpen] = useState(false);
-  const [fromId, setFromId] = useState("");
-  const [toId, setToId] = useState("");
-  const [step, setStep] = useState(-1);
-  const [done, setDone] = useState(false);
-
-  const from = member.devices.find((d) => d.id === fromId);
-  const to = member.devices.find((d) => d.id === toId);
-  const plan = from ? planRestore(from) : null;
-  const steps = plan && to ? smartRestoreSteps(plan, to.name) : [];
-
-  useEffect(() => {
-    if (step < 0 || step >= steps.length - 1) return;
-    const t = setTimeout(() => setStep((s) => s + 1), 1100);
-    return () => clearTimeout(t);
-  }, [step, steps.length]);
-
-  useEffect(() => {
-    if (step >= 0 && step === steps.length - 1 && !done && from && to) {
-      restoreTo(from.id, to.id);
-      setDone(true);
-    }
-  }, [step, steps.length, done, from, to, restoreTo]);
-
-  const reset = () => {
-    setOpen(false);
-    setStep(-1);
-    setDone(false);
-    setFromId("");
-    setToId("");
-  };
-
-  return (
-    <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
-      <div className="flex items-center gap-3">
-        <span className="grid h-10 w-10 place-items-center rounded-full bg-[#E7F5FB]">
-          <Sparkles className="h-5 w-5 text-[#0057B8]" />
-        </span>
-        <h2 className="text-base font-extrabold">Smart Restore</h2>
-      </div>
-      <p className="mt-3 text-sm text-[#686E74]">
-        Move everything from one device&rsquo;s backup onto another in under two minutes — photos,
-        messages, contacts and apps.
-      </p>
-
-      {backed.length === 0 ? (
-        <p className="mt-4 rounded-xl bg-[#FFF3E0] p-3 text-sm">
-          Back up a device first — there&rsquo;s nothing in the vault to restore yet.
-        </p>
-      ) : !open ? (
-        <button
-          onClick={() => {
-            setOpen(true);
-            setFromId(backed[0].id);
-          }}
-          className="btn-primary mt-4 w-full"
-        >
-          Restore to a device
-        </button>
-      ) : step < 0 ? (
-        <div className="mt-4 space-y-4">
-          <div>
-            <label className="text-xs font-bold uppercase tracking-widest text-[#686E74]">
-              Restore from
-            </label>
-            <select
-              value={fromId}
-              onChange={(e) => setFromId(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
-            >
-              {backed.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name} — {d.owner.split(" ")[0]} · {formatCapacity(deviceVaultGB(d))}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-xs font-bold uppercase tracking-widest text-[#686E74]">
-              Restore onto
-            </label>
-            <select
-              value={toId}
-              onChange={(e) => setToId(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
-            >
-              <option value="">Choose a device…</option>
-              {member.devices
-                .filter((d) => d.id !== fromId)
-                .map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name} — {d.owner.split(" ")[0]}
-                  </option>
-                ))}
-            </select>
-          </div>
-
-          {plan && (
-            <div className="rounded-xl bg-[#F3F4F6] p-4 text-xs">
-              <p className="font-bold text-[#1D2329]">This will move {formatCapacity(plan.gb)}</p>
-              <ul className="mt-2 space-y-0.5 text-[#686E74]">
-                <li>
-                  {plan.photos.toLocaleString()} photos · {plan.videos.toLocaleString()} videos
-                </li>
-                <li>
-                  {plan.messages.toLocaleString()} messages · {plan.contacts.toLocaleString()}{" "}
-                  contacts
-                </li>
-                <li>{plan.apps} apps and your settings</li>
-              </ul>
-              <p className="mt-2 text-[#686E74]">
-                Estimated {plan.minutes} minute{plan.minutes > 1 ? "s" : ""}.
-              </p>
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            <button onClick={reset} className="btn-secondary flex-1 text-sm">
-              Cancel
-            </button>
-            <button
-              disabled={!toId}
-              onClick={() => setStep(0)}
-              className={`btn-primary flex-1 text-sm ${!toId ? "opacity-50" : ""}`}
-            >
-              Start restore <ArrowRight className="ml-1 inline h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-4 rounded-xl border border-[#DCDFE3] p-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#686E74]">
-            {done ? "Complete" : "Restoring"}
-          </p>
-          <p className="mt-2 text-sm">{steps[step]}</p>
-          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#F3F4F6]">
-            <div
-              className="h-full rounded-full bg-[#0057B8] transition-all duration-500"
-              style={{ width: `${((step + 1) / steps.length) * 100}%` }}
-            />
-          </div>
-          {done && (
-            <>
-              <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-[#1F7A3D]">
-                <ShieldCheck className="h-4 w-4" /> {to?.name} is ready
-              </p>
-              <button onClick={reset} className="btn-secondary mt-3 w-full text-sm">
-                Done
-              </button>
-            </>
-          )}
-        </div>
       )}
     </section>
   );

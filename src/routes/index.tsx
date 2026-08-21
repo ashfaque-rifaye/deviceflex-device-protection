@@ -279,7 +279,7 @@ function Index() {
               <ul className="mt-5 space-y-2 text-sm">
                 {[
                   "15-minute in-store swap",
-                  "Free loaner during repair",
+                  "$0 screen & back-glass repair",
                   "Your data restored in under 2 minutes",
                   "Up to 5 devices on one plan",
                 ].map((x) => (

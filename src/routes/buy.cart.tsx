@@ -254,7 +254,7 @@ function CartPage() {
                     <span className="font-extrabold text-[#1D2329]">$33.34</span>
                   </div>
                 </div>
-                <p className="rounded-md bg-[#EAF7EE] p-2 text-[11px] leading-relaxed text-[#0F5132]">
+                <p className="rounded-md bg-[#EAF7EE] p-2 text-[11px] leading-relaxed text-[#1F7A3D]">
                   <span className="font-extrabold">ONLINE ONLY:</span> Additional $200 in monthly
                   bill credits ($5.56/mo. for 36 months) with new voice on elig. unlimited plan.
                 </p>

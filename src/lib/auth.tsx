@@ -38,7 +38,8 @@ type AuthCtx = {
   resetAccount: () => void;
 
   enroll: (tierId: TierId, deviceIds: string[]) => void;
-  changeTier: (tierId: TierId) => void;
+  /** Explicit device list — a tier change is a coverage decision, not just a price change. */
+  changeTier: (tierId: TierId, deviceIds?: string[]) => void;
   redeemAccessory: (r: Omit<Redemption, "id" | "date" | "status">) => void;
 
   fileClaim: (c: NewClaim) => string;
@@ -191,13 +192,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     });
 
-  const changeTier = (tierId: TierId) =>
+  const changeTier = (tierId: TierId, deviceIds?: string[]) =>
     mutate((m) => {
       const cap = TIER_POOL[tierId];
-      const covered = m.devices
-        .filter((d) => d.protected)
-        .slice(0, cap)
-        .map((d) => d.id);
+      // Caller picks which devices carry over; falling back to the first N keeps
+      // older call sites working.
+      const covered = (deviceIds ?? m.devices.filter((d) => d.protected).map((d) => d.id)).slice(
+        0,
+        cap,
+      );
       m.tier = tierId;
       m.tierPrice = TIER_PRICE[tierId];
       m.devices = m.devices.map((d) =>
