@@ -69,7 +69,7 @@ export function AccountTray({ onClose }: { onClose: () => void }) {
                 navigate({ to: "/myatt" });
               }
             }}
-            className="inline-flex h-8 items-center justify-center rounded-full border-2 border-[#00388F] px-6 text-[12px] font-bold text-[#00388F] transition hover:border-[#0057B8] hover:bg-[#0057B8] hover:text-white"
+            className="inline-flex h-8 items-center justify-center rounded-full border-2 border-[#00388F] px-6 text-[12px] font-bold text-[#00388F] transition hover:border-[#00388F] hover:bg-[#0057B8] hover:border-[#0057B8] hover:text-white"
           >
             <span className="mr-2 inline-flex">
               <IconSwitchUser className="h-5 w-5" />

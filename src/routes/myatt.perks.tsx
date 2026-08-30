@@ -104,7 +104,7 @@ function Perks() {
         <Link
           to="/myatt/protection"
           search={{ device: "" }}
-          className="inline-flex items-center gap-1 text-sm font-bold text-[#0057B8] hover:underline"
+          className="inline-flex items-center gap-1 text-sm font-bold text-[#0072B2] hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> Back to my protection
         </Link>
@@ -113,7 +113,7 @@ function Perks() {
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#DCDFE3] bg-white p-6">
           <div className="flex items-center gap-4">
             <span className="grid h-12 w-12 place-items-center rounded-full bg-[#E7F5FB]">
-              <Gift className="h-6 w-6 text-[#0057B8]" />
+              <Gift className="h-6 w-6 text-[#0072B2]" />
             </span>
             <div>
               <h1 className="text-2xl font-extrabold">Annual accessory perk</h1>
@@ -127,7 +127,7 @@ function Perks() {
             {Array.from({ length: m.perks.accessoryTotal }).map((_, i) => (
               <span
                 key={i}
-                className={`grid h-10 w-10 place-items-center rounded-full border-2 text-xs font-extrabold ${i < credits ? "border-[#0057B8] bg-[#E7F5FB] text-[#0057B8]" : "border-[#DCDFE3] text-[#686E74]"}`}
+                className={`grid h-10 w-10 place-items-center rounded-full border-2 text-xs font-extrabold ${i < credits ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3] text-[#686E74]"}`}
               >
                 {i < credits ? "1" : <Check className="h-4 w-4" />}
               </span>
@@ -163,7 +163,7 @@ function Perks() {
                     <img src={r.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
                   ) : (
                     <span className="grid h-12 w-12 place-items-center rounded-lg bg-[#F3F4F6]">
-                      <Gift className="h-5 w-5 text-[#0057B8]" />
+                      <Gift className="h-5 w-5 text-[#0072B2]" />
                     </span>
                   )}
                   <div className="min-w-0 flex-1">
@@ -188,10 +188,10 @@ function Perks() {
               {["Choose an accessory", "Choose a device", "Delivery"].map((s, i) => (
                 <li
                   key={s}
-                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${i === step ? "bg-[#E7F5FB] text-[#0057B8]" : i < step ? "text-[#0057B8]" : "text-[#686E74]"}`}
+                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${i === step ? "bg-[#E7F5FB] text-[#0072B2]" : i < step ? "text-[#0072B2]" : "text-[#686E74]"}`}
                 >
                   <span
-                    className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${i < step ? "bg-[#0057B8] text-white" : i === step ? "border border-[#0057B8]" : "border border-[#DCDFE3]"}`}
+                    className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${i < step ? "bg-[#00388F] text-white" : i === step ? "border border-[#00388F]" : "border border-[#DCDFE3]"}`}
                   >
                     {i < step ? "✓" : i + 1}
                   </span>
@@ -233,13 +233,13 @@ function Perks() {
                         <button
                           key={a.id}
                           onClick={() => setItem(a)}
-                          className={`flex flex-col rounded-xl border p-4 text-left ${active ? "border-[#0057B8] ring-2 ring-[#0057B8]/30" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
+                          className={`flex flex-col rounded-xl border p-4 text-left ${active ? "border-[#00388F] ring-2 ring-[#00388F]/30" : "border-[#DCDFE3] hover:border-[#00388F]"}`}
                         >
                           <span className="grid h-28 place-items-center rounded-lg bg-[#F3F4F6]">
                             {a.image ? (
                               <img src={a.image} alt={a.name} className="h-24 object-contain" />
                             ) : Icon ? (
-                              <Icon className="h-10 w-10 text-[#0057B8]" />
+                              <Icon className="h-10 w-10 text-[#0072B2]" />
                             ) : null}
                           </span>
                           <span className="mt-3 text-[11px] text-[#686E74]">{a.brand}</span>
@@ -290,7 +290,7 @@ function Perks() {
                         <button
                           key={d.id}
                           onClick={() => setDevice(d)}
-                          className={`flex items-center gap-3 rounded-xl border p-4 text-left ${device.id === d.id ? "border-[#0057B8] ring-2 ring-[#0057B8]/30" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
+                          className={`flex items-center gap-3 rounded-xl border p-4 text-left ${device.id === d.id ? "border-[#00388F] ring-2 ring-[#00388F]/30" : "border-[#DCDFE3] hover:border-[#00388F]"}`}
                         >
                           <img src={d.image} alt={d.name} className="h-16 w-11 object-contain" />
                           <span className="min-w-0">
@@ -320,9 +320,9 @@ function Perks() {
                       <button
                         key={label}
                         onClick={() => setMethod(label)}
-                        className={`flex items-start gap-3 rounded-xl border p-4 text-left ${method === label ? "border-[#0057B8] bg-[#E7F5FB]" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
+                        className={`flex items-start gap-3 rounded-xl border p-4 text-left ${method === label ? "border-[#00388F] bg-[#E7F5FB]" : "border-[#DCDFE3] hover:border-[#00388F]"}`}
                       >
-                        <Icon className="mt-0.5 h-5 w-5 shrink-0 text-[#0057B8]" />
+                        <Icon className="mt-0.5 h-5 w-5 shrink-0 text-[#0072B2]" />
                         <span>
                           <span className="block text-sm font-extrabold">{label}</span>
                           <span className="block text-xs text-[#686E74]">{desc}</span>
@@ -342,7 +342,7 @@ function Perks() {
                         />
                       ) : (
                         <span className="grid h-16 w-16 place-items-center rounded-lg bg-[#F3F4F6]">
-                          <Gift className="h-6 w-6 text-[#0057B8]" />
+                          <Gift className="h-6 w-6 text-[#0072B2]" />
                         </span>
                       )}
                       <div className="min-w-0 flex-1">
@@ -396,7 +396,7 @@ function Perks() {
                 <>Arriving in 2 days, free shipping.</>
               )}
             </p>
-            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#E7F5FB] px-3 py-1 text-xs font-bold text-[#0057B8]">
+            <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#E7F5FB] px-3 py-1 text-xs font-bold text-[#0072B2]">
               <Clock className="h-3.5 w-3.5" /> {m.perks.accessoryCredits} accessory credit
               {m.perks.accessoryCredits === 1 ? "" : "s"} left this year
             </p>
@@ -439,7 +439,7 @@ function NavRow({
     <div className="mt-6 flex items-center justify-between border-t border-[#DCDFE3] pt-5">
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-1 text-sm font-bold text-[#0057B8] hover:underline"
+        className="inline-flex items-center gap-1 text-sm font-bold text-[#0072B2] hover:underline"
       >
         <ArrowLeft className="h-4 w-4" /> Back
       </button>

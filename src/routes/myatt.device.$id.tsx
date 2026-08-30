@@ -305,7 +305,7 @@ function ProtectPromo({ d }: { d: MemberDevice }) {
         <Link
           to="/myatt/claims/new"
           search={{ device: d.id } as never}
-          className="mt-4 inline-flex items-center justify-center rounded-full bg-white px-6 py-2.5 text-[13px] font-bold text-[#0057B8] hover:bg-white/90 hover:no-underline"
+          className="mt-4 inline-flex items-center justify-center rounded-full bg-white px-6 py-2.5 text-[13px] font-bold text-[#0072B2] hover:bg-white/90 hover:no-underline"
         >
           File a claim
         </Link>
@@ -516,7 +516,7 @@ function TabData({ d }: { d: MemberDevice }) {
           )}
           {!d.backedUp && (
             <div className="flex flex-wrap items-center gap-3 rounded-xl bg-[#E7F5FB] p-3 text-[14px]">
-              <CloudOff className="h-4 w-4 shrink-0 text-[#0057B8]" />
+              <CloudOff className="h-4 w-4 shrink-0 text-[#0072B2]" />
               <span className="min-w-0 flex-1">
                 Last backup {d.lastBackup.toLowerCase()} — Smart Restore can only return what the
                 vault holds.
@@ -578,8 +578,8 @@ function TabOptions({ d }: { d: MemberDevice }) {
     <div className="p-6">
       {/* Guaranteed trade-in value — locked by the membership, not by the market */}
       {d.protected && (
-        <section className="mb-6 rounded-2xl border-2 border-[#0057B8] bg-[#E7F5FB] p-5">
-          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#0057B8]">
+        <section className="mb-6 rounded-2xl border-2 border-[#00388F] bg-[#E7F5FB] p-5">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#0072B2]">
             <Tag className="h-3.5 w-3.5" /> Guaranteed trade-in value
           </p>
           <p className="mt-2 text-3xl font-extrabold tabular-nums">${d.tradeIn.toLocaleString()}</p>
@@ -590,11 +590,11 @@ function TabOptions({ d }: { d: MemberDevice }) {
           </p>
           <ul className="mt-3 space-y-1.5 text-[13px]">
             <li className="flex items-start gap-2">
-              <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#0057B8]" /> No inspection
+              <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" /> No inspection
               haggling — cosmetic wear is already covered
             </li>
             <li className="flex items-start gap-2">
-              <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#0057B8]" />{" "}
+              <BadgeCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />{" "}
               {d.nextUp
                 ? "Combines with Next Up Anytime for an upgrade any time"
                 : "Enroll in Next Up Anytime to upgrade before the term ends"}
@@ -623,7 +623,7 @@ function TabOptions({ d }: { d: MemberDevice }) {
             className="flex items-center gap-3 rounded-xl border border-[#DCDFE3] p-4 hover:border-[#0072B2] hover:no-underline"
           >
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#E7F5FB]">
-              <Camera className="h-5 w-5 text-[#0057B8]" />
+              <Camera className="h-5 w-5 text-[#0072B2]" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-[14px] font-extrabold">{o.label}</span>

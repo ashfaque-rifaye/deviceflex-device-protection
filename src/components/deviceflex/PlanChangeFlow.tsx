@@ -131,7 +131,7 @@ export function PlanChangeFlow({
                           type="checkbox"
                           checked={on}
                           onChange={() => toggleKeep(d.id)}
-                          className="h-5 w-5 shrink-0 accent-[#00388F]"
+                          className="att-checkbox shrink-0"
                         />
                         <img src={d.image} alt="" className="h-12 w-9 shrink-0 object-contain" />
                         <span className="min-w-0 flex-1">
@@ -189,7 +189,7 @@ export function PlanChangeFlow({
                               checked={on}
                               disabled={blocked || full}
                               onChange={() => toggleAdd(d.id)}
-                              className="h-5 w-5 shrink-0 accent-[#00388F] disabled:cursor-not-allowed"
+                              className="att-checkbox shrink-0 disabled:cursor-not-allowed"
                             />
                             <img
                               src={d.image}

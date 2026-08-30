@@ -37,7 +37,7 @@ function CartPage() {
       <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-extrabold md:text-4xl">My cart</h1>
-          <div className="flex items-center gap-4 text-sm font-bold text-[#0057B8]">
+          <div className="flex items-center gap-4 text-sm font-bold text-[#0072B2]">
             <a href="#" className="hover:underline">
               Save
             </a>
@@ -57,12 +57,12 @@ function CartPage() {
           <div>
             <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
               <h2 className="flex items-center gap-2 text-lg font-extrabold">
-                <Signal className="h-5 w-5 text-[#0057B8]" /> Wireless
+                <Signal className="h-5 w-5 text-[#0072B2]" /> Wireless
               </h2>
               <p className="mt-3 text-sm font-bold">Delivery and pickup options</p>
               <a
                 href="#"
-                className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-[#0057B8] hover:underline"
+                className="mt-2 inline-flex items-center gap-2 text-sm font-bold text-[#0072B2] hover:underline"
               >
                 <AlertTriangle className="h-4 w-4" /> Edit my shipping address
               </a>
@@ -72,10 +72,10 @@ function CartPage() {
                   <p className="text-sm font-extrabold">Line 1</p>
                   <div className="flex gap-2">
                     <button aria-label="Edit" className="rounded p-1.5 hover:bg-[#F3F4F6]">
-                      <Edit2 className="h-4 w-4 text-[#0057B8]" />
+                      <Edit2 className="h-4 w-4 text-[#0072B2]" />
                     </button>
                     <button aria-label="Delete" className="rounded p-1.5 hover:bg-[#F3F4F6]">
-                      <Trash2 className="h-4 w-4 text-[#0057B8]" />
+                      <Trash2 className="h-4 w-4 text-[#0072B2]" />
                     </button>
                   </div>
                 </div>
@@ -99,9 +99,9 @@ function CartPage() {
                 </div>
                 {/* Device protection — the payoff for the add-ons step */}
                 {protectionTier ? (
-                  <div className="mt-4 flex items-start gap-3 rounded-xl border border-[#0057B8] bg-[#E7F5FB] p-4">
+                  <div className="mt-4 flex items-start gap-3 rounded-xl border border-[#00388F] bg-[#E7F5FB] p-4">
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white">
-                      <ShieldCheck className="h-5 w-5 text-[#0057B8]" />
+                      <ShieldCheck className="h-5 w-5 text-[#0072B2]" />
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-extrabold">
@@ -112,7 +112,7 @@ function CartPage() {
                       </p>
                       <button
                         onClick={() => setProtection(null)}
-                        className="mt-1.5 text-xs font-bold text-[#0057B8] hover:underline"
+                        className="mt-1.5 text-xs font-bold text-[#0072B2] hover:underline"
                       >
                         Remove
                       </button>
@@ -156,7 +156,7 @@ function CartPage() {
                             <span className="block truncate text-sm font-bold">{a.name}</span>
                             <button
                               onClick={() => removeAccessory(a.id)}
-                              className="text-xs font-bold text-[#0057B8] hover:underline"
+                              className="text-xs font-bold text-[#0072B2] hover:underline"
                             >
                               Remove
                             </button>
@@ -189,9 +189,9 @@ function CartPage() {
                   <Link
                     key={l}
                     to="/buy/addons"
-                    className="flex flex-col items-center gap-2 rounded-xl border border-[#DCDFE3] bg-white p-4 text-center text-xs font-bold hover:border-[#0057B8] hover:no-underline"
+                    className="flex flex-col items-center gap-2 rounded-xl border border-[#DCDFE3] bg-white p-4 text-center text-xs font-bold hover:border-[#00388F] hover:no-underline"
                   >
-                    <Icon className="h-6 w-6 text-[#0057B8]" />
+                    <Icon className="h-6 w-6 text-[#0072B2]" />
                     {l}
                     {l === "Device protection" && protectionTier && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#1F7A3D]">
@@ -228,11 +228,11 @@ function CartPage() {
               </div>
               <p className="mt-4 text-[11px] leading-relaxed text-[#686E74]">
                 Plus taxes and fees.{" "}
-                <a href="#" className="text-[#0057B8] hover:underline">
+                <a href="#" className="text-[#0072B2] hover:underline">
                   See disclosures
                 </a>
                 . Your services will auto-renew monthly at then-current rates until canceled. See{" "}
-                <a href="#" className="text-[#0057B8] hover:underline">
+                <a href="#" className="text-[#0072B2] hover:underline">
                   att.com/cancel-info
                 </a>
                 .
@@ -273,7 +273,7 @@ function CartPage() {
                 <div className="flex items-start justify-between text-xs">
                   <span>
                     AT&amp;T Administrative/Regulatory Cost Recovery Fee{" "}
-                    <a href="#" className="ml-1 text-[#0057B8] hover:underline">
+                    <a href="#" className="ml-1 text-[#0072B2] hover:underline">
                       See details
                     </a>
                   </span>
@@ -319,7 +319,7 @@ function CartPage() {
                 <p className="pr-3 text-sm">AutoPay and paperless billing discount</p>
                 <button
                   onClick={() => setAutopay(!autopay)}
-                  className={`relative h-6 w-11 shrink-0 rounded-full transition ${autopay ? "bg-[#0057B8]" : "bg-[#DCDFE3]"}`}
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition ${autopay ? "bg-[#00388F]" : "bg-[#DCDFE3]"}`}
                 >
                   <span
                     className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${autopay ? "left-5" : "left-0.5"}`}
@@ -347,7 +347,7 @@ function CartPage() {
                         name="pay"
                         checked={payMethod === k}
                         onChange={() => setPayMethod(k)}
-                        className="mt-0.5 h-4 w-4 accent-[#0057B8]"
+                        className="att-radio shrink-0"
                       />
                       <span>{l}</span>
                     </label>
@@ -362,7 +362,7 @@ function CartPage() {
 
               <button
                 onClick={() => setPromoOpen(!promoOpen)}
-                className="mt-4 flex w-full items-center justify-between border-t border-[#DCDFE3] pt-3 text-sm font-bold text-[#0057B8]"
+                className="mt-4 flex w-full items-center justify-between border-t border-[#DCDFE3] pt-3 text-sm font-bold text-[#0072B2]"
               >
                 Got a promo code?
                 <ChevronDown className={`h-4 w-4 transition ${promoOpen ? "rotate-180" : ""}`} />
@@ -372,7 +372,7 @@ function CartPage() {
                   <input
                     type="text"
                     placeholder="Enter code"
-                    className="flex-1 rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
+                    className="flex-1 rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#00388F]"
                   />
                   <button className="btn-primary text-sm">Apply</button>
                 </div>

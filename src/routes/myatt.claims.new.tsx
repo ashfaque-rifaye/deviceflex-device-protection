@@ -315,7 +315,7 @@ function Flow() {
       <Link
         to="/myatt/protection"
         search={{ device: "" }}
-        className="inline-flex items-center gap-1 text-sm font-bold text-[#0057B8] hover:underline"
+        className="inline-flex items-center gap-1 text-sm font-bold text-[#0072B2] hover:underline"
       >
         <ArrowLeft className="h-4 w-4" /> Back to my protection
       </Link>
@@ -326,12 +326,12 @@ function Flow() {
           {STEPS.map((s, i) => (
             <li
               key={s}
-              className={`flex items-center gap-2 ${i === step ? "text-[#0057B8]" : i < step ? "text-[#1F7A3D]" : "text-[#878C94]"}`}
+              className={`flex items-center gap-2 ${i === step ? "text-[#0072B2]" : i < step ? "text-[#1F7A3D]" : "text-[#878C94]"}`}
             >
               <span
                 className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${
                   i === step
-                    ? "bg-[#0057B8] text-white"
+                    ? "bg-[#00388F] text-white"
                     : i < step
                       ? "bg-[#1F7A3D] text-white"
                       : "bg-[#DCDFE3] text-[#686E74]"
@@ -361,13 +361,13 @@ function Flow() {
                     setReason(r.id);
                     setStep(1);
                   }}
-                  className={`flex items-start justify-between gap-4 rounded-xl border p-4 text-left hover:border-[#0057B8] ${reason === r.id ? "border-[#0057B8] bg-[#E7F5FB]" : "border-[#DCDFE3]"}`}
+                  className={`flex items-start justify-between gap-4 rounded-xl border p-4 text-left hover:border-[#0057B8] ${reason === r.id ? "border-[#00388F] bg-[#E7F5FB]" : "border-[#DCDFE3]"}`}
                 >
                   <div>
                     <p className="font-extrabold">{r.title}</p>
                     <p className="mt-0.5 text-sm text-[#686E74]">{r.desc}</p>
                   </div>
-                  <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-[#0057B8]" />
+                  <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-[#0072B2]" />
                 </button>
               ))}
             </div>
@@ -386,7 +386,7 @@ function Flow() {
                 <button
                   key={d.id}
                   onClick={() => setDevice(d)}
-                  className={`flex items-center gap-3 rounded-xl border p-4 text-left ${device.id === d.id ? "border-[#0057B8] ring-2 ring-[#0057B8]/30" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
+                  className={`flex items-center gap-3 rounded-xl border p-4 text-left ${device.id === d.id ? "border-[#00388F] ring-2 ring-[#00388F]/30" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
                 >
                   <img src={d.image} alt={d.name} className="h-16 w-11 object-contain" />
                   <div className="min-w-0">
@@ -424,7 +424,7 @@ function Flow() {
                     <img src={p} alt="" className="h-full w-full object-cover" />
                   ) : (
                     <span className="text-center text-xs font-bold text-[#686E74]">
-                      <Camera className="mx-auto mb-1 h-6 w-6 text-[#0057B8]" />
+                      <Camera className="mx-auto mb-1 h-6 w-6 text-[#0072B2]" />
                       Add photo {i + 1}
                     </span>
                   )}
@@ -496,7 +496,7 @@ function Flow() {
                   exactly what Asurion asks for on the phone. */}
               <div className="rounded-xl border border-[#DCDFE3] p-4">
                 <p className="flex items-center gap-2 text-sm font-extrabold">
-                  <CalendarDays className="h-4 w-4 text-[#0057B8]" />
+                  <CalendarDays className="h-4 w-4 text-[#0072B2]" />
                   Incident details <span className="font-normal text-[#686E74]">(optional)</span>
                 </p>
                 <p className="mt-1 text-xs text-[#686E74]">
@@ -531,7 +531,7 @@ function Flow() {
                         ? "e.g. taken from my bag on the 14 bus, downtown"
                         : "e.g. left it in a taxi coming back from the airport"
                     }
-                    className="mt-1.5 w-full resize-y rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#0057B8]"
+                    className="mt-1.5 w-full resize-y rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#00388F]"
                   />
                 </label>
 
@@ -702,7 +702,7 @@ function Flow() {
                 <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                   {damage.detected.map((d) => (
                     <li key={d} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0057B8]" />
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />
                       {d}
                     </li>
                   ))}
@@ -755,7 +755,7 @@ function Flow() {
                             <p className="font-extrabold">
                               {o.title}
                               {o.recommended && (
-                                <span className="ml-2 whitespace-nowrap rounded-full bg-[#0057B8] px-2 py-0.5 text-[10px] font-bold text-white">
+                                <span className="ml-2 whitespace-nowrap rounded-full bg-[#00388F] px-2 py-0.5 text-[10px] font-bold text-white">
                                   Recommended
                                 </span>
                               )}
@@ -808,7 +808,7 @@ function Flow() {
 
             {!device.nextUp && (
               <p className="mt-4 flex items-start gap-2 rounded-xl bg-[#F3F4F6] p-3 text-xs text-[#686E74]">
-                <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#0057B8]" />
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />
                 <span>
                   Upgrading instead of replacing requires <b>Next Up Anytime</b> and a device that
                   can't be economically repaired. This device isn't enrolled in Next Up.
@@ -849,7 +849,7 @@ function Flow() {
                     <button
                       key={w}
                       onClick={() => setSlot(w)}
-                      className={`rounded-full border px-4 py-2 text-sm font-bold ${slot === w ? "border-[#0057B8] bg-[#E7F5FB] text-[#0057B8]" : "border-[#DCDFE3]"}`}
+                      className={`rounded-full border px-4 py-2 text-sm font-bold ${slot === w ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3]"}`}
                     >
                       {w}
                     </button>
@@ -860,7 +860,7 @@ function Flow() {
 
             {!isShip && !isHomeRepair && (
               <>
-                <p className="mt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#0057B8]">
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#0072B2]">
                   <Package className="h-3.5 w-3.5" /> Retail &amp; Inventory Agent
                 </p>
                 <p className="mt-1 text-sm text-[#686E74]">
@@ -877,9 +877,9 @@ function Flow() {
                           setStoreId(sm.store.id);
                           setSlot(null);
                         }}
-                        className={`flex items-start gap-3 rounded-xl border p-4 text-left ${active ? "border-[#0057B8] bg-[#E7F5FB]" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
+                        className={`flex items-start gap-3 rounded-xl border p-4 text-left ${active ? "border-[#00388F] bg-[#E7F5FB]" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
                       >
-                        <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#0057B8]" />
+                        <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#0072B2]" />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-extrabold">{sm.store.name}</p>
                           <p className="text-xs text-[#686E74]">
@@ -906,7 +906,7 @@ function Flow() {
                         <button
                           key={s}
                           onClick={() => setSlot(s)}
-                          className={`rounded-full border px-4 py-2 text-sm font-bold ${slot === s ? "border-[#0057B8] bg-[#E7F5FB] text-[#0057B8]" : "border-[#DCDFE3]"}`}
+                          className={`rounded-full border px-4 py-2 text-sm font-bold ${slot === s ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3]"}`}
                         >
                           {s}
                         </button>
@@ -1071,7 +1071,7 @@ function Confirmation({
       {ack && (
         <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-[#DCDFE3] p-5 text-left">
           <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#686E74]">
-            <Building2 className="h-3.5 w-3.5 text-[#0057B8]" /> Sent to {ASURION.short}
+            <Building2 className="h-3.5 w-3.5 text-[#0072B2]" /> Sent to {ASURION.short}
           </p>
           <p className="mt-2 text-sm">
             Your claim has been submitted to <b>{ASURION.administrator}</b>, who administers
@@ -1160,11 +1160,11 @@ function Confirmation({
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0057B8]" /> Bring the damaged device
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" /> Bring the damaged device
               and a photo ID
             </li>
             <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0057B8]" /> Your new device is
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" /> Your new device is
               configured before you leave
             </li>
           </ul>
@@ -1195,7 +1195,7 @@ function Confirmation({
               <p className="mt-2 text-sm">{steps[idx]}</p>
               <div className="mx-auto mt-3 h-2 w-56 overflow-hidden rounded-full bg-[#F3F4F6]">
                 <div
-                  className="h-full rounded-full bg-[#0057B8] transition-all"
+                  className="h-full rounded-full bg-[#00388F] transition-all"
                   style={{ width: `${((idx + 1) / steps.length) * 100}%` }}
                 />
               </div>

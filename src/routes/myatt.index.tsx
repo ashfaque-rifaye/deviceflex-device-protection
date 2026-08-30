@@ -45,7 +45,7 @@ function Overview() {
   return (
     <>
       <AccountNav active="Account" />
-      <div className="bg-[#0057B8] py-2.5 text-center text-sm text-white">
+      <div className="bg-[#00388F] py-2.5 text-center text-sm text-white">
         AT&amp;T will never call you for a one-time PIN.{" "}
         <a href="#" className="font-bold underline">
           Learn safety tips ›
@@ -56,7 +56,7 @@ function Overview() {
         <div className="grid gap-6 lg:grid-cols-3">
           <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
             <div className="flex items-start gap-3">
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-[#E7F5FB] text-lg font-extrabold text-[#0057B8]">
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-[#E7F5FB] text-lg font-extrabold text-[#0072B2]">
                 {m.firstName[0]}
               </span>
               <div className="min-w-0 flex-1">
@@ -66,9 +66,9 @@ function Overview() {
                 </p>
                 <p className="text-xs text-[#686E74]">Account {m.accountNumber}</p>
               </div>
-              <Settings className="h-5 w-5 shrink-0 text-[#0057B8]" />
+              <Settings className="h-5 w-5 shrink-0 text-[#0072B2]" />
             </div>
-            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-[#DCDFE3] pt-4 text-sm font-bold text-[#0057B8]">
+            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 border-t border-[#DCDFE3] pt-4 text-sm font-bold text-[#0072B2]">
               <a href="#" className="hover:underline">
                 Manage profile
               </a>
@@ -91,7 +91,7 @@ function Overview() {
 
           {/* Protection status — enrolled vs not */}
           {m.enrolled ? (
-            <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0057B8] to-[#009FDB] p-6 text-white">
+            <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#00388F] to-[#009FDB] p-6 text-white">
               <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full border-[16px] border-white/15" />
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5" />
@@ -109,7 +109,7 @@ function Overview() {
                 <Link
                   to="/myatt/protection"
                   search={{ device: "" }}
-                  className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#0057B8] hover:bg-white/90"
+                  className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#0072B2] hover:bg-white/90"
                 >
                   Manage plan
                 </Link>
@@ -123,7 +123,7 @@ function Overview() {
               </div>
             </section>
           ) : (
-            <section className="relative overflow-hidden rounded-2xl border-2 border-[#0057B8] bg-white p-6">
+            <section className="relative overflow-hidden rounded-2xl border-2 border-[#00388F] bg-white p-6">
               <div className="flex items-center gap-2">
                 <ShieldOff className="h-5 w-5 text-[#C70032]" />
                 <p className="text-xs font-bold uppercase tracking-widest text-[#686E74]">
@@ -186,7 +186,7 @@ function Overview() {
           <div className="flex items-center justify-between">
             <h2 className="att-h3">My devices</h2>
             {m.enrolled && (
-              <Link to="/myatt/family" className="text-sm font-bold text-[#0057B8] hover:underline">
+              <Link to="/myatt/family" className="text-sm font-bold text-[#0072B2] hover:underline">
                 Manage family &gt;
               </Link>
             )}
@@ -207,9 +207,9 @@ function Quick({ to, Icon, label }: { to: string; Icon: typeof Camera; label: st
   return (
     <Link
       to={to}
-      className="inline-flex items-center gap-2 rounded-full border border-[#DCDFE3] px-4 py-2 text-sm font-bold hover:border-[#0057B8]"
+      className="inline-flex items-center gap-2 rounded-full border border-[#DCDFE3] px-4 py-2 text-sm font-bold hover:border-[#00388F]"
     >
-      <Icon className="h-4 w-4 text-[#0057B8]" /> {label}
+      <Icon className="h-4 w-4 text-[#0072B2]" /> {label}
     </Link>
   );
 }
@@ -217,9 +217,9 @@ function ChatQuick() {
   return (
     <button
       onClick={openChat}
-      className="inline-flex items-center gap-2 rounded-full border border-[#DCDFE3] px-4 py-2 text-sm font-bold hover:border-[#0057B8]"
+      className="inline-flex items-center gap-2 rounded-full border border-[#DCDFE3] px-4 py-2 text-sm font-bold hover:border-[#00388F]"
     >
-      <MessageSquare className="h-4 w-4 text-[#0057B8]" /> Chat with us
+      <MessageSquare className="h-4 w-4 text-[#0072B2]" /> Chat with us
     </button>
   );
 }

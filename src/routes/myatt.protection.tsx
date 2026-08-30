@@ -60,7 +60,7 @@ function Manage() {
           <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#FDE9EE]">
             <ShieldOff className="h-7 w-7 text-[#C70032]" />
           </span>
-          <h1 className="mt-5 text-3xl font-extrabold">No protection on this account</h1>
+          <h1 className="att-h1 mt-5">No protection on this account</h1>
           <p className="mt-2 text-sm text-[#686E74]">
             You have {m.devices.filter((d) => d.eligible).length} eligible devices that can be
             covered today.
@@ -79,18 +79,16 @@ function Manage() {
       <div className="mx-auto max-w-[1200px] px-4 py-8 sm:px-6 lg:px-10">
         <Link
           to="/myatt"
-          className="inline-flex items-center gap-1 text-sm font-bold text-[#0057B8] hover:underline"
+          className="inline-flex items-center gap-1 text-sm font-bold text-[#0072B2] hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> Back to account
         </Link>
 
         <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-[#686E74]">
-              Manage plan
-            </p>
-            <h1 className="mt-1 text-3xl font-extrabold md:text-4xl">AT&amp;T Protect Advantage</h1>
-            <p className="mt-1 text-sm text-[#686E74]">
+            <p className="att-eyebrow">Manage plan</p>
+            <h1 className="att-h1 mt-1">AT&amp;T Protect Advantage</h1>
+            <p className="att-small mt-1">
               {tier?.name} · ${m.tierPrice}/mo. · {poolStatus(m).label}
             </p>
           </div>
@@ -101,14 +99,14 @@ function Manage() {
 
         {/* Focused device banner when arriving from a device card */}
         {focus && (
-          <div className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl border border-[#0057B8] bg-[#E7F5FB] p-5">
+          <div className="mt-6 flex flex-wrap items-center gap-4 rounded-2xl border border-[#00388F] bg-[#E7F5FB] p-5">
             <img src={focus.image} alt={focus.name} className="h-20 w-14 object-contain" />
             <div className="min-w-0 flex-1">
               <p className="text-xs text-[#686E74]">
                 {focus.owner} · {focus.line}
               </p>
               <p className="text-lg font-extrabold">{focus.name}</p>
-              <p className="text-sm text-[#0057B8]">
+              <p className="text-sm text-[#0072B2]">
                 {focus.protected ? `Covered under Protect Advantage ${tier?.name}` : "Not covered"}{" "}
                 · {focus.warranty} · Next Up {focus.nextUp ? "enrolled" : "not enrolled"}
               </p>
@@ -122,10 +120,13 @@ function Manage() {
         <div className="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
           <div className="space-y-6">
             <ProtectionScore member={m} />
-            <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
+            <section
+              className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
+              style={{ boxShadow: "var(--att-shadow-1)" }}
+            >
               <div className="flex items-center gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-full bg-[#E7F5FB]">
-                  <Gift className="h-5 w-5 text-[#0057B8]" />
+                  <Gift className="h-5 w-5 text-[#0072B2]" />
                 </span>
                 <div>
                   <h2 className="text-base font-extrabold">Annual accessory perk</h2>
@@ -151,8 +152,11 @@ function Manage() {
 
           <div className="space-y-6">
             {/* What's covered */}
-            <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
-              <h2 className="text-lg font-extrabold">What your plan covers</h2>
+            <section
+              className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
+              style={{ boxShadow: "var(--att-shadow-1)" }}
+            >
+              <h2 className="att-h4">What your plan covers</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {[
                   ["Accidental damage", "Drops, cracked screens, liquid & spills"],
@@ -175,9 +179,12 @@ function Manage() {
             </section>
 
             {/* Covered devices */}
-            <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
+            <section
+              className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
+              style={{ boxShadow: "var(--att-shadow-1)" }}
+            >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="text-lg font-extrabold">Devices on this plan</h2>
+                <h2 className="att-h4">Devices on this plan</h2>
                 <p className="text-xs text-[#686E74]">
                   Your deductible if you claim — known upfront
                 </p>
@@ -207,7 +214,7 @@ function Manage() {
                       >
                         {d.protected ? "Covered" : "Not covered"}
                       </span>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-[#0057B8]" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-[#0072B2]" />
                     </Link>
                   </li>
                 ))}
@@ -215,8 +222,11 @@ function Manage() {
             </section>
 
             {/* Plan actions */}
-            <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
-              <h2 className="text-lg font-extrabold">Plan actions</h2>
+            <section
+              className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
+              style={{ boxShadow: "var(--att-shadow-1)" }}
+            >
+              <h2 className="att-h4">Plan actions</h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <Action
                   to="/myatt/claims/new"
@@ -246,10 +256,13 @@ function Manage() {
             </section>
 
             {/* Claim history — every claim filed on this account */}
-            <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
+            <section
+              className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
+              style={{ boxShadow: "var(--att-shadow-1)" }}
+            >
               <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-[#0057B8]" />
-                <h2 className="text-lg font-extrabold">Claim history</h2>
+                <FileText className="h-4 w-4 text-[#0072B2]" />
+                <h2 className="att-h4">Claim history</h2>
               </div>
               {m.claims.length === 0 ? (
                 <p className="mt-3 text-sm text-[#686E74]">No claims yet on this account.</p>
@@ -271,7 +284,7 @@ function Manage() {
                           c.status === "Resolved"
                             ? "bg-[#EAF7EE] text-[#1F7A3D]"
                             : c.status === "Booked"
-                              ? "bg-[#E7F5FB] text-[#0057B8]"
+                              ? "bg-[#E7F5FB] text-[#0072B2]"
                               : "bg-[#FFF3E0] text-[#9E5D00]"
                         }`}
                       >
@@ -286,14 +299,15 @@ function Manage() {
 
             {/* New, not refurbished — the certificates we have issued */}
             {m.guarantees.length > 0 && (
-              <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
+              <section
+                className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
+                style={{ boxShadow: "var(--att-shadow-1)" }}
+              >
                 <div className="flex items-center gap-2">
                   <BadgeCheck className="h-4 w-4 text-[#1F7A3D]" />
-                  <h2 className="text-lg font-extrabold">
-                    &ldquo;New, not refurbished&rdquo; guarantees
-                  </h2>
+                  <h2 className="att-h4">&ldquo;New, not refurbished&rdquo; guarantees</h2>
                 </div>
-                <p className="mt-1 text-sm text-[#686E74]">
+                <p className="att-small mt-1">
                   Every replacement we issue is factory new and sealed. Here is the proof.
                 </p>
                 <ul className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -321,9 +335,12 @@ function Manage() {
             )}
 
             {/* Tier ladder — a real switch, not a display */}
-            <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
-              <h2 className="text-lg font-extrabold">Compare tiers</h2>
-              <p className="mt-1 text-sm text-[#686E74]">
+            <section
+              className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
+              style={{ boxShadow: "var(--att-shadow-1)" }}
+            >
+              <h2 className="att-h4">Compare tiers</h2>
+              <p className="att-small mt-1">
                 Change any time. No contract, no cancellation fee — it takes effect on your next
                 bill.
               </p>
@@ -333,7 +350,7 @@ function Manage() {
                   return (
                     <div
                       key={t.id}
-                      className={`flex flex-col rounded-xl border p-4 ${current ? "border-[#0057B8] bg-[#E7F5FB]" : "border-[#DCDFE3]"}`}
+                      className={`flex flex-col rounded-xl border p-4 ${current ? "border-[#00388F] bg-[#E7F5FB]" : "border-[#DCDFE3]"}`}
                     >
                       <p className="text-sm font-extrabold">{t.name}</p>
                       <p className="mt-1 text-2xl font-extrabold">
@@ -346,7 +363,7 @@ function Manage() {
                         vault
                       </p>
                       {current ? (
-                        <p className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#0057B8]">
+                        <p className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#0072B2]">
                           <Check className="h-3.5 w-3.5" /> Your current plan
                         </p>
                       ) : (
@@ -398,16 +415,16 @@ function Action({
   return (
     <Link
       to={to}
-      className="flex items-start gap-3 rounded-xl border border-[#DCDFE3] p-4 hover:border-[#0057B8]"
+      className="flex items-start gap-3 rounded-xl border border-[#DCDFE3] p-4 hover:border-[#00388F]"
     >
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#E7F5FB]">
-        <Icon className="h-5 w-5 text-[#0057B8]" />
+        <Icon className="h-5 w-5 text-[#0072B2]" />
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-extrabold">{title}</p>
         <p className="text-xs text-[#686E74]">{desc}</p>
       </div>
-      <ChevronRight className="mt-2 h-4 w-4 shrink-0 text-[#0057B8]" />
+      <ChevronRight className="mt-2 h-4 w-4 shrink-0 text-[#0072B2]" />
     </Link>
   );
 }

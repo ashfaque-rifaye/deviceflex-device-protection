@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ChevronDown, Heart, Smartphone, MapPin } from "lucide-react";
+import { Checkbox } from "@/components/att";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalWidgets } from "@/components/site/GlobalWidgets";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -52,7 +53,7 @@ function PhonesPage() {
           <aside className="text-sm">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-extrabold">Filters</h2>
-              <button className="text-xs font-bold text-[#0057B8] hover:underline">
+              <button className="text-xs font-bold text-[#0072B2] hover:underline">
                 Clear all
               </button>
             </div>
@@ -68,19 +69,19 @@ function PhonesPage() {
               </button>
             </div>
             <div className="mt-4 flex items-center gap-2 rounded-lg border border-[#DCDFE3] p-3">
-              <Smartphone className="h-5 w-5 text-[#0057B8]" />
+              <Smartphone className="h-5 w-5 text-[#0072B2]" />
               <div className="text-[13px]">
                 <div className="font-bold">Bring your own device</div>
-                <a href="#" className="text-xs font-bold text-[#0057B8] hover:underline">
+                <a href="#" className="text-xs font-bold text-[#0072B2] hover:underline">
                   Get started &gt;
                 </a>
               </div>
             </div>
             <div className="mt-3 flex items-center gap-2 rounded-lg border border-[#DCDFE3] p-3">
-              <MapPin className="h-5 w-5 text-[#0057B8]" />
+              <MapPin className="h-5 w-5 text-[#0072B2]" />
               <div className="text-[13px]">
                 <div className="font-bold">Buy online &amp; pick up at store</div>
-                <a href="#" className="text-xs font-bold text-[#0057B8] hover:underline">
+                <a href="#" className="text-xs font-bold text-[#0072B2] hover:underline">
                   Find stores &gt;
                 </a>
               </div>
@@ -152,10 +153,10 @@ function PhonesPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-bold">57 items</p>
               <div className="flex flex-wrap items-center gap-2 text-sm">
-                <button className="rounded-full border border-[#0057B8] px-4 py-1.5 text-xs font-bold text-[#0057B8] hover:bg-[#E7F5FB]">
+                <button className="rounded-full border border-[#00388F] px-4 py-1.5 text-xs font-bold text-[#0072B2] hover:bg-[#E7F5FB]">
                   Help me choose
                 </button>
-                <button className="text-xs font-bold text-[#0057B8]">Hide filters</button>
+                <button className="text-xs font-bold text-[#0072B2]">Hide filters</button>
                 <button className="inline-flex items-center gap-1 rounded-md border border-[#DCDFE3] px-3 py-1.5 text-xs font-bold">
                   Sort-by: Best-selling <ChevronDown className="h-4 w-4" />
                 </button>
@@ -176,7 +177,7 @@ function PhonesPage() {
                       loading="lazy"
                       className="h-full w-full flex-1 object-cover"
                     />
-                    <span className="p-4 text-sm font-bold text-[#0057B8] group-hover:underline">
+                    <span className="p-4 text-sm font-bold text-[#0072B2] group-hover:underline">
                       See offer details &gt;
                     </span>
                   </a>
@@ -203,7 +204,7 @@ function PhonesPage() {
                     <h3 className="mt-3 text-sm font-extrabold leading-snug">{c.title}</h3>
                     <a
                       href="#"
-                      className="mt-2 inline-block text-xs font-bold text-[#0057B8] hover:underline"
+                      className="mt-2 inline-block text-xs font-bold text-[#0072B2] hover:underline"
                     >
                       {c.cta} &gt;
                     </a>
@@ -218,7 +219,7 @@ function PhonesPage() {
                 <h2 className="text-center text-2xl font-extrabold md:text-3xl">
                   Frequently asked questions
                 </h2>
-                <a href="#" className="text-sm font-bold text-[#0057B8] hover:underline">
+                <a href="#" className="text-sm font-bold text-[#0072B2] hover:underline">
                   Expand all
                 </a>
               </div>
@@ -227,7 +228,7 @@ function PhonesPage() {
                   <details key={q} className="group py-5">
                     <summary className="flex cursor-pointer items-center justify-between text-base font-bold">
                       {q}
-                      <ChevronDown className="h-5 w-5 text-[#0057B8] transition group-open:rotate-180" />
+                      <ChevronDown className="h-5 w-5 text-[#0072B2] transition group-open:rotate-180" />
                     </summary>
                     <p className="mt-3 text-sm text-[#686E74]">
                       Placeholder answer explaining details about this question.
@@ -276,7 +277,7 @@ function PhonesPage() {
                     <ul className="mt-2 space-y-1">
                       {(items as string[]).map((l) => (
                         <li key={l}>
-                          <a href="#" className="text-[#0057B8] hover:underline">
+                          <a href="#" className="text-[#0072B2] hover:underline">
                             {l}
                           </a>
                         </li>
@@ -317,16 +318,20 @@ function FilterGroup({
       {open && (
         <ul className="mt-3 space-y-2 text-sm">
           {items.map(([l, n]) => (
-            <li key={l} className="flex items-center gap-2">
-              <input type="checkbox" className="h-4 w-4 accent-[#0057B8]" />
-              <span>
-                {l} <span className="text-[#686E74]">({n})</span>
-              </span>
+            <li key={l}>
+              <Checkbox
+                className="min-h-0 py-1"
+                label={
+                  <>
+                    {l} <span className="text-[#686E74]">({n})</span>
+                  </>
+                }
+              />
             </li>
           ))}
           {showAll && (
             <li>
-              <a href="#" className="text-xs font-bold text-[#0057B8] hover:underline">
+              <a href="#" className="text-xs font-bold text-[#0072B2] hover:underline">
                 [+] Show all
               </a>
             </li>
@@ -355,7 +360,7 @@ function ProductCard({ p }: { p: PlpDevice }) {
         />
         <span className="text-xs text-[#686E74]">{p.colorName}</span>
       </div>
-      <a href="#" className="mt-2 text-xs font-bold text-[#0057B8] hover:underline">
+      <a href="#" className="mt-2 text-xs font-bold text-[#0072B2] hover:underline">
         Quick view &gt;
       </a>
       <p className="mt-2 text-xs text-[#686E74]">{p.brand}</p>
@@ -373,17 +378,15 @@ function ProductCard({ p }: { p: PlpDevice }) {
         Req's new line &amp; elig. unlimited plan. Promo credit/mo. for 36 mos. via bill credits.
         Restrictions apply.
       </p>
-      <a href="#" className="mt-1 text-xs font-bold text-[#0057B8] hover:underline">
+      <a href="#" className="mt-1 text-xs font-bold text-[#0072B2] hover:underline">
         See offer details
       </a>
       <div className="mt-4 flex items-center justify-between border-t border-[#DCDFE3] pt-3 text-xs">
-        <label className="flex items-center gap-1.5 font-bold">
-          <input type="checkbox" className="h-4 w-4 accent-[#0057B8]" /> Compare
-        </label>
+        <Checkbox className="min-h-0 py-0 font-bold" label="Compare" />
         <button aria-label="Save" className="rounded-full p-1 hover:bg-[#F3F4F6]">
           <Heart className="h-4 w-4" />
         </button>
-        <Link to={PDP} className="font-bold text-[#0057B8] hover:underline">
+        <Link to={PDP} className="font-bold text-[#0072B2] hover:underline">
           See device offers &gt;
         </Link>
       </div>

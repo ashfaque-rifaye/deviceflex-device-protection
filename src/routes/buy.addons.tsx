@@ -10,6 +10,7 @@ import {
   Shield,
   ShieldCheck,
 } from "lucide-react";
+import { Button, Modal } from "@/components/att";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalWidgets } from "@/components/site/GlobalWidgets";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -118,7 +119,7 @@ function AddonsPage() {
             onClick={() => setOfferOpen(!offerOpen)}
             className="flex w-full items-center gap-3 text-left"
           >
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0057B8] text-white">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#00388F] text-white">
               <DollarSign className="h-5 w-5" />
             </span>
             <span className="flex-1 font-extrabold">Offer applied (1)</span>
@@ -137,7 +138,7 @@ function AddonsPage() {
         <section className="mt-12">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-2xl font-extrabold">Protect it with AT&amp;T Protect Advantage</h2>
-            <span className="rounded-full bg-[#E7F5FB] px-3 py-1 text-[11px] font-bold text-[#0057B8]">
+            <span className="rounded-full bg-[#E7F5FB] px-3 py-1 text-[11px] font-bold text-[#0072B2]">
               Powered by DeviceFlex AI
             </span>
           </div>
@@ -148,7 +149,7 @@ function AddonsPage() {
             {BENEFITS.map((b) => (
               <li key={b} className="flex items-start gap-3 text-sm">
                 <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#E7F5FB]">
-                  <Check className="h-4 w-4 text-[#0057B8]" />
+                  <Check className="h-4 w-4 text-[#0072B2]" />
                 </span>
                 {b}
               </li>
@@ -259,7 +260,7 @@ function AddonsPage() {
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
-                  className={`h-2 w-2 rounded-full ${i === 0 ? "bg-[#0057B8]" : "bg-[#DCDFE3]"}`}
+                  className={`h-2 w-2 rounded-full ${i === 0 ? "bg-[#00388F]" : "bg-[#DCDFE3]"}`}
                 />
               ))}
             </div>
@@ -308,75 +309,71 @@ function AddonsPage() {
 
 function ProtectionModal({ onClose, onContinue }: { onClose: () => void; onContinue: () => void }) {
   return (
-    <div className="fixed inset-0 z-[60] grid place-items-center bg-black/50 px-4 py-8 overflow-y-auto">
-      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-8 shadow-2xl">
-        <button
-          aria-label="Close"
-          onClick={onClose}
-          className="absolute right-4 top-4 rounded p-1 hover:bg-[#F3F4F6]"
-        >
-          <X className="h-5 w-5" />
-        </button>
-        <div className="text-center">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#E7F5FB]">
-            <Shield className="h-7 w-7 text-[#0057B8]" />
-          </span>
-          <h2 className="mt-4 text-2xl font-extrabold">Wait! Your device isn't protected.</h2>
-        </div>
-
-        <div className="mt-6 overflow-hidden rounded-xl border border-[#DCDFE3]">
-          <div className="grid grid-cols-3 bg-[#F3F4F6] text-xs font-extrabold">
-            <div className="p-3">Claim</div>
-            <div className="p-3 text-center">Without coverage</div>
-            <div className="relative p-3 text-center">
-              With coverage
-              <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-[#0057B8] px-2 py-0.5 text-[10px] text-white">
-                Recommended
-              </span>
-            </div>
-          </div>
-          {[
-            ["Cracked screen repair", "$329*", "$0"],
-            ["Phone replacement", "Full retail price", "Deductible & service fees"],
-            ["Battery replacement", "$69*", "$0"],
-          ].map(([c, a, b]) => (
-            <div key={c} className="grid grid-cols-3 border-t border-[#DCDFE3] text-sm">
-              <div className="p-3 font-bold">{c}</div>
-              <div className="p-3 text-center">{a}</div>
-              <div className="p-3 text-center bg-[#E7F5FB]">{b}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-5 rounded-xl bg-[#F3F4F6] p-5">
-          <p className="text-sm font-extrabold">AT&amp;T Protect Advantage offers more:</p>
-          <ul className="mt-3 space-y-2 text-sm">
-            <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-4 w-4 text-[#0057B8]" /> Unlimited number of claims for
-              damage, loss, and theft
-            </li>
-            <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-4 w-4 text-[#0057B8]" /> ProTech expert support to help you
-              with your covered devices
-            </li>
-          </ul>
-        </div>
-
-        <p className="mt-4 text-[11px] leading-relaxed text-[#686E74]">
-          *Prices vary by device. See terms for full details on coverage, deductibles, and service
-          fees.
-        </p>
-
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row-reverse">
-          <button onClick={onContinue} className="btn-primary flex-1">
-            Continue without device protection
-          </button>
-          <button onClick={onClose} className="btn-secondary flex-1">
+    <Modal
+      open
+      onClose={onClose}
+      size="lg"
+      actions={
+        <>
+          <Button variant="secondary" onClick={onClose} className="sm:flex-none">
             See device protection options
-          </button>
-        </div>
+          </Button>
+          <Button onClick={onContinue} className="sm:flex-none">
+            Continue without device protection
+          </Button>
+        </>
+      }
+    >
+      <div className="text-center">
+        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#E7F5FB]">
+          <Shield className="h-7 w-7 text-[#0072B2]" />
+        </span>
+        <h2 className="att-h3 mt-4">Wait! Your device isn&apos;t protected.</h2>
       </div>
-    </div>
+
+      <div className="mt-6 overflow-hidden rounded-xl border border-[#DCDFE3]">
+        <div className="grid grid-cols-3 bg-[#F3F4F6] text-xs font-extrabold">
+          <div className="p-3">Claim</div>
+          <div className="p-3 text-center">Without coverage</div>
+          <div className="relative p-3 text-center">
+            With coverage
+            <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-[#00388F] px-2 py-0.5 text-[10px] text-white">
+              Recommended
+            </span>
+          </div>
+        </div>
+        {[
+          ["Cracked screen repair", "$329*", "$0"],
+          ["Phone replacement", "Full retail price", "Deductible & service fees"],
+          ["Battery replacement", "$69*", "$0"],
+        ].map(([c, a, b]) => (
+          <div key={c} className="grid grid-cols-3 border-t border-[#DCDFE3] text-sm">
+            <div className="p-3 font-bold">{c}</div>
+            <div className="p-3 text-center">{a}</div>
+            <div className="bg-[#E7F5FB] p-3 text-center">{b}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 rounded-xl bg-[#F3F4F6] p-5">
+        <p className="text-sm font-extrabold">AT&amp;T Protect Advantage offers more:</p>
+        <ul className="mt-3 space-y-2 text-sm">
+          <li className="flex items-start gap-2">
+            <Check className="mt-0.5 h-4 w-4 text-[#0072B2]" /> Unlimited number of claims for
+            damage, loss, and theft
+          </li>
+          <li className="flex items-start gap-2">
+            <Check className="mt-0.5 h-4 w-4 text-[#0072B2]" /> ProTech expert support to help you
+            with your covered devices
+          </li>
+        </ul>
+      </div>
+
+      <p className="att-small mt-4 text-[11px] leading-relaxed">
+        *Prices vary by device. See terms for full details on coverage, deductibles, and service
+        fees.
+      </p>
+    </Modal>
   );
 }
 

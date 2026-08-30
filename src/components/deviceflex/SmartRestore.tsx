@@ -195,7 +195,7 @@ export function SmartRestore({
                         type="checkbox"
                         checked={on}
                         onChange={() => toggle(key)}
-                        className="h-5 w-5 shrink-0 accent-[#00388F]"
+                        className="att-checkbox shrink-0"
                       />
                       <Icon className="h-5 w-5 shrink-0 text-[#00388F]" />
                       <span className="min-w-0 flex-1">
@@ -354,12 +354,7 @@ function DeviceRow({
 }) {
   return (
     <label className={`att-choice flex items-center gap-3 !p-4 ${selected ? "att-choice-on" : ""}`}>
-      <input
-        type="radio"
-        checked={selected}
-        onChange={onSelect}
-        className="h-5 w-5 shrink-0 accent-[#00388F]"
-      />
+      <input type="radio" checked={selected} onChange={onSelect} className="att-radio shrink-0" />
       <img src={d.image} alt="" className="h-12 w-9 shrink-0 object-contain" />
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-bold">{d.name}</span>

@@ -13,7 +13,7 @@ export function BuyFlowStepper({ current }: { current: 1 | 2 | 3 | 4 | 5 }) {
     <div className="flex flex-wrap items-center gap-3">
       <div className="flex flex-1 flex-wrap items-center gap-1 rounded-full border border-[#DCDFE3] bg-white px-3 py-2">
         <span className="grid h-8 w-8 place-items-center rounded-full bg-[#E7F5FB]">
-          <Smartphone className="h-4 w-4 text-[#0057B8]" />
+          <Smartphone className="h-4 w-4 text-[#0072B2]" />
         </span>
         {STEPS.map((label, i) => {
           const n = i + 1;
@@ -24,9 +24,9 @@ export function BuyFlowStepper({ current }: { current: 1 | 2 | 3 | 4 | 5 }) {
               key={label}
               className={`rounded-full px-3 py-1.5 text-xs md:text-sm ${
                 active
-                  ? "bg-[#E7F5FB] font-bold text-[#0057B8]"
+                  ? "bg-[#E7F5FB] font-bold text-[#0072B2]"
                   : done
-                    ? "font-bold text-[#0057B8]"
+                    ? "font-bold text-[#0072B2]"
                     : "text-[#686E74]"
               }`}
             >
@@ -35,7 +35,7 @@ export function BuyFlowStepper({ current }: { current: 1 | 2 | 3 | 4 | 5 }) {
           );
         })}
       </div>
-      <button className="rounded-full border border-[#0057B8] px-5 py-2.5 text-sm font-bold text-[#0057B8] hover:bg-[#E7F5FB]">
+      <button className="rounded-full border border-[#00388F] px-5 py-2.5 text-sm font-bold text-[#0072B2] hover:bg-[#E7F5FB]">
         Checkout
       </button>
     </div>

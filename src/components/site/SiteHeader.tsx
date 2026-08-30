@@ -55,10 +55,10 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
               </button>
             </div>
             <div className="absolute right-0 hidden items-center gap-5 text-xs font-semibold text-[#1D2329] sm:flex">
-              <a href="#" className="hover:text-[#0057B8]">
+              <a href="#" className="hover:text-[#0072B2]">
                 Find a store
               </a>
-              <a href="#" className="hover:text-[#0057B8]">
+              <a href="#" className="hover:text-[#0072B2]">
                 Ver en español
               </a>
             </div>
@@ -82,7 +82,7 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
                     key={label}
                     onClick={() => setOpenMenu(active ? null : label)}
                     className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[15px] font-bold ${
-                      active ? "bg-[#E7F5FB] text-[#0057B8]" : "text-[#1D2329] hover:bg-[#F3F4F6]"
+                      active ? "bg-[#E7F5FB] text-[#0072B2]" : "text-[#1D2329] hover:bg-[#F3F4F6]"
                     }`}
                   >
                     <span
@@ -165,12 +165,12 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
                         </button>
                         <button className="btn-secondary mt-3 w-full">Create an account</button>
                         <div className="mt-3 text-center">
-                          <a href="#" className="text-sm font-bold text-[#0057B8] hover:underline">
+                          <a href="#" className="text-sm font-bold text-[#0072B2] hover:underline">
                             Forgot user ID?
                           </a>
                         </div>
                         <div className="my-4 border-t border-[#DCDFE3]" />
-                        <ul className="space-y-3 text-sm font-bold text-[#0057B8]">
+                        <ul className="space-y-3 text-sm font-bold text-[#0072B2]">
                           <li>
                             <a href="#" className="hover:underline">
                               Make a payment
@@ -218,7 +218,7 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
                   <ChevronDown className="h-4 w-4" />
                 </button>
               ))}
-              <Link to="/buy/phones" className="block px-2 py-3 text-base font-bold text-[#0057B8]">
+              <Link to="/buy/phones" className="block px-2 py-3 text-base font-bold text-[#0072B2]">
                 Shop phones
               </Link>
             </div>
@@ -279,7 +279,7 @@ function ShopMega({
                 onClick={() => setTab(key)}
                 className={`relative flex w-full items-center justify-between rounded-lg px-4 py-3 text-left text-[15px] ${
                   active
-                    ? "bg-[#E7F5FB] font-bold text-[#0057B8]"
+                    ? "bg-[#E7F5FB] font-bold text-[#0072B2]"
                     : "font-semibold text-[#1D2329] hover:bg-[#F3F4F6]"
                 }`}
               >
@@ -302,7 +302,7 @@ function ShopMega({
               {["Upgrade", "Add a line", "Bring your own phone", "Switch & save"].map((l, i) => (
                 <span key={l} className="flex items-center gap-3">
                   {i > 0 && <span className="text-[#DCDFE3]">|</span>}
-                  <a href="#" className="font-bold text-[#0057B8] hover:underline">
+                  <a href="#" className="font-bold text-[#0072B2] hover:underline">
                     {l}
                   </a>
                 </span>
@@ -358,7 +358,7 @@ function ShopMega({
                   <Link
                     to="/buy/phones"
                     onClick={onClose}
-                    className="font-bold text-[#0057B8] hover:underline"
+                    className="font-bold text-[#0072B2] hover:underline"
                   >
                     {l}
                   </Link>
@@ -439,14 +439,14 @@ function MegaCol({
               <Link
                 to={linkFirstTo}
                 onClick={onClick}
-                className="text-[#1D2329] hover:text-[#0057B8]"
+                className="text-[#1D2329] hover:text-[#0072B2]"
               >
                 {l}
               </Link>
             </li>
           ) : (
             <li key={l}>
-              <a href="#" className="text-[#1D2329] hover:text-[#0057B8]">
+              <a href="#" className="text-[#1D2329] hover:text-[#0072B2]">
                 {l}
               </a>
             </li>

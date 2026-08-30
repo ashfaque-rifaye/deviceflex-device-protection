@@ -54,7 +54,7 @@ function PDP() {
       <SiteHeader cartCount={0} />
 
       <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-10">
-        <Link to="/buy/phones" className="text-sm font-bold text-[#0057B8] hover:underline">
+        <Link to="/buy/phones" className="text-sm font-bold text-[#0072B2] hover:underline">
           &lt; Back to phones
         </Link>
 
@@ -92,7 +92,7 @@ function PDP() {
                   <button
                     key={g}
                     onClick={() => setImgIdx(i)}
-                    className={`h-20 w-20 shrink-0 rounded-lg border p-1 ${i === imgIdx ? "border-[#0057B8] ring-2 ring-[#0057B8]/30" : "border-[#DCDFE3]"}`}
+                    className={`h-20 w-20 shrink-0 rounded-lg border p-1 ${i === imgIdx ? "border-[#00388F] ring-2 ring-[#00388F]/30" : "border-[#DCDFE3]"}`}
                   >
                     <img src={g} alt="" className="h-full w-full object-contain" />
                   </button>
@@ -101,13 +101,13 @@ function PDP() {
             )}
             <div className="mt-4 flex items-center gap-3 text-sm">
               <span className="font-bold">★ {DEVICE.rating}</span>
-              <a href="#" className="font-bold text-[#0057B8] hover:underline">
+              <a href="#" className="font-bold text-[#0072B2] hover:underline">
                 Write a review
               </a>
             </div>
             <a
               href="#"
-              className="mt-2 inline-block text-sm font-bold text-[#0057B8] hover:underline"
+              className="mt-2 inline-block text-sm font-bold text-[#0072B2] hover:underline"
             >
               Learn more about this device &gt;
             </a>
@@ -130,7 +130,7 @@ function PDP() {
                   <button
                     key={c.slug}
                     onClick={() => selectColor(i)}
-                    className={`h-9 w-9 rounded-full border-2 ${i === colorIdx ? "border-[#0057B8] ring-2 ring-[#0057B8]/30" : "border-[#DCDFE3]"}`}
+                    className={`h-9 w-9 rounded-full border-2 ${i === colorIdx ? "border-[#00388F] ring-2 ring-[#00388F]/30" : "border-[#DCDFE3]"}`}
                     style={{ background: c.hex }}
                     aria-label={c.name}
                   />
@@ -144,7 +144,7 @@ function PDP() {
                   <button
                     key={s}
                     onClick={() => setStorage(i)}
-                    className={`rounded-lg border px-3 py-3 text-sm font-bold ${i === storage ? "border-[#0057B8] bg-[#E7F5FB] text-[#0057B8]" : "border-[#DCDFE3] hover:border-[#1D2329]"}`}
+                    className={`rounded-lg border px-3 py-3 text-sm font-bold ${i === storage ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3] hover:border-[#1D2329]"}`}
                   >
                     {s}
                   </button>
@@ -158,10 +158,10 @@ function PDP() {
                   <button
                     key={p}
                     onClick={() => setPayment(i)}
-                    className={`flex items-center justify-between rounded-lg border px-4 py-3 text-sm font-bold ${i === payment ? "border-[#0057B8] bg-[#E7F5FB] text-[#0057B8]" : "border-[#DCDFE3]"}`}
+                    className={`flex items-center justify-between rounded-lg border px-4 py-3 text-sm font-bold ${i === payment ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3]"}`}
                   >
                     {p}
-                    <span className={i === payment ? "text-[#0057B8]" : "text-[#686E74]"}>›</span>
+                    <span className={i === payment ? "text-[#0072B2]" : "text-[#686E74]"}>›</span>
                   </button>
                 ))}
               </div>
@@ -171,13 +171,13 @@ function PDP() {
               <div className="grid gap-2">
                 <button
                   onClick={() => setNextUp("yes")}
-                  className={`rounded-lg border px-4 py-3 text-left text-sm font-bold ${nextUp === "yes" ? "border-[#0057B8] bg-[#E7F5FB] text-[#0057B8]" : "border-[#DCDFE3]"}`}
+                  className={`rounded-lg border px-4 py-3 text-left text-sm font-bold ${nextUp === "yes" ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3]"}`}
                 >
                   Yes, add Next Up Anytime
                 </button>
                 <button
                   onClick={() => setNextUp("no")}
-                  className={`rounded-lg border px-4 py-3 text-left text-sm font-bold ${nextUp === "no" ? "border-[#0057B8] bg-[#E7F5FB] text-[#0057B8]" : "border-[#DCDFE3]"}`}
+                  className={`rounded-lg border px-4 py-3 text-left text-sm font-bold ${nextUp === "no" ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3]"}`}
                 >
                   No thanks
                 </button>
@@ -219,12 +219,12 @@ function PDP() {
               {FEATURES.slice(0, 4).map(({ Icon, t }) => (
                 <article key={t} className="rounded-2xl border border-[#DCDFE3] p-5 text-center">
                   <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#E7F5FB]">
-                    <Icon className="h-6 w-6 text-[#0057B8]" />
+                    <Icon className="h-6 w-6 text-[#0072B2]" />
                   </span>
                   <p className="mt-4 text-sm font-extrabold leading-snug">{t}</p>
                   <a
                     href="#"
-                    className="mt-3 inline-block text-xs font-bold text-[#0057B8] hover:underline"
+                    className="mt-3 inline-block text-xs font-bold text-[#0072B2] hover:underline"
                   >
                     Read more
                   </a>
@@ -266,7 +266,7 @@ function PDP() {
             </button>
             <div className="text-center">
               <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#E7F5FB]">
-                <User className="h-7 w-7 text-[#0057B8]" />
+                <User className="h-7 w-7 text-[#0072B2]" />
               </span>
               <h2 className="mt-4 text-xl font-extrabold">What do you want to do?</h2>
             </div>
@@ -298,7 +298,7 @@ function PDP() {
             </div>
             <div className="my-5 border-t border-[#DCDFE3]" />
             <div className="text-center">
-              <a href="#" className="text-sm font-bold text-[#0057B8] hover:underline">
+              <a href="#" className="text-sm font-bold text-[#0072B2] hover:underline">
                 I am a business customer
               </a>
             </div>

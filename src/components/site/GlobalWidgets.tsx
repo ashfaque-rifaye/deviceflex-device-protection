@@ -39,7 +39,7 @@ export function GlobalWidgets() {
       {/* Right-edge Order Now tab */}
       <a
         href="tel:8669714383"
-        className="fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 rotate-180 items-center gap-2 rounded-t-md bg-[#0057B8] px-3 py-3 text-xs font-bold text-white shadow-lg [writing-mode:vertical-rl] hover:bg-[#00388F] md:inline-flex"
+        className="fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 rotate-180 items-center gap-2 rounded-t-md bg-[#00388F] px-3 py-3 text-xs font-bold text-white shadow-lg [writing-mode:vertical-rl] hover:bg-[#0057B8] md:inline-flex"
         style={{ writingMode: "vertical-rl" }}
       >
         <Phone className="h-4 w-4 rotate-90" /> ORDER NOW / 866-971-4383
@@ -49,7 +49,7 @@ export function GlobalWidgets() {
       {!chatOpen && (
         <button
           onClick={() => setChatOpen(true)}
-          className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[#0057B8] px-5 py-3 text-sm font-bold text-white shadow-xl hover:bg-[#00388F]"
+          className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[#00388F] px-5 py-3 text-sm font-bold text-white shadow-xl hover:bg-[#0057B8]"
         >
           <MessageSquare className="h-4 w-4" /> Let&rsquo;s chat
         </button>

@@ -104,7 +104,7 @@ function Enroll() {
       <div className="mx-auto max-w-[1000px] px-4 py-8 sm:px-6 lg:px-10">
         <Link
           to="/myatt"
-          className="inline-flex items-center gap-1 text-sm font-bold text-[#0057B8] hover:underline"
+          className="inline-flex items-center gap-1 text-sm font-bold text-[#0072B2] hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> Back to account
         </Link>
@@ -124,10 +124,10 @@ function Enroll() {
               {["Choose devices", "Choose your plan"].map((s, i) => (
                 <li
                   key={s}
-                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${i === step ? "bg-[#E7F5FB] text-[#0057B8]" : i < step ? "text-[#0057B8]" : "text-[#686E74]"}`}
+                  className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${i === step ? "bg-[#E7F5FB] text-[#0072B2]" : i < step ? "text-[#0072B2]" : "text-[#686E74]"}`}
                 >
                   <span
-                    className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${i < step ? "bg-[#0057B8] text-white" : i === step ? "border border-[#0057B8]" : "border border-[#DCDFE3]"}`}
+                    className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${i < step ? "bg-[#00388F] text-white" : i === step ? "border border-[#00388F]" : "border border-[#DCDFE3]"}`}
                   >
                     {i < step ? "✓" : i + 1}
                   </span>
@@ -190,7 +190,7 @@ function Enroll() {
                           disabled={blocked}
                           onChange={() => toggle(d.id)}
                           aria-label={`Protect ${d.name}`}
-                          className="h-5 w-5 shrink-0 accent-[#00388F] disabled:cursor-not-allowed"
+                          className="att-checkbox shrink-0 disabled:cursor-not-allowed"
                         />
                         <img src={d.image} alt="" className="h-16 w-11 shrink-0 object-contain" />
                         <span className="min-w-0 flex-1">
@@ -324,10 +324,10 @@ function Enroll() {
                   <button
                     key={t.id}
                     onClick={() => setTier(t.id)}
-                    className={`flex flex-col rounded-2xl border bg-white p-6 text-left ${active ? "border-[#0057B8] ring-2 ring-[#0057B8]/30" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
+                    className={`flex flex-col rounded-2xl border bg-white p-6 text-left ${active ? "border-[#00388F] ring-2 ring-[#00388F]/30" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
                   >
                     {t.ribbon && (
-                      <span className="mb-2 inline-block self-start rounded-full bg-[#E7F5FB] px-3 py-1 text-[11px] font-bold text-[#0057B8]">
+                      <span className="mb-2 inline-block self-start rounded-full bg-[#E7F5FB] px-3 py-1 text-[11px] font-bold text-[#0072B2]">
                         {t.ribbon}
                       </span>
                     )}
@@ -340,7 +340,7 @@ function Enroll() {
                     <ul className="mt-4 space-y-1.5 text-xs">
                       {t.highlights.slice(0, 4).map((h) => (
                         <li key={h} className="flex items-start gap-1.5">
-                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0057B8]" />
+                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0072B2]" />
                           {h}
                         </li>
                       ))}

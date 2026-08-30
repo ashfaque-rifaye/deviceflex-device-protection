@@ -187,7 +187,7 @@ export function DeviceCard({ d }: { d: MemberDevice }) {
             <a
               key={a}
               href="#"
-              className="block truncate text-[15px] font-bold leading-[21px] text-[#0057B8] hover:underline"
+              className="block truncate text-[15px] font-bold leading-[21px] text-[#0072B2] hover:underline"
             >
               {a}
             </a>
@@ -261,7 +261,7 @@ export function DeviceCard({ d }: { d: MemberDevice }) {
         <Link
           to="/myatt/protection"
           search={{ device: d.id } as never}
-          className="inline-flex h-8 w-full items-center justify-center rounded-full border-2 border-[#00388F] px-6 text-[12px] font-bold text-[#00388F] hover:bg-[#0057B8] hover:text-white hover:no-underline"
+          className="inline-flex h-8 w-full items-center justify-center rounded-full border-2 border-[#00388F] px-6 text-[12px] font-bold text-[#00388F] hover:bg-[#0057B8] hover:border-[#0057B8] hover:text-white hover:no-underline"
         >
           Manage wireless
         </Link>
@@ -286,9 +286,9 @@ export function AddDevicePanel() {
           <li key={label} className="mb-6 text-center last:mb-0">
             <button className="w-full cursor-pointer" aria-label={`Add device ${label}`}>
               <span className="grid place-items-center p-2">
-                <Icon className="h-8 w-8 text-[#0057B8]" />
+                <Icon className="h-8 w-8 text-[#0072B2]" />
               </span>
-              <span className="mt-1 block text-[15px] text-[#0057B8]">{label}</span>
+              <span className="mt-1 block text-[15px] text-[#0072B2]">{label}</span>
             </button>
           </li>
         ))}

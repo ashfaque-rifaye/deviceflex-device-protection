@@ -181,14 +181,14 @@ function Vault() {
 
   return (
     <div className="mx-auto max-w-[1100px] px-4 py-8 sm:px-6 lg:px-10">
-      <Link to="/myatt" className="text-sm font-bold text-[#0057B8] hover:underline">
+      <Link to="/myatt" className="text-sm font-bold text-[#0072B2] hover:underline">
         &lt; Back to dashboard
       </Link>
 
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
         <div className="flex items-center gap-3">
           <span className="grid h-11 w-11 place-items-center rounded-full bg-[#E7F5FB]">
-            <Database className="h-5 w-5 text-[#0057B8]" />
+            <Database className="h-5 w-5 text-[#0072B2]" />
           </span>
           <div>
             <div className="flex flex-wrap items-center gap-2">
@@ -351,7 +351,7 @@ function Vault() {
                     </div>
                     <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-[#F3F4F6]">
                       <div
-                        className="h-full rounded-full bg-[#0057B8]"
+                        className="h-full rounded-full bg-[#00388F]"
                         style={{ width: `${sharePct}%` }}
                       />
                     </div>
@@ -468,7 +468,7 @@ function DeviceRow({
           aria-checked={d.autoBackup}
           aria-label={`Auto-backup for ${d.name}`}
           onClick={() => onAuto(!d.autoBackup)}
-          className={`relative h-6 w-11 shrink-0 rounded-full transition ${d.autoBackup ? "bg-[#0057B8]" : "bg-[#DCDFE3]"}`}
+          className={`relative h-6 w-11 shrink-0 rounded-full transition ${d.autoBackup ? "bg-[#00388F]" : "bg-[#DCDFE3]"}`}
         >
           <span
             className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${d.autoBackup ? "left-5" : "left-0.5"}`}
@@ -530,7 +530,7 @@ function Cleaner({ member, onClean }: { member: Member; onClean: () => void }) {
     <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
       <div className="flex items-center gap-3">
         <span className="grid h-10 w-10 place-items-center rounded-full bg-[#E7F5FB]">
-          <Trash2 className="h-5 w-5 text-[#0057B8]" />
+          <Trash2 className="h-5 w-5 text-[#0072B2]" />
         </span>
         <div>
           <h2 className="text-lg font-extrabold">Duplicate &amp; Junk Cleaner</h2>
@@ -547,7 +547,7 @@ function Cleaner({ member, onClean }: { member: Member; onClean: () => void }) {
       )}
 
       {state === "scanning" && (
-        <p className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#0057B8]">
+        <p className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#0072B2]">
           <Loader2 className="h-4 w-4 animate-spin" /> Scanning{" "}
           {member.devices.filter((d) => d.backedUp).length} devices…
         </p>

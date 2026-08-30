@@ -122,7 +122,7 @@ function PlanPage() {
             onClick={() => setOfferOpen(!offerOpen)}
             className="flex w-full items-center gap-3 text-left"
           >
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0057B8] text-white">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#00388F] text-white">
               <DollarSign className="h-5 w-5" />
             </span>
             <span className="flex-1 font-extrabold">Offer applied (1)</span>
@@ -143,12 +143,12 @@ function PlanPage() {
             onClick={() => setSaveOpen(!saveOpen)}
             className="flex w-full items-center gap-3 text-left"
           >
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-[#0057B8]">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-[#0072B2]">
               <Bookmark className="h-5 w-5" />
             </span>
             <span className="flex-1 text-sm md:text-[15px]">
               You may be able to get savings through your employer, organization, or school.{" "}
-              <a href="#" className="font-bold text-[#0057B8] hover:underline">
+              <a href="#" className="font-bold text-[#0072B2] hover:underline">
                 Learn more
               </a>
             </span>
@@ -164,7 +164,7 @@ function PlanPage() {
                     <button
                       key={label}
                       onClick={() => setDiscount(active ? null : i)}
-                      className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center text-[11px] font-bold ${active ? "border-[#0057B8] bg-[#E7F5FB] text-[#0057B8]" : "border-[#DCDFE3] hover:border-[#1D2329]"}`}
+                      className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center text-[11px] font-bold ${active ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3] hover:border-[#1D2329]"}`}
                     >
                       <Icon className="h-6 w-6" />
                       <span className="leading-tight">{label}</span>
@@ -233,7 +233,7 @@ function PlanPage() {
                   </p>
                   <a
                     href="#"
-                    className="mt-1 inline-block text-xs font-bold text-[#0057B8] hover:underline"
+                    className="mt-1 inline-block text-xs font-bold text-[#0072B2] hover:underline"
                   >
                     See plan discounts
                   </a>
@@ -241,7 +241,7 @@ function PlanPage() {
 
                 <button
                   onClick={() => setOpenFeat(openFeat === i ? null : i)}
-                  className="mt-5 flex w-full items-center justify-between border-t border-[#DCDFE3] pt-4 text-sm font-bold text-[#0057B8]"
+                  className="mt-5 flex w-full items-center justify-between border-t border-[#DCDFE3] pt-4 text-sm font-bold text-[#0072B2]"
                 >
                   See all features & benefits
                   <ChevronDown
@@ -251,18 +251,18 @@ function PlanPage() {
                 {openFeat === i && (
                   <ul className="mt-3 space-y-2 text-xs">
                     <li className="flex items-start gap-2">
-                      <Signal className="mt-0.5 h-4 w-4 text-[#0057B8]" /> Unlimited talk, text &
+                      <Signal className="mt-0.5 h-4 w-4 text-[#0072B2]" /> Unlimited talk, text &
                       data
                     </li>
                     <li className="flex items-start gap-2">
-                      <Wifi className="mt-0.5 h-4 w-4 text-[#0057B8]" /> 5G access included
+                      <Wifi className="mt-0.5 h-4 w-4 text-[#0072B2]" /> 5G access included
                     </li>
                     <li className="flex items-start gap-2">
-                      <Smartphone className="mt-0.5 h-4 w-4 text-[#0057B8]" /> {p.hotspot} mobile
+                      <Smartphone className="mt-0.5 h-4 w-4 text-[#0072B2]" /> {p.hotspot} mobile
                       hotspot
                     </li>
                     <li className="flex items-start gap-2">
-                      <Video className="mt-0.5 h-4 w-4 text-[#0057B8]" /> {p.streaming} streaming
+                      <Video className="mt-0.5 h-4 w-4 text-[#0072B2]" /> {p.streaming} streaming
                       quality
                     </li>
                   </ul>
@@ -271,7 +271,7 @@ function PlanPage() {
                 <div className="mt-5 rounded-lg border border-[#DCDFE3] p-3 text-xs">
                   <p className="font-extrabold">AT&amp;T turbo</p>
                   {p.turbo === "included" ? (
-                    <p className="mt-1 flex items-center gap-1 text-[#0057B8]">
+                    <p className="mt-1 flex items-center gap-1 text-[#0072B2]">
                       <Check className="h-3.5 w-3.5" /> Included with AT&amp;T Elite 2.0
                     </p>
                   ) : p.turbo === "unavailable" ? (
@@ -279,7 +279,7 @@ function PlanPage() {
                   ) : (
                     <div className="mt-1 flex items-center justify-between">
                       <span>{p.turbo.price}</span>
-                      <button className="rounded-full border border-[#0057B8] px-3 py-1 text-[11px] font-bold text-[#0057B8] hover:bg-[#E7F5FB]">
+                      <button className="rounded-full border border-[#00388F] px-3 py-1 text-[11px] font-bold text-[#0072B2] hover:bg-[#E7F5FB]">
                         Select
                       </button>
                     </div>
@@ -289,11 +289,11 @@ function PlanPage() {
                 <div className="mt-4 text-xs">
                   <p className="font-extrabold">AT&amp;T ActiveArmor mobile security</p>
                   <p className="mt-1 flex items-start gap-1">
-                    <Check className="mt-0.5 h-3.5 w-3.5 text-[#0057B8]" /> Free app with Spam Call
+                    <Check className="mt-0.5 h-3.5 w-3.5 text-[#0072B2]" /> Free app with Spam Call
                     Blocking and more
                   </p>
                   <p className="mt-1 flex items-start gap-1">
-                    <Check className="mt-0.5 h-3.5 w-3.5 text-[#0057B8]" /> 24/7 security you can
+                    <Check className="mt-0.5 h-3.5 w-3.5 text-[#0072B2]" /> 24/7 security you can
                     count on
                   </p>
                 </div>
@@ -305,7 +305,7 @@ function PlanPage() {
                   </p>
                 </div>
 
-                <a href="#" className="mt-3 text-xs font-bold text-[#0057B8] hover:underline">
+                <a href="#" className="mt-3 text-xs font-bold text-[#0072B2] hover:underline">
                   Read the legal stuff
                 </a>
 
@@ -322,7 +322,7 @@ function PlanPage() {
                   </p>
                   <a
                     href="#"
-                    className="mt-2 inline-flex items-center gap-1 font-bold text-[#0057B8] hover:underline"
+                    className="mt-2 inline-flex items-center gap-1 font-bold text-[#0072B2] hover:underline"
                   >
                     Expand Broadband facts <ChevronDown className="h-3.5 w-3.5" />
                   </a>
@@ -334,7 +334,7 @@ function PlanPage() {
 
         <div className="mt-8 flex items-center gap-2 text-sm">
           <span className="text-[#686E74]">Primary place of use: 121 OPC 467, APO, AE 09005</span>
-          <button aria-label="Edit address" className="text-[#0057B8] hover:text-[#009FDB]">
+          <button aria-label="Edit address" className="text-[#0072B2] hover:text-[#009FDB]">
             <Edit2 className="h-4 w-4" />
           </button>
         </div>

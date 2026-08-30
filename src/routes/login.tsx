@@ -52,13 +52,13 @@ function LoginPage() {
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 placeholder="Enter your user ID"
-                className="mt-2 w-full rounded-lg border border-[#0057B8] px-4 py-3.5 text-sm outline-none focus:border-[#00388F]"
+                className="mt-2 w-full rounded-lg border border-[#00388F] px-4 py-3.5 text-sm outline-none focus:border-[#00388F]"
               />
 
               <button
                 type="submit"
                 disabled={!userId}
-                className={`mt-6 w-full rounded-full py-3.5 text-base font-bold text-white ${userId ? "bg-[#0057B8] hover:bg-[#00388F]" : "bg-[#DCDFE3]"}`}
+                className={`mt-6 w-full rounded-full py-3.5 text-base font-bold text-white ${userId ? "bg-[#00388F] hover:bg-[#0057B8]" : "bg-[#DCDFE3]"}`}
               >
                 Continue
               </button>
@@ -77,7 +77,7 @@ function LoginPage() {
                         setUserId(a.userId);
                         setStage("password");
                       }}
-                      className="flex w-full items-center gap-3 rounded-xl border border-[#DCDFE3] p-3 text-left hover:border-[#0057B8]"
+                      className="flex w-full items-center gap-3 rounded-xl border border-[#DCDFE3] p-3 text-left hover:border-[#00388F]"
                     >
                       <span
                         className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${a.enrolled ? "bg-[#EAF7EE]" : "bg-[#FFF3E0]"}`}
@@ -102,7 +102,7 @@ function LoginPage() {
                 </div>
               </div>
 
-              <div className="mt-7 space-y-4 text-sm font-bold text-[#0057B8]">
+              <div className="mt-7 space-y-4 text-sm font-bold text-[#0072B2]">
                 <a href="#" className="block hover:underline">
                   Forgot user ID?
                 </a>
@@ -135,7 +135,7 @@ function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setStage("id")}
-                  className="font-bold text-[#0057B8] hover:underline"
+                  className="font-bold text-[#0072B2] hover:underline"
                 >
                   Edit
                 </button>
@@ -145,26 +145,26 @@ function LoginPage() {
                 autoFocus
                 type="password"
                 defaultValue="demopassword"
-                className="mt-2 w-full rounded-lg border border-[#0057B8] px-4 py-3.5 text-sm outline-none focus:border-[#00388F]"
+                className="mt-2 w-full rounded-lg border border-[#00388F] px-4 py-3.5 text-sm outline-none focus:border-[#00388F]"
               />
               <label className="mt-3 flex items-center gap-2 text-sm">
-                <input type="checkbox" className="h-4 w-4 accent-[#0057B8]" /> Save user ID
+                <input type="checkbox" className="att-checkbox shrink-0" /> Save user ID
               </label>
               <button
                 type="submit"
-                className="mt-6 w-full rounded-full bg-[#0057B8] py-3.5 text-base font-bold text-white hover:bg-[#00388F]"
+                className="mt-6 w-full rounded-full bg-[#00388F] py-3.5 text-base font-bold text-white hover:bg-[#0057B8]"
               >
                 Sign in
               </button>
               <div className="mt-6 text-center">
-                <a href="#" className="text-sm font-bold text-[#0057B8] hover:underline">
+                <a href="#" className="text-sm font-bold text-[#0072B2] hover:underline">
                   Forgot password?
                 </a>
               </div>
             </form>
           )}
         </div>
-        <Link to="/" className="mt-6 text-sm font-bold text-[#0057B8] hover:underline">
+        <Link to="/" className="mt-6 text-sm font-bold text-[#0072B2] hover:underline">
           Return to att.com
         </Link>
       </div>
