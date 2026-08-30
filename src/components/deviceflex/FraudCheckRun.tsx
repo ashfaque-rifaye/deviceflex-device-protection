@@ -6,19 +6,82 @@
 // The line suspension and blocklist submission are the last steps, not the first, because
 // that is the order Asurion actually works in.
 import { useEffect, useRef, useState } from "react";
-import { Check, Loader2, AlertTriangle, ShieldCheck, ShieldAlert } from "lucide-react";
-import type { FraudSignal, FraudVerdict } from "@/lib/ai";
+import {
+  Check,
+  Loader2,
+  AlertTriangle,
+  ShieldCheck,
+  ShieldAlert,
+  RadioTower,
+  MapPin,
+} from "lucide-react";
+import type { Corroboration, FraudSignal, FraudVerdict } from "@/lib/ai";
 import { ASURION } from "@/data/deductibles";
 
 type Phase = "idle" | "running" | "done";
 
+/**
+ * MECHANISM 1, made visible.
+ *
+ * This panel is the one screen in the prototype that a competitor could not build, and
+ * it earns its prominence: it is carrier-side device-presence data deciding a claim.
+ * Rendered after the sequence finishes rather than alongside it, so the conclusion lands
+ * as a conclusion.
+ */
+function CorroborationPanel({ corr }: { corr: Corroboration }) {
+  const tone =
+    corr.outcome === "contradicted"
+      ? { border: "border-[#E8B4C1]", bg: "bg-[#FDF3F5]", ink: "text-[#C70032]" }
+      : corr.outcome === "corroborated"
+        ? { border: "border-[#BFE3CB]", bg: "bg-[#EAF7EE]", ink: "text-[#1F7A3D]" }
+        : { border: "border-[#DCDFE3]", bg: "bg-[#F3F4F6]", ink: "text-[#686E74]" };
+
+  return (
+    <div className={`mt-4 rounded-2xl border ${tone.border} ${tone.bg} p-4`}>
+      <div className="flex items-center gap-2">
+        <RadioTower className={`h-4 w-4 ${tone.ink}`} />
+        <p className="text-xs font-bold uppercase tracking-widest text-[#686E74]">
+          AT&amp;T network corroboration
+        </p>
+        {!corr.advisory && (
+          <span className="ml-auto text-xs font-bold text-[#686E74]">
+            {Math.round(corr.confidence * 100)}% confidence
+          </span>
+        )}
+      </div>
+
+      <p className={`mt-2 text-sm font-extrabold ${tone.ink}`}>{corr.headline}</p>
+
+      <ul className="mt-2 space-y-1.5">
+        {corr.reasons.map((r) => (
+          <li key={r} className="flex gap-2 text-sm text-[#1D2329]">
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#686E74]" />
+            <span>{r}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-[#686E74]">
+        <MapPin className="h-3 w-3" />
+        Last seen {corr.lastSeen} · cell site {corr.cellSite}
+      </p>
+      <p className="mt-1.5 text-[11px] text-[#686E74]">
+        Read from AT&amp;T's own network records. A protection administrator that doesn't run a
+        network has no equivalent — it can only ask you to fill in a form.
+      </p>
+    </div>
+  );
+}
+
 export function FraudCheckRun({
   signals,
   verdict,
+  corroboration,
   onComplete,
 }: {
   signals: FraudSignal[];
   verdict: FraudVerdict;
+  corroboration?: Corroboration | null;
   onComplete: (v: FraudVerdict) => void;
 }) {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -132,6 +195,10 @@ export function FraudCheckRun({
           );
         })}
       </ol>
+
+      {phase === "done" && corroboration && !corroboration.advisory && (
+        <CorroborationPanel corr={corroboration} />
+      )}
 
       {phase === "done" && (
         <div

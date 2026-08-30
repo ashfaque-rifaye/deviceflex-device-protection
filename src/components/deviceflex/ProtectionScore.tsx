@@ -18,8 +18,15 @@ import {
   Check,
   X,
   Stethoscope,
+  Repeat,
 } from "lucide-react";
-import { scoreBand, computeProtectionScore, runProactiveScan, type Nudge } from "@/lib/ai";
+import {
+  scoreBand,
+  computeProtectionScore,
+  protectionPosture,
+  runProactiveScan,
+  type Nudge,
+} from "@/lib/ai";
 import { useAuth } from "@/lib/auth";
 import type { Member, MemberDevice } from "@/data/member";
 import { DiagnosticsModal } from "./DiagnosticsModal";
@@ -49,6 +56,8 @@ export function ProtectionScore({
 }) {
   const score = computeProtectionScore(member);
   const band = scoreBand(score);
+  // Addition ② — the same posture the fraud gate and enrolment read.
+  const posture = protectionPosture(score);
   const nudges = runProactiveScan(member).slice(0, limit);
   const [diagFor, setDiagFor] = useState<MemberDevice | null>(null);
 
@@ -81,6 +90,32 @@ export function ProtectionScore({
             Run diagnostics
           </button>
         )}
+      </div>
+
+      {/* ADDITION ② — the closed loop, stated.
+          A score nothing reads back is a readout. Showing the three things this number
+          currently controls is what makes it a control loop the member (and a judge) can
+          see working. These lines change as the score moves.
+
+          Shown on the compact tile too: the dashboard is the first place anyone looks, and
+          a control loop nobody notices may as well not be one. */}
+      <div className="border-t border-[#DCDFE3] px-6 py-4">
+        <p className="att-eyebrow flex items-center gap-1.5">
+          <Repeat className="h-3.5 w-3.5 text-[#00388F]" />
+          What this score is controlling
+        </p>
+        <ul className="mt-2.5 space-y-1.5">
+          {posture.effects.map((e) => (
+            <li key={e} className="flex gap-2 text-xs text-[#1D2329]">
+              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#009FDB]" />
+              <span>{e}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="att-small mt-2.5">
+          Your score isn&rsquo;t only a number on this page — it feeds back into how your account is
+          underwritten. Raise it and these loosen automatically.
+        </p>
       </div>
 
       {nudges.length > 0 && (

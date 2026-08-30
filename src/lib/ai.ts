@@ -19,6 +19,7 @@ import type { ClaimReasonId } from "@/data/deviceflex";
 import { STORES, HOME_REPAIR, type Store, type StoreCapability } from "@/data/stores";
 import { deductibleFor, deviceTier, ASURION, type FeeKind } from "@/data/deductibles";
 import { daysSince, withinFilingWindow, type IncidentDetails } from "@/lib/asurion";
+import { formatLastSeen, lastSeenAt, type NetworkTelemetry } from "@/data/network-signals";
 
 const money = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 
@@ -633,6 +634,170 @@ export function scoreBand(score: number): { label: string; tone: string } {
   return { label: "Needs attention", tone: "#C70032" };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ADDITION ② — the Protection Score as a closed control loop.
+//
+// The score used to be a thermometer: a number on a dashboard that nothing read back.
+// Here its output becomes an input to three other subsystems — how hard the fraud gate
+// looks, whether enrolment demands a fresh inspection, and whether a replacement is
+// pre-positioned. A control loop is a system; a displayed number is a readout.
+//
+// Every threshold below is a constant, so the loop is reproducible: the same account
+// state always produces the same posture, which is what lets it go through the ledger.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type FraudSensitivity = "standard" | "elevated";
+
+export type Posture = {
+  score: number;
+  band: string;
+  fraudSensitivity: FraudSensitivity;
+  /** Prior claims tolerated before the velocity check asks for a human. */
+  velocityThreshold: number;
+  /** Enrolment requires a fresh device attestation below this posture. */
+  requiresInspection: boolean;
+  /** Pre-staging arms when the household is trending toward a failure. */
+  preStageArmed: boolean;
+  /** The feedback edges, written out so the UI can show the loop working. */
+  effects: string[];
+};
+
+export const POSTURE_ELEVATED_BELOW = 60;
+export const POSTURE_INSPECTION_BELOW = 45;
+export const PRESTAGE_ARM_BELOW = 70;
+
+export function protectionPosture(score: number): Posture {
+  const elevated = score < POSTURE_ELEVATED_BELOW;
+  const requiresInspection = score < POSTURE_INSPECTION_BELOW;
+  const preStageArmed = score < PRESTAGE_ARM_BELOW;
+  const effects: string[] = [];
+
+  effects.push(
+    elevated
+      ? `Fraud sensitivity raised to elevated — a claim goes to a specialist after ${2} prior claims instead of ${4}.`
+      : "Fraud sensitivity held at standard — nothing about this account warrants extra scrutiny.",
+  );
+  effects.push(
+    requiresInspection
+      ? "Adding a device requires a fresh diagnostics attestation before coverage starts."
+      : "Devices can be added on the standard eligibility check.",
+  );
+  effects.push(
+    preStageArmed
+      ? "Inventory pre-staging armed — a replacement is positioned before anything breaks."
+      : "Inventory pre-staging idle — no device is trending toward failure.",
+  );
+
+  return {
+    score,
+    band: scoreBand(score).label,
+    fraudSensitivity: elevated ? "elevated" : "standard",
+    velocityThreshold: elevated ? 2 : 4,
+    requiresInspection,
+    preStageArmed,
+    effects,
+  };
+}
+
+/**
+ * MECHANISM 4 — device-health decay index.
+ *
+ * A single deterministic number per device that trends downward as the things that
+ * actually precede a failure get worse. Crossing the threshold is what arms pre-staging,
+ * which is the step that turns a software decision into physical stock movement.
+ */
+export const PRESTAGE_THRESHOLD = 55;
+
+export type PreStaging = {
+  armed: boolean;
+  index: number;
+  device: string;
+  /** The fulfilment node holding the pre-positioned unit. */
+  store: Store | null;
+  /** Why the index fell where it did — the deterministic part, stated. */
+  drivers: string[];
+  headline: string;
+  detail: string;
+  /** Working days of cover bought by staging early, versus ordering on the day. */
+  daysSaved: number;
+};
+
+/**
+ * MECHANISM 4 — pre-position a replacement before the failure.
+ *
+ * This is the mechanism that touches the physical world: crossing a deterministic
+ * threshold causes a device and a restore snapshot to physically move to a named store.
+ * Patent examiners care about that, because it is plainly not an abstract idea on a
+ * computer — it produces a concrete real-world effect.
+ *
+ * Perception (a model forecasting "this will likely fail in ~3 weeks") supplies the
+ * index; which store, and whether to act, stays deterministic.
+ */
+export function preStage(device: MemberDevice, stores: StoreMatch[]): PreStaging {
+  const index = healthDecayIndex(device);
+  const drivers: string[] = [];
+  if (device.batteryHealth < 85)
+    drivers.push(`Battery at ${device.batteryHealth}% of original capacity`);
+  if (device.screenRisk === "High")
+    drivers.push(
+      device.screenGuard
+        ? "High screen-risk profile, partly offset by a fitted protector"
+        : "High screen-risk profile with no protector fitted",
+    );
+  else if (device.screenRisk === "Medium" && !device.screenGuard)
+    drivers.push("Medium screen-risk profile with no protector fitted");
+  if (device.warranty === "Out of warranty") drivers.push("Outside the manufacturer warranty");
+  if (!device.backedUp) drivers.push("No current backup on this line");
+
+  const armed = index < PRESTAGE_THRESHOLD;
+  // Stock is the constraint: staging is only meaningful at a node that has the model.
+  const node = stores.find((s) => s.inStock) ?? null;
+
+  if (!armed) {
+    return {
+      armed: false,
+      index,
+      device: device.name,
+      store: null,
+      drivers: drivers.length ? drivers : ["Nothing on this device is trending downward"],
+      headline: "No action needed",
+      detail: `Health index ${index}, above the ${PRESTAGE_THRESHOLD} threshold that triggers staging. Nothing is pre-positioned, because nothing needs to be.`,
+      daysSaved: 0,
+    };
+  }
+
+  return {
+    armed: true,
+    index,
+    device: device.name,
+    store: node?.store ?? null,
+    drivers,
+    headline: node
+      ? `A replacement is pre-staged at ${node.store.name}`
+      : "Staging requested — no local node holds this model yet",
+    detail: node
+      ? `Health index ${index} crossed the ${PRESTAGE_THRESHOLD} threshold, so a ${device.name} and your restore snapshot were moved to ${node.store.name}, ${node.store.miles} miles away. If it fails, the swap is a walk-in rather than a wait.`
+      : `Health index ${index} crossed the ${PRESTAGE_THRESHOLD} threshold. No store within range holds a ${device.name} today, so one has been requested from the regional depot.`,
+    daysSaved: node ? 3 : 1,
+  };
+}
+
+export function healthDecayIndex(d: MemberDevice): number {
+  let index = 100;
+  // Battery capacity is the strongest published predictor of an imminent service event.
+  if (d.batteryHealth < 80) index -= 34;
+  else if (d.batteryHealth < 85) index -= 22;
+  else if (d.batteryHealth < 90) index -= 12;
+  else if (d.batteryHealth < 95) index -= 5;
+
+  if (d.screenRisk === "High") index -= d.screenGuard ? 12 : 26;
+  else if (d.screenRisk === "Medium") index -= d.screenGuard ? 4 : 12;
+
+  if (d.warranty === "Out of warranty") index -= 8;
+  if (!d.backedUp) index -= 6;
+  return Math.max(0, Math.min(100, Math.round(index)));
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 // AGENT 7 — Eligibility & Fraud
 // Decides who can enrol what, verifies identity on loss and theft, and keeps
@@ -671,6 +836,170 @@ export function checkTierFit(tier: "basic" | "plus" | "family", deviceCount: num
   return { eligible: true, reason: `${deviceCount} of ${cap} device${cap > 1 ? "s" : ""} used` };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MECHANISM 1 — Network-Signal-Corroborated Claim Engine.
+//
+// The decision half of the carrier-telemetry mechanism. Perception (an anomaly model
+// deciding a disconnect pattern is abnormal) happens upstream; this function only turns
+// structured facts into a verdict, deterministically, so it can go through the ledger.
+//
+// `now` arrives as a parameter rather than being read from the clock. A function that
+// calls `Date.now()` internally is not replayable — it would return a different answer
+// tomorrow and the ledger's central claim would be false.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type CorroborationOutcome = "corroborated" | "inconclusive" | "contradicted";
+
+export type Corroboration = {
+  outcome: CorroborationOutcome;
+  /** 0–1, and shown to the member. Never presented as certainty. */
+  confidence: number;
+  headline: string;
+  /** Each observation the verdict rests on, in the order it was weighed. */
+  reasons: string[];
+  lastSeen: string;
+  cellSite: string;
+  /** True when the network is not competent to speak to this claim type. */
+  advisory: boolean;
+};
+
+export type CorroborationInput = {
+  reason: ClaimReasonId;
+  telemetry: NetworkTelemetry;
+  /** Hours before `now` that the member says it happened; null when unstated. */
+  incidentHoursAgo: number | null;
+  /** Epoch milliseconds. Passed in to keep this function pure. */
+  now: number;
+};
+
+export function corroborateClaim(input: CorroborationInput): Corroboration {
+  const { reason, telemetry: t, incidentHoursAgo, now } = input;
+  const nowDate = new Date(now);
+  const seen = lastSeenAt(t, nowDate);
+  const lastSeen = formatLastSeen(seen, nowDate);
+  const site = `${t.cellSite} · ${t.cellSiteArea}`;
+  const reasons: string[] = [];
+
+  // A malfunctioning or ageing battery leaves no network trace. Saying anything
+  // confident here would be inventing evidence.
+  if (reason === "malfunction" || reason === "battery") {
+    return {
+      outcome: "inconclusive",
+      confidence: 0,
+      advisory: true,
+      headline: "Network records don't speak to a hardware fault",
+      reasons: [
+        `Device last reached cell site ${t.cellSite} at ${lastSeen}.`,
+        "A device that won't charge or holds no battery can still register normally, so presence on the network neither supports nor contradicts this claim. Remote diagnostics carry this one.",
+      ],
+      lastSeen,
+      cellSite: site,
+    };
+  }
+
+  const wentDark = t.disconnectPattern === "abrupt" && t.imeiStatus === "silent";
+  const stillLive = t.disconnectPattern === "none" || t.activitySinceLastSeen;
+
+  // ── The contradiction path. Only loss and theft can be contradicted by presence:
+  // a cracked screen still makes calls. ──────────────────────────────────────
+  if ((reason === "loss" || reason === "theft") && stillLive) {
+    reasons.push(`Device last reached cell site ${t.cellSite} (${t.cellSiteArea}) at ${lastSeen}.`);
+    if (t.activitySinceLastSeen)
+      reasons.push("Voice or data activity has continued on this line since the reported time.");
+    // The seeded anomaly, when there is one, already says this in more detail —
+    // stating both reads as padding.
+    if (t.simStatus === "swapped-to-other-handset" && !t.anomaly)
+      reasons.push("The SIM for this line is currently active in a different handset.");
+    if (t.anomaly) reasons.push(t.anomaly);
+    reasons.push(
+      "Carrier records and the reported account of events don't line up, so this claim goes to an Asurion specialist rather than being auto-approved.",
+    );
+    return {
+      outcome: "contradicted",
+      confidence: 0.93,
+      advisory: false,
+      headline: "Network records don't match the report",
+      reasons,
+      lastSeen,
+      cellSite: site,
+    };
+  }
+
+  // ── The corroboration path. ────────────────────────────────────────────────
+  if (wentDark) {
+    reasons.push(
+      `AT&T network confirms this device dropped off at ${lastSeen} near cell site ${t.cellSite} (${t.cellSiteArea}).`,
+    );
+    reasons.push(
+      "The signal stopped mid-session with no shutdown sequence — the pattern of a device that was damaged, lost or taken, not one switched off.",
+    );
+    if (!t.activitySinceLastSeen)
+      reasons.push("No calls, data or SIM changes on the line since that moment.");
+
+    // Agreement between the reported time and the network record is what lifts
+    // confidence. A gap doesn't sink the claim — memories are approximate — but it
+    // is weighed openly rather than ignored.
+    let confidence = 0.88;
+    if (incidentHoursAgo !== null) {
+      const gap = Math.abs(incidentHoursAgo - t.lastSeenHoursAgo);
+      if (gap <= 1) {
+        confidence = 0.97;
+        reasons.push(
+          "That is within an hour of the time you reported, so the two accounts agree independently.",
+        );
+      } else if (gap <= 4) {
+        confidence = 0.92;
+        reasons.push(
+          `That is about ${Math.round(gap)} hours from the time you reported — close enough to be consistent.`,
+        );
+      } else {
+        confidence = 0.72;
+        reasons.push(
+          `You reported this about ${Math.round(gap)} hours away from when the network lost the device. Not disqualifying, but it is noted on the claim.`,
+        );
+      }
+    }
+    return {
+      outcome: "corroborated",
+      confidence,
+      advisory: reason === "damage",
+      headline:
+        reason === "damage"
+          ? "Network records support the reported damage"
+          : `Loss auto-verified — network confirms the device went dark at ${lastSeen}`,
+      reasons,
+      lastSeen,
+      cellSite: site,
+    };
+  }
+
+  // ── Everything else: a clean power-down looks the same as a flat battery. ──
+  reasons.push(`Device last reached cell site ${t.cellSite} (${t.cellSiteArea}) at ${lastSeen}.`);
+  reasons.push(
+    "It wound down normally rather than cutting out, which is what a discharged battery or a device switched off looks like. The network can't distinguish those from the event reported.",
+  );
+  return {
+    outcome: "inconclusive",
+    confidence: 0.4,
+    advisory: false,
+    headline: "Network records are consistent, but not conclusive",
+    reasons,
+    lastSeen,
+    cellSite: site,
+  };
+}
+
+/** Hours between an incident date/time and now — the input the engine compares against. */
+export function incidentHoursAgo(
+  incident: IncidentDetails | undefined,
+  now: number,
+): number | null {
+  if (!incident?.date) return null;
+  const stamp = new Date(`${incident.date}T${incident.time?.trim() || "12:00"}:00`);
+  if (Number.isNaN(stamp.getTime())) return null;
+  return Math.max(0, (now - stamp.getTime()) / 3_600_000);
+}
+
 export type FraudSignal = {
   id: string;
   level: "clear" | "review";
@@ -691,11 +1020,16 @@ export function fraudCheck(
   reason: ClaimReasonId,
   device: MemberDevice,
   incident?: IncidentDetails,
+  /** Mechanism 1's verdict. Supplied by the caller so this stays a pure function. */
+  corr?: Corroboration,
 ): FraudSignal[] {
   const priorOnDevice = m.claims.filter((c) => c.deviceId === device.id).length;
   const priorTotal = m.claims.length;
   const age = daysSince(incident?.date);
   const inWindow = withinFilingWindow(incident?.date);
+  // Addition ② — the closed loop. How tolerant this gate is comes from the account's
+  // own Protection Score rather than a fixed constant.
+  const posture = protectionPosture(m.protectionScore);
 
   const signals: FraudSignal[] = [
     {
@@ -714,12 +1048,12 @@ export function fraudCheck(
     },
     {
       id: "velocity",
-      level: priorTotal >= 4 ? "review" : "clear",
+      level: priorTotal >= posture.velocityThreshold ? "review" : "clear",
       label: "Claim history",
-      running: "Reviewing claim frequency on this account…",
+      running: `Reviewing claim frequency at ${posture.fraudSensitivity} sensitivity…`,
       note:
-        priorTotal >= 4
-          ? `${priorTotal} claims in the last ${ASURION.claimLimitWindow} — claims are unlimited, but this rate is high enough that Asurion looks at it`
+        priorTotal >= posture.velocityThreshold
+          ? `${priorTotal} claims in the last ${ASURION.claimLimitWindow} — claims are unlimited, but a Protection Score of ${posture.score} sets the review threshold at ${posture.velocityThreshold}, so Asurion looks at this one`
           : `${priorTotal} claim${priorTotal === 1 ? "" : "s"} in the last ${ASURION.claimLimitWindow} · claims are unlimited on this plan` +
             (priorOnDevice ? ` · ${priorOnDevice} on this device` : ""),
     },
@@ -745,20 +1079,38 @@ export function fraudCheck(
             ? `Reported ${age === 0 ? "same day" : `${age} day${age === 1 ? "" : "s"} after the incident`}, inside the ${ASURION.filingWindowDays}-day window`
             : `Reported ${age} days after the incident — past the ${ASURION.filingWindowDays}-day window, so Asurion reviews this one`,
     });
+    // Mechanism 1. This is the only check on the list that no other administrator
+    // could run, because it reads the carrier's own device-presence records.
     signals.push({
       id: "network",
-      level: "clear",
-      label: "Network activity",
-      running: "Looking for activity on the line since the incident…",
-      note: "No calls, data or SIM swaps since the reported time — consistent with the report",
+      level: corr?.outcome === "contradicted" ? "review" : "clear",
+      label: "Network corroboration",
+      running: "Cross-checking the report against AT&T device-presence records…",
+      note: corr
+        ? `${corr.headline} · ${Math.round(corr.confidence * 100)}% confidence`
+        : "No network records available for this line",
     });
-    signals.push({
-      id: "blocklist",
-      level: "clear",
-      label: "Blocklist and line suspension",
-      running: "Submitting the IMEI to the national blocklist and suspending the line…",
-      note: "Line suspended and IMEI blocked — the device can't be used or resold",
-    });
+
+    // A contradicted report must not blocklist the handset. Suspending a line and
+    // blacklisting an IMEI on evidence the network disputes is the one place this
+    // mechanism could do real harm, so the flagged path stops short of it.
+    if (corr?.outcome === "contradicted") {
+      signals.push({
+        id: "hold",
+        level: "review",
+        label: "Blocklist held pending review",
+        running: "Holding the blocklist submission…",
+        note: "The line stays active and the IMEI is not blocked until a specialist has looked at the mismatch — blocking on disputed evidence would strand a working device",
+      });
+    } else {
+      signals.push({
+        id: "blocklist",
+        level: "clear",
+        label: "Blocklist and line suspension",
+        running: "Submitting the IMEI to the national blocklist and suspending the line…",
+        note: "Line suspended and IMEI blocked — the device can't be used or resold",
+      });
+    }
   }
 
   return signals;

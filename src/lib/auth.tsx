@@ -4,7 +4,15 @@
 // The whole member record is persisted, not just the user id, so enrolling,
 // filing a claim, redeeming a perk or running a backup survives a page reload.
 // That matters on stage: a stray refresh used to silently undo the demo.
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Lock } from "lucide-react";
 import {
@@ -22,6 +30,9 @@ import {
   type TierId,
 } from "@/data/member";
 import { computeProtectionScore } from "@/lib/ai";
+import { reconcileManifest, rebindManifest } from "@/lib/manifest";
+import { appendTrace, type DecisionTrace } from "@/lib/ledger";
+import { verifyAttestation, type ConditionAttestation } from "@/lib/attestation";
 
 const SESSION_KEY = "att_pa_session"; // which demo account is signed in
 const STATE_PREFIX = "att_pa_state_v2:"; // that account's mutated record
@@ -57,6 +68,16 @@ type AuthCtx = {
   addToPool: (deviceId: string) => void;
   removeFromPool: (deviceId: string) => void;
   dismissNudge: (id: string) => void;
+
+  // ── The patentable mechanisms ─────────────────────────────────────────────
+  /** Mechanism 3 — commit a decision trace to the ledger. */
+  record: (trace: DecisionTrace) => void;
+  /** Mechanism 5 — store a signed condition attestation for a device. */
+  attestDevice: (deviceId: string, attestation: ConditionAttestation) => void;
+  /** Mechanism 5 — the gate. True when this device may be enrolled today. */
+  isAttested: (deviceId: string) => boolean;
+  /** Mechanism 2 — point a line's manifest at a replacement handset. */
+  rebindLine: (line: string, deviceId: string) => void;
 };
 
 const Ctx = createContext<AuthCtx | null>(null);
@@ -82,6 +103,12 @@ function reconcile(m: Member): Member {
     m.tier = undefined;
     m.tierPrice = undefined;
   }
+  // Mechanism 2 — the manifest is "continuously reconciled" because this runs after
+  // every single mutation. Doing it here rather than at call sites is what makes that
+  // property true by construction instead of by discipline.
+  m.manifests = reconcileManifest(m);
+  m.ledger ??= [];
+  m.attestations ??= {};
   return m;
 }
 
@@ -175,7 +202,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const enroll = (tierId: TierId, deviceIds: string[]) =>
     mutate((m) => {
       const cap = TIER_POOL[tierId];
-      const covered = deviceIds.slice(0, cap);
+      // MECHANISM 5 — the underwriting gate, enforced here rather than in the UI.
+      // A device without a valid, recent, signed condition attestation is not enrolled
+      // even if the caller asks for it. Putting the check in the reducer means no screen
+      // can route around it, which is the difference between a control and a suggestion.
+      const attested = deviceIds.filter((id) => verifyAttestation(m.attestations?.[id]).valid);
+      if (!attested.length) return;
+      const covered = attested.slice(0, cap);
       m.tier = tierId;
       m.tierPrice = TIER_PRICE[tierId];
       m.devices = m.devices.map((d) =>
@@ -354,6 +387,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutate((m) => {
       if (!m.tier) return;
       if (m.devices.filter((d) => d.protected).length >= TIER_POOL[m.tier]) return;
+      // Adding a device to the pool is an enrolment, so it passes the same gate.
+      if (!verifyAttestation(m.attestations?.[deviceId]).valid) return;
       const d = m.devices.find((x) => x.id === deviceId);
       if (!d) return;
       d.protected = true;
@@ -373,6 +408,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const dismissNudge = (id: string) =>
     mutate((m) => {
       if (!m.dismissedNudges.includes(id)) m.dismissedNudges.push(id);
+    });
+
+  // ── Mechanisms ────────────────────────────────────────────────────────────
+  /**
+   * Committing a trace is the one mutation that gets called from an effect, so it has to
+   * be safe to call on every render: stable identity via useCallback, and a genuine no-op
+   * (returning `prev` by reference, which React bails out on) when the trace is already
+   * recorded. Without both, recording a decision re-renders, which re-records it.
+   *
+   * It also skips `reconcile` — the ledger is an append-only side record and no derived
+   * field reads from it.
+   */
+  const record: AuthCtx["record"] = useCallback((trace) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      if (prev.ledger?.some((t) => t.id === trace.id)) return prev;
+      const next = structuredClone(prev);
+      next.ledger = appendTrace(next.ledger ?? [], trace);
+      return next;
+    });
+  }, []);
+
+  const attestDevice: AuthCtx["attestDevice"] = (deviceId, attestation) =>
+    mutate((m) => {
+      m.attestations = { ...(m.attestations ?? {}), [deviceId]: attestation };
+    });
+
+  const isAttested: AuthCtx["isAttested"] = (deviceId) =>
+    verifyAttestation(user?.attestations?.[deviceId]).valid;
+
+  const rebindLine: AuthCtx["rebindLine"] = (line, deviceId) =>
+    mutate((m) => {
+      const device = m.devices.find((d) => d.id === deviceId);
+      const manifest = m.manifests?.find((x) => x.line === line);
+      if (!device || !manifest) return;
+      m.manifests = m.manifests!.map((x) => (x.line === line ? rebindManifest(x, device) : x));
     });
 
   return (
@@ -399,6 +470,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         addToPool,
         removeFromPool,
         dismissNudge,
+        record,
+        attestDevice,
+        isAttested,
+        rebindLine,
       }}
     >
       {children}

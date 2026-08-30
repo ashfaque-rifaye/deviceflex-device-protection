@@ -22,6 +22,7 @@ import {
   BadgeCheck,
   Check,
   Loader2,
+  PackageCheck,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalWidgets } from "@/components/site/GlobalWidgets";
@@ -31,6 +32,7 @@ import { IconSim, IconKebab, IconChevronR } from "@/components/deviceflex/AttIco
 import { RequireAuth, useAuth } from "@/lib/auth";
 import { DeductibleCard } from "@/components/deviceflex/DeductibleCard";
 import { getTier } from "@/data/deviceflex";
+import { preStage, findStores, PRESTAGE_THRESHOLD } from "@/lib/ai";
 import type { Member, MemberDevice } from "@/data/member";
 
 export const Route = createFileRoute("/myatt/device/$id")({ component: DevicePage });
@@ -184,6 +186,8 @@ function Detail() {
               </details>
             </section>
 
+            {d.protected && <PreStagingCard device={d} />}
+
             <section className="rounded-2xl bg-white p-6">
               <h2 className="text-[20px] font-extrabold">My international coverage</h2>
               <p className="mt-2 text-[14px] text-[#454B52]">
@@ -221,6 +225,70 @@ function Detail() {
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * MECHANISM 4 — Multi-Path Resolution Optimizer with Inventory Pre-Staging.
+ *
+ * The mechanism that reaches into the physical world: a deterministic health index
+ * crossing a threshold causes a replacement device and a restore snapshot to move to a
+ * named store, before anything has broken. Shown here because this is the page where a
+ * member looks at one device's health.
+ */
+function PreStagingCard({ device }: { device: MemberDevice }) {
+  const staging = preStage(device, findStores(device, "swap"));
+
+  return (
+    <section className="rounded-2xl bg-white p-6">
+      <p className="att-eyebrow flex items-center gap-1.5 text-[#00388F]">
+        <PackageCheck className="h-3.5 w-3.5" />
+        Inventory pre-staging
+      </p>
+      <h2 className="mt-1 text-[20px] font-extrabold">{staging.headline}</h2>
+      <p className="mt-2 text-[14px] text-[#454B52]">{staging.detail}</p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-4 rounded-xl bg-[#F3F4F6] p-4">
+        <div>
+          <p className="att-small">Device health index</p>
+          <p
+            className="text-[26px] font-extrabold leading-none"
+            style={{ color: staging.armed ? "#9E5D00" : "#1F7A3D" }}
+          >
+            {staging.index}
+            <span className="text-[13px] font-bold text-[#686E74]">/100</span>
+          </p>
+        </div>
+        <div className="h-10 w-px bg-[#DCDFE3]" />
+        <div className="min-w-0 flex-1">
+          <p className="att-small">Staging threshold</p>
+          <p className="text-[14px] font-bold">
+            {PRESTAGE_THRESHOLD} — {staging.armed ? "crossed" : "not reached"}
+          </p>
+        </div>
+        {staging.armed && staging.daysSaved > 0 && (
+          <div className="shrink-0 rounded-full bg-[#E7F5FB] px-3 py-1.5 text-[12px] font-bold text-[#00388F]">
+            ~{staging.daysSaved} days saved if it fails
+          </div>
+        )}
+      </div>
+
+      <p className="att-small mt-3 font-bold text-[#1D2329]">What moved the index</p>
+      <ul className="mt-1.5 space-y-1">
+        {staging.drivers.map((x) => (
+          <li key={x} className="flex gap-2 text-[13px] text-[#454B52]">
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#878C94]" />
+            <span>{x}</span>
+          </li>
+        ))}
+      </ul>
+
+      <p className="att-small mt-3">
+        The index is a fixed calculation over battery capacity, screen-risk profile, warranty state
+        and backup status — the same device always produces the same number. A forecast model
+        decides <i>when</i> failure is likely; the threshold decides what happens about it.
+      </p>
+    </section>
   );
 }
 

@@ -26,6 +26,8 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { AccountNav } from "@/components/deviceflex/AccountNav";
 import { RequireAuth, RequirePlan, useAuth } from "@/lib/auth";
 import { vaultShares } from "@/lib/ai";
+import { provisionFromManifest, verifyToken } from "@/lib/manifest";
+import { KeyRound, Fingerprint } from "lucide-react";
 import { SmartRestore } from "@/components/deviceflex/SmartRestore";
 import { TIERS } from "@/data/deviceflex";
 import {
@@ -40,6 +42,93 @@ import {
 } from "@/data/member";
 
 export const Route = createFileRoute("/myatt/vault")({ component: VaultPage });
+
+/**
+ * MECHANISM 2 — the restoration manifest, anchored to the subscriber line.
+ *
+ * The thing to notice on this panel is what the manifest is keyed by. Coverage and data
+ * hang off the phone *number*; the handset underneath is listed as a pointer, and it is
+ * expected to change. That inversion is the whole mechanism — it is why a replacement can
+ * rebuild in minutes without the broken device participating at all.
+ */
+function LineManifests({ member }: { member: Member }) {
+  const manifests = (member.manifests ?? []).filter((x) => x.covered);
+  if (!manifests.length) return null;
+
+  return (
+    <section className="rounded-2xl border border-[#DCDFE3] bg-white p-6">
+      <p className="att-eyebrow flex items-center gap-1.5 text-[#00388F]">
+        <KeyRound className="h-3.5 w-3.5" />
+        Coverage follows your number
+      </p>
+      <h2 className="mt-1 text-lg font-extrabold">Restoration manifest, by line</h2>
+      <p className="mt-1 text-sm text-[#686E74]">
+        Your coverage and your data are anchored to your phone number, not your handset. Each line
+        keeps a live manifest of what&rsquo;s on it — so a replacement rebuilds from the number, and
+        the broken device never has to be part of it.
+      </p>
+
+      <ul className="mt-4 space-y-3">
+        {manifests.map((x) => {
+          const plan = provisionFromManifest(x, { name: "a replacement device" });
+          const intact = verifyToken(x.token, x.contents);
+          return (
+            <li key={x.line} className="rounded-xl border border-[#DCDFE3] p-4">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <p className="text-[15px] font-extrabold">{x.line}</p>
+                <p className="att-small">
+                  {x.owner} · currently on {x.boundDeviceName}
+                </p>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs sm:grid-cols-4">
+                <Cell k="Photos" v={x.items.photos.toLocaleString()} />
+                <Cell k="Messages" v={x.items.messages.toLocaleString()} />
+                <Cell k="Contacts" v={x.items.contacts.toLocaleString()} />
+                <Cell k="Apps" v={x.items.apps.toLocaleString()} />
+              </div>
+
+              <p className="att-small mt-3">
+                {x.gb} GB · reconciled {x.lastReconciled} · rebuilds onto a new handset in about{" "}
+                {plan.estimateSeconds < 90
+                  ? `${plan.estimateSeconds} seconds`
+                  : `${Math.round(plan.estimateSeconds / 60)} minutes`}
+              </p>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#DCDFE3] pt-3">
+                <Fingerprint
+                  className={`h-3.5 w-3.5 ${intact ? "text-[#1F7A3D]" : "text-[#C70032]"}`}
+                />
+                <span className="font-mono text-[11px] font-bold">{x.token.value}</span>
+                <span className="att-small">
+                  {intact
+                    ? "coverage-continuity token · binding verified"
+                    : "binding failed verification"}
+                </span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="att-small mt-4">
+        The token binds three things together — the line, whether it&rsquo;s covered, and a pointer
+        to this manifest — so coverage survives a device change without anything being re-entered.
+        In the prototype the binding is a digest rather than a signed credential; the structure is
+        the part that matters.
+      </p>
+    </section>
+  );
+}
+
+function Cell({ k, v }: { k: string; v: string }) {
+  return (
+    <div>
+      <p className="text-[#686E74]">{k}</p>
+      <p className="font-bold text-[#1D2329]">{v}</p>
+    </div>
+  );
+}
 
 function VaultPage() {
   return (
@@ -240,6 +329,9 @@ function Vault() {
                 ))}
             </ul>
           </section>
+
+          {/* ── Mechanism 2 — the manifest, anchored to the line ────── */}
+          <LineManifests member={m} />
 
           {/* ── Cleaner ─────────────────────────────────────────────── */}
           <Cleaner member={m} onClean={cleanVault} />

@@ -1,6 +1,12 @@
 // Mock account data for the AT&T Protect Advantage prototype (no real account system).
 // Two demo accounts: one enrolled, one not yet enrolled with eligible devices.
 // Device images reuse the real AT&T CDN assets already in /public/att.
+//
+// The three mechanism types below are imported type-only. That keeps the cycle
+// (member → manifest → member) erased at compile time rather than real at runtime.
+import type { LineManifest } from "@/lib/manifest";
+import type { DecisionTrace } from "@/lib/ledger";
+import type { ConditionAttestation } from "@/lib/attestation";
 
 export type TierId = "basic" | "plus" | "family";
 export type WarrantyStatus = "In warranty" | "Out of warranty";
@@ -118,6 +124,17 @@ export type Member = {
   restores: RestoreRecord[];
   parental: Record<string, boolean>; // deviceId → parental controls on
   dismissedNudges: string[]; // Proactive Care nudges the member cleared
+
+  // ── The patentable mechanisms ─────────────────────────────────────────────
+  /**
+   * Mechanism 2 — one manifest per subscriber line, rebuilt by `reconcile()` on every
+   * mutation. Optional because a record persisted before this existed must still load.
+   */
+  manifests?: LineManifest[];
+  /** Mechanism 3 — hashed, replayable traces of every automated decision. */
+  ledger?: DecisionTrace[];
+  /** Mechanism 5 — signed device-condition attestations, keyed by device id. */
+  attestations?: Record<string, ConditionAttestation>;
 };
 
 const IMG = {

@@ -47,7 +47,11 @@ import {
   type Diagnostic,
   type StoreMatch,
   type FraudVerdict,
+  corroborateClaim,
+  incidentHoursAgo,
 } from "@/lib/ai";
+import { telemetryFor } from "@/data/network-signals";
+import { decide } from "@/lib/ledger";
 import type { Member, MemberDevice, Claim } from "@/data/member";
 import type { DiagnosticReport } from "@/lib/diagnostics";
 import { analyzeDamage, type AssessResponse } from "@/lib/assess";
@@ -103,7 +107,7 @@ const STEPS = ["What happened", "Device", "Assessment", "Your options", "Confirm
 function Flow() {
   const navigate = useNavigate();
   const { device: preselect } = Route.useSearch();
-  const { user, fileClaim, issueGuarantee } = useAuth();
+  const { user, fileClaim, issueGuarantee, record } = useAuth();
   const m = user as Member;
   const covered = m.devices.filter((d) => d.protected);
 
@@ -159,8 +163,30 @@ function Flow() {
       setBusy(false);
     }
   };
+  // MECHANISM 1 — carrier telemetry, corroborating the report before a human sees it.
+  // Run through the ledger (Mechanism 3), so the verdict carries a replayable trace.
+  // `now` is frozen per incident-date so the memo stays stable across re-renders and the
+  // recorded decision is reproducible.
+  const corroboration = useMemo(() => {
+    const t = telemetryFor(device.id);
+    if (!reason || !t) return null;
+    const now = Date.now();
+    return decide(
+      "corroborateClaim",
+      corroborateClaim,
+      { reason, telemetry: t, incidentHoursAgo: incidentHoursAgo(incident, now), now },
+      `Network corroboration for ${device.name} on a ${reason} claim`,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reason, device.id, incident.date, incident.time]);
+
+  // Commit the trace once per distinct decision. `record` de-duplicates by content hash.
+  useEffect(() => {
+    if (corroboration) record(corroboration.trace);
+  }, [corroboration, record]);
+
   // Verification is now a sequence the member watches — see <FraudCheckRun />.
-  const signals = reason ? fraudCheck(m, reason, device, incident) : [];
+  const signals = reason ? fraudCheck(m, reason, device, incident, corroboration?.value) : [];
   const onVerified = (v: FraudVerdict) => {
     setVerdictFraud(v);
     setVerified(true);
@@ -171,10 +197,27 @@ function Flow() {
     () => (reason ? resolutionOptions(device, reason, damage) : []),
     [reason, device, damage],
   );
-  const verdict = useMemo(
-    () => (reason ? advise(device, reason, options, damage) : null),
-    [reason, device, options, damage],
-  );
+  // The Advisor's recommendation also goes through the ledger — this is the decision
+  // with money attached, so it is the one most worth being able to replay.
+  const adviceDecision = useMemo(() => {
+    if (!reason) return null;
+    return decide(
+      "advise",
+      (i: {
+        device: MemberDevice;
+        reason: ClaimReasonId;
+        options: ClaimOption[];
+        damage: AssessResponse | null;
+      }) => advise(i.device, i.reason, i.options, i.damage),
+      { device, reason, options, damage },
+      `Resolution recommendation for a ${reason} claim on ${device.name}`,
+    );
+  }, [reason, device, options, damage]);
+  const verdict = adviceDecision?.value ?? null;
+
+  useEffect(() => {
+    if (adviceDecision) record(adviceDecision.trace);
+  }, [adviceDecision, record]);
 
   // Land on the step with the Advisor's pick already selected — the member confirms
   // a recommendation rather than starting from nothing.
@@ -519,6 +562,7 @@ function Flow() {
               key={`${reason}-${incident.date ?? ""}`}
               signals={signals}
               verdict={fraudVerdict(signals)}
+              corroboration={corroboration?.value}
               onComplete={onVerified}
             />
 
@@ -671,6 +715,7 @@ function Flow() {
                 verdict={verdict}
                 options={options}
                 recommended={options.find((o) => o.recommended)}
+                trace={adviceDecision?.trace}
               />
             )}
 

@@ -28,6 +28,7 @@ import { deviceCondition } from "@/lib/condition";
 import { DiagnosticsModal } from "@/components/deviceflex/DiagnosticsModal";
 import { TIERS, type Tier } from "@/data/deviceflex";
 import type { Member } from "@/data/member";
+import { attestFromReport, verifyAttestation, shortSignature } from "@/lib/attestation";
 
 export const Route = createFileRoute("/myatt/enroll")({ component: EnrollPage });
 
@@ -45,11 +46,20 @@ function EnrollPage() {
 }
 
 function Enroll() {
-  const { user, enroll } = useAuth();
+  const { user, enroll, attestDevice } = useAuth();
   const navigate = useNavigate();
   const m = user as Member;
-  const [verified, setVerified] = useState<string[]>([]);
   const [diagFor, setDiagFor] = useState<string | null>(null);
+
+  // MECHANISM 5. "Verified" is no longer a local boolean that disappears on reload —
+  // it is a signed attestation the device produced, stored on the account and
+  // re-verified here. `enroll()` enforces the same check, so this UI reflects the gate
+  // rather than being the gate.
+  const attestations = m.attestations ?? {};
+  const attestOf = (id: string) => attestations[id];
+  const verified = m.devices
+    .filter((d) => verifyAttestation(attestOf(d.id)).valid)
+    .map((d) => d.id);
 
   // Every uncovered device, with the real verdict against AT&T's two enrolment
   // doors. Nothing is filtered out — a customer should see *why* something can't
@@ -75,6 +85,9 @@ function Enroll() {
 
   const toggle = (id: string) =>
     setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+
+  /** Picked devices that can't be covered yet — the gate, surfaced before it bites. */
+  const unattested = picked.filter((id) => !verified.includes(id));
 
   const chosen = TIERS.find((t) => t.id === tier)!;
   const fit = checkTierFit(tier, picked.length);
@@ -210,27 +223,51 @@ function Enroll() {
 
                       <p className="att-small mt-2 pl-9">{verdict.detail}</p>
 
-                      {verdict.needsInspection && !blocked && (
-                        <div className="mt-2 flex flex-wrap items-center gap-3 pl-9">
-                          <p className="att-small flex items-center gap-1.5">
-                            <Info className="h-3.5 w-3.5 text-[#00388F]" />
-                            AT&amp;T may inspect before approving — do it now from the device
-                          </p>
-                          <button
-                            onClick={() => setDiagFor(d.id)}
-                            className="btn-secondary att-btn-sm"
-                          >
-                            <Stethoscope className="h-4 w-4" /> Check condition
-                          </button>
-                        </div>
-                      )}
-
-                      {verified.includes(d.id) && (
-                        <p className="mt-2 flex items-center gap-1.5 pl-9 text-xs font-bold text-[#1F7A3D]">
-                          <ShieldCheck className="h-3.5 w-3.5" /> Diagnostics passed — good working
-                          condition
-                        </p>
-                      )}
+                      {/* MECHANISM 5 — the underwriting gate. Every device being added
+                          must present a signed condition attestation, not only the ones
+                          eligibility happens to doubt. */}
+                      {!blocked &&
+                        (() => {
+                          const att = attestOf(d.id);
+                          const check = verifyAttestation(att);
+                          if (check.valid && att)
+                            return (
+                              <div className="mt-2 ml-9 rounded-xl border border-[#BFE3CB] bg-[#EAF7EE] p-3">
+                                <p className="flex items-center gap-1.5 text-xs font-bold text-[#1F7A3D]">
+                                  <ShieldCheck className="h-3.5 w-3.5" /> Condition attested by the
+                                  device
+                                </p>
+                                <p className="att-small mt-1">{check.detail}</p>
+                                <p className="mt-1.5 font-mono text-[11px] text-[#686E74]">
+                                  health {att.healthScore}/100 · {att.checks.length} checks signed ·
+                                  sig {shortSignature(att)}
+                                </p>
+                              </div>
+                            );
+                          if (att && check.reason === "failed-inspection")
+                            return (
+                              <div className="mt-2 ml-9 rounded-xl border border-[#E8B4C1] bg-[#FDF3F5] p-3">
+                                <p className="flex items-center gap-1.5 text-xs font-bold text-[#C70032]">
+                                  <ShieldOff className="h-3.5 w-3.5" /> {check.headline}
+                                </p>
+                                <p className="att-small mt-1">{check.detail}</p>
+                              </div>
+                            );
+                          return (
+                            <div className="mt-2 flex flex-wrap items-center gap-3 pl-9">
+                              <p className="att-small flex items-center gap-1.5">
+                                <Info className="h-3.5 w-3.5 text-[#00388F]" />
+                                {check.detail}
+                              </p>
+                              <button
+                                onClick={() => setDiagFor(d.id)}
+                                className="btn-secondary att-btn-sm"
+                              >
+                                <Stethoscope className="h-4 w-4" /> Check condition
+                              </button>
+                            </div>
+                          );
+                        })()}
 
                       {blocked && verdict.route === "none" && deviceCondition(d) === "damaged" && (
                         <button
@@ -254,12 +291,19 @@ function Enroll() {
                 </span>
               </div>
 
-              <div className="mt-5 flex items-center justify-between">
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
                 <p className="att-small">
                   {picked.length} of {eligible.length} eligible selected
+                  {unattested.length > 0 && (
+                    <span className="block text-[#9E5D00]">
+                      {unattested.length} still {unattested.length === 1 ? "needs" : "need"} a
+                      condition check before {unattested.length === 1 ? "it" : "they"} can be
+                      covered.
+                    </span>
+                  )}
                 </p>
                 <button
-                  disabled={!picked.length}
+                  disabled={!picked.length || unattested.length > 0}
                   onClick={() => setStep(1)}
                   className="btn-primary"
                 >
@@ -362,7 +406,10 @@ function Enroll() {
           device={m.devices.find((d) => d.id === diagFor)!}
           onClose={() => setDiagFor(null)}
           onComplete={(r) => {
-            if (r.condition === "good") setVerified((v) => [...v, diagFor]);
+            // The device signs its own condition. A failing report is stored too —
+            // a refusal has to be evidenced, not just asserted.
+            const d = m.devices.find((x) => x.id === diagFor);
+            if (d) attestDevice(d.id, attestFromReport(d, r));
           }}
         />
       )}
