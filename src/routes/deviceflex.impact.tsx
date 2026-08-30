@@ -1,11 +1,60 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
+import { TrendingUp, TrendingDown, ArrowRight, FileCheck2 } from "lucide-react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalWidgets } from "@/components/site/GlobalWidgets";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { KPIS, OPPORTUNITY } from "@/data/deviceflex";
+import { useAuth } from "@/lib/auth";
+import { WhyThisDecision } from "@/components/deviceflex/WhyThisDecision";
 
 export const Route = createFileRoute("/deviceflex/impact")({ component: ImpactPage });
+
+/**
+ * MECHANISM 3 — the decision ledger, on the page built for the people who care about it.
+ *
+ * This used to hang off the Advisor card in the claim flow, where it was wrong: a customer
+ * filing a claim about a phone they just lost does not want input digests and a replay
+ * button, and showing them raises a question ("should I be checking this?") the product
+ * shouldn't ask them to answer. The auditability claim is aimed at engineers, underwriters
+ * and patent examiners, so it lives with the rest of the technical story.
+ *
+ * Nothing about the mechanism changed — every decision is still recorded as it is made.
+ * Only the audience for the readout did.
+ */
+function DecisionLedgerPanel() {
+  const { user } = useAuth();
+  const ledger = user?.ledger ?? [];
+
+  return (
+    <section className="mt-8 rounded-2xl border border-[#DCDFE3] bg-white p-6">
+      <p className="att-eyebrow flex items-center gap-1.5 text-[#00388F]">
+        <FileCheck2 className="h-3.5 w-3.5" />
+        Mechanism 3 · Deterministic decision ledger
+      </p>
+      <h2 className="att-h3 mt-1">Every automated decision, replayable</h2>
+      <p className="att-small mt-1 max-w-2xl">
+        Each recommendation and corroboration in this prototype is made by a pure function over
+        account state and recorded with a hash of its input and output. Replaying one re-executes
+        the same function against the recorded facts and compares digests — so an automated
+        underwriting decision can be proved rather than trusted. This is the answer to &ldquo;how do
+        we know the AI was right?&rdquo;
+      </p>
+
+      {ledger.length === 0 ? (
+        <p className="mt-4 rounded-xl bg-[#F3F4F6] p-4 text-sm text-[#686E74]">
+          No decisions recorded in this session yet. Sign in and file a claim, then come back —
+          every decision made along the way appears here.
+        </p>
+      ) : (
+        <div className="mt-4 space-y-2">
+          {ledger.slice(0, 6).map((t) => (
+            <WhyThisDecision key={t.id} trace={t} label={t.summary} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
 
 function ImpactPage() {
   return (
@@ -103,6 +152,8 @@ function ImpactPage() {
             </ul>
           </section>
         </div>
+
+        <DecisionLedgerPanel />
 
         <div className="mt-8 rounded-2xl bg-[#1D2329] p-6 text-center text-white">
           <p className="text-lg font-extrabold">

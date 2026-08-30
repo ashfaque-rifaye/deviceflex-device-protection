@@ -149,10 +149,19 @@ export function deductibleFor(device: TieredDevice, kind: FeeKind): Deductible {
         tier,
       };
     case "upgrade":
+      // Corrected against Asurion's real claim flow (phoneclaim.com/att), which offers
+      // "Replace your device" and "Upgrade to a new device" side by side at the SAME
+      // deductible — $275 on a Tier 4 handset in both columns. Only the warranty differs
+      // (AT&T's on a replacement, the manufacturer's on an upgrade).
+      //
+      // We previously showed this as $0 "via Next Up Anytime", which was wrong twice over:
+      // Next Up requires trading in a device in good working condition, so it is not
+      // available on the broken handset you are claiming for, and an upgrade taken through
+      // a claim is still a claim.
       return {
-        amount: 0,
-        label: "No deductible",
-        basis: "An upgrade runs through Next Up Anytime rather than a claim",
+        amount: REPLACEMENT_DEDUCTIBLE[tier],
+        label: `$${REPLACEMENT_DEDUCTIBLE[tier]}`,
+        basis: `Tier ${tier} device — an upgrade taken through a claim carries the same deductible as a replacement, with the manufacturer's warranty instead of AT&T's`,
         tier,
       };
     case "replacement":

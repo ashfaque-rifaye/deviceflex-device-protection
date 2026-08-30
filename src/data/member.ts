@@ -1,5 +1,6 @@
 // Mock account data for the AT&T Protect Advantage prototype (no real account system).
-// Two demo accounts: one enrolled, one not yet enrolled with eligible devices.
+// Three demo accounts: one enrolled on Family, one not enrolled with ageing devices,
+// and one brand-new customer inside the 30-day new-device window.
 // Device images reuse the real AT&T CDN assets already in /public/att.
 //
 // The three mechanism types below are imported type-only. That keeps the cycle
@@ -136,6 +137,18 @@ export type Member = {
   /** Mechanism 5 — signed device-condition attestations, keyed by device id. */
   attestations?: Record<string, ConditionAttestation>;
 };
+
+/**
+ * A purchase date relative to today, formatted the way the rest of this file writes them.
+ *
+ * The new-device enrolment window is only 30 days wide, so a hardcoded date would put the
+ * demo account outside it within a month and quietly change which enrolment door the flow
+ * demonstrates.
+ */
+function purchasedDaysAgo(days: number): string {
+  const d = new Date(Date.now() - days * 86_400_000);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
 
 const IMG = {
   proMax: "/att/devices/apple-iphone-17-pro-max/cosmic-orange-hero.webp",
@@ -508,5 +521,64 @@ export const MEMBER_UNENROLLED: Member = {
   dismissedNudges: [],
 };
 
-export const ACCOUNTS: Member[] = [MEMBER_ENROLLED, MEMBER_UNENROLLED];
+// ── Account 3 — BRAND NEW, nothing to unwind ─────────────────────────────────
+//
+// Jordan is "not enrolled" but has three ageing devices, an outstanding balance and a
+// household to reason about — good for showing eligibility rules, poor for showing the
+// enrolment flow itself, because the screen is busy before you start.
+//
+// Maya is the clean run: one line, one phone bought nine days ago, nothing backed up,
+// no claims, no history. She comes in through the NEW-DEVICE window rather than Open
+// Enrollment, which is the other of AT&T's two doors and otherwise never demonstrated.
+export const MEMBER_NEW: Member = {
+  id: "m3",
+  userId: "maya.osei",
+  firstName: "Maya",
+  lastName: "Osei",
+  email: "maya.osei@example.com",
+  accountNumber: "781420936",
+  memberSince: "2026",
+  enrolled: false,
+  balance: "$0.00",
+  protectionScore: 0,
+  devices: [
+    {
+      id: "n1",
+      owner: "Maya Osei",
+      relation: "You",
+      brand: "Apple",
+      name: "iPhone 17 Pro",
+      color: "Silver",
+      storage: "256GB",
+      image: "/att/devices/apple-iphone-17-pro/silver-hero.webp",
+      line: "737.555.0264",
+      imei: "35 884102 663270 5",
+      // Nine days old, so the 30-day new-device window is open and visibly counting down.
+      purchased: purchasedDaysAgo(9),
+      warranty: "In warranty",
+      protected: false,
+      nextUp: false,
+      installmentsLeft: 35,
+      batteryHealth: 100,
+      screenRisk: "Low",
+      backedUp: false,
+      lastBackup: "Never",
+      eligible: true,
+      screenGuard: false,
+      tradeIn: 610,
+      retail: 1099,
+      autoBackup: false,
+      vault: { photos: 4, videos: 2, messages: 1, apps: 3, contacts: 1 },
+    },
+  ],
+  vault: { totalGB: 0, lastBackup: "Not set up", junkGB: 0, duplicates: 0, autoBackup: false },
+  perks: { accessoryCredits: 0, accessoryTotal: 0, resetsOn: "—", redemptions: [] },
+  claims: [],
+  guarantees: [],
+  restores: [],
+  parental: {},
+  dismissedNudges: [],
+};
+
+export const ACCOUNTS: Member[] = [MEMBER_ENROLLED, MEMBER_UNENROLLED, MEMBER_NEW];
 export const getAccount = (userId: string) => ACCOUNTS.find((a) => a.userId === userId);

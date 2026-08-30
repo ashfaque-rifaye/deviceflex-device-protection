@@ -350,21 +350,24 @@ export function resolutionOptions(
     }
   }
 
-  // Upgrade is offered only when the member has Next Up Anytime AND the device
-  // cannot be economically repaired (or is gone). Anything else and an upgrade
-  // would be an upsell dressed as a claim.
+  // Upgrade-through-a-claim, exactly as Asurion presents it: the same deductible as a
+  // replacement, differing only in what you end up holding and whose warranty covers it.
+  //
+  // Note this is NOT Next Up Anytime. Next Up requires trading in a device in good
+  // working condition, so it is unavailable on the handset being claimed for — offering
+  // it here at $0 (as we used to) would promise something the program does not allow.
   const beyondRepair = damage?.beyondEconomicalRepair || reason === "loss" || reason === "theft";
-  if (device.nextUp && beyondRepair) {
+  if (beyondRepair) {
     const monthly = Math.round((device.retail / 36) * 100) / 100;
     opts.push({
       id: "upgrade",
-      title: "Upgrade to a new device (Next Up Anytime)",
-      detail: `You're on Next Up Anytime, so you can upgrade instead of claiming — no deductible, and your guaranteed trade-in value of ${money(device.tradeIn)} comes off the new device.`,
+      title: "Upgrade to a newer device",
+      detail: `Same deductible as a like-for-like replacement, but you choose a newer model and it comes with the manufacturer's warranty${device.nextUp ? `. Your guaranteed trade-in value of ${money(device.tradeIn)} still comes off the balance` : ""}.`,
       ...fee("upgrade"),
       price: `from $${monthly.toFixed(2)}/mo.`,
       time: "Same visit",
       restore: "in-store",
-      outcome: "A newer model, with your trade-in value locked in",
+      outcome: "A newer model, on the manufacturer's warranty",
       withoutCoverage: money(device.retail - device.tradeIn),
       newNotRefurbished: true,
       storeId: swapStore?.store.id,
@@ -1061,6 +1064,17 @@ export type FraudSignal = {
   running: string;
   /** What it concluded, shown once it settles. */
   note: string;
+  /**
+   * The individual operations behind this check, ticked off one at a time while it runs.
+   *
+   * A check that resolves in a single frame doesn't read as work — it reads as a
+   * pre-baked answer, which is exactly the wrong impression for the one screen that is
+   * supposed to show an agent reasoning. These are what makes the run legible: a panellist
+   * can see *what* is being interrogated, not just that something happened.
+   */
+  steps: string[];
+  /** Where the fact came from — shown as a provenance line under the result. */
+  source: string;
 };
 
 /**
@@ -1089,33 +1103,63 @@ export function fraudCheck(
       id: "identity",
       level: "clear",
       label: "Identity verification",
-      running: "Sending a one-time code to the account contact on file…",
+      running: "Confirming it's really you",
+      steps: [
+        "Reading the contact details on the account",
+        `Sending a one-time code to ${m.email}`,
+        "Waiting for the code to be confirmed",
+        "Matching the confirmation against the account holder",
+      ],
       note: `One-time code confirmed against ${m.email}`,
+      source: "AT&T account record",
     },
     {
       id: "standing",
       level: "clear",
       label: "Account standing",
-      running: "Checking billing history and account status…",
+      running: "Checking the account is in good standing",
+      steps: [
+        `Opening account ${m.accountNumber}`,
+        "Reading billing history and current balance",
+        "Checking for suspensions or collections activity",
+        "Confirming the protection feature is active",
+      ],
       note: `Member since ${m.memberSince} · balance ${m.balance} · in good standing`,
+      source: "AT&T billing system",
     },
     {
       id: "velocity",
       level: priorTotal >= posture.velocityThreshold ? "review" : "clear",
       label: "Claim history",
-      running: `Reviewing claim frequency at ${posture.fraudSensitivity} sensitivity…`,
+      running: `Reviewing claim frequency at ${posture.fraudSensitivity} sensitivity`,
+      steps: [
+        `Pulling claims filed in the last ${ASURION.claimLimitWindow}`,
+        `Reading the review threshold from your Protection Score (${posture.score})`,
+        `Comparing ${priorTotal} prior claim${priorTotal === 1 ? "" : "s"} against a threshold of ${posture.velocityThreshold}`,
+        priorOnDevice
+          ? `Checking how many were on this device (${priorOnDevice})`
+          : "Checking whether any were on this device",
+      ],
       note:
         priorTotal >= posture.velocityThreshold
           ? `${priorTotal} claims in the last ${ASURION.claimLimitWindow} — claims are unlimited, but a Protection Score of ${posture.score} sets the review threshold at ${posture.velocityThreshold}, so Asurion looks at this one`
           : `${priorTotal} claim${priorTotal === 1 ? "" : "s"} in the last ${ASURION.claimLimitWindow} · claims are unlimited on this plan` +
             (priorOnDevice ? ` · ${priorOnDevice} on this device` : ""),
+      source: "Asurion claim history",
     },
     {
       id: "device",
       level: "clear",
       label: "Device and line match",
-      running: "Matching IMEI against the line and the account…",
+      running: "Making sure this device belongs to this line",
+      steps: [
+        `Reading the IMEI on file for ${device.line}`,
+        `Comparing it against the reported device (${device.name})`,
+        "Confirming the line sits on this account",
+        "Checking the device is covered under the active plan",
+      ],
       note: `IMEI ${device.imei} matches ${device.line} on account ${m.accountNumber}`,
+      source: "AT&T device registry",
     },
   ];
 
@@ -1124,13 +1168,19 @@ export function fraudCheck(
       id: "window",
       level: inWindow ? "clear" : "review",
       label: "Reporting window",
-      running: `Checking the incident against the ${ASURION.filingWindowDays}-day filing window…`,
+      running: `Checking the ${ASURION.filingWindowDays}-day filing window`,
+      steps: [
+        "Reading the incident date you gave us",
+        "Calculating how long ago that was",
+        `Comparing against Asurion's ${ASURION.filingWindowDays}-day limit`,
+      ],
       note:
         age === null
           ? "No incident date given — reported today"
           : inWindow
             ? `Reported ${age === 0 ? "same day" : `${age} day${age === 1 ? "" : "s"} after the incident`}, inside the ${ASURION.filingWindowDays}-day window`
             : `Reported ${age} days after the incident — past the ${ASURION.filingWindowDays}-day window, so Asurion reviews this one`,
+      source: "Asurion program terms",
     });
     // Mechanism 1. This is the only check on the list that no other administrator
     // could run, because it reads the carrier's own device-presence records.
@@ -1138,35 +1188,96 @@ export function fraudCheck(
       id: "network",
       level: corr?.outcome === "contradicted" ? "review" : "clear",
       label: "Network corroboration",
-      running: "Cross-checking the report against AT&T device-presence records…",
+      running: "Cross-checking against AT&T's own network records",
+      steps: [
+        "Querying carrier device-presence records for this line",
+        "Reading last-seen time and cell-site location",
+        "Analysing the disconnection pattern",
+        "Checking SIM and IMEI status since that moment",
+        "Comparing the network's account against yours",
+      ],
       note: corr
         ? `${corr.headline} · ${Math.round(corr.confidence * 100)}% confidence`
         : "No network records available for this line",
+      source: "AT&T network telemetry — no other administrator can read this",
     });
-
-    // A contradicted report must not blocklist the handset. Suspending a line and
-    // blacklisting an IMEI on evidence the network disputes is the one place this
-    // mechanism could do real harm, so the flagged path stops short of it.
-    if (corr?.outcome === "contradicted") {
-      signals.push({
-        id: "hold",
-        level: "review",
-        label: "Blocklist held pending review",
-        running: "Holding the blocklist submission…",
-        note: "The line stays active and the IMEI is not blocked until a specialist has looked at the mismatch — blocking on disputed evidence would strand a working device",
-      });
-    } else {
-      signals.push({
-        id: "blocklist",
-        level: "clear",
-        label: "Blocklist and line suspension",
-        running: "Submitting the IMEI to the national blocklist and suspending the line…",
-        note: "Line suspended and IMEI blocked — the device can't be used or resold",
-      });
-    }
   }
 
   return signals;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// The suspension action, deliberately separated from the checks above.
+//
+// Suspending a line and submitting an IMEI to the national blocklist is the one
+// genuinely destructive thing in this flow: the handset stops working on every US
+// carrier, and unwinding it means a call to Asurion. It used to happen automatically as
+// the last "check" in the list, which is wrong — a customer who has just told us their
+// phone is missing should be asked before we brick it, not informed afterwards.
+//
+// So it is now a separate, explicitly consented step, and it is refused outright when the
+// network disputes the report.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type SuspensionPlan = {
+  /** False when the network contradicts the report — we don't brick on disputed evidence. */
+  allowed: boolean;
+  line: string;
+  imei: string;
+  deviceName: string;
+  /** Exactly what will happen, so consent is informed. */
+  consequences: string[];
+  /** What will NOT happen — the reassurance half. */
+  reassurances: string[];
+  /** The one thing a member most needs to understand before agreeing. */
+  warning: string;
+  /** Shown instead of the consent prompt when `allowed` is false. */
+  blockedReason?: string;
+};
+
+export function suspensionPlan(
+  m: Member,
+  device: MemberDevice,
+  reason: ClaimReasonId,
+  corr?: Corroboration,
+): SuspensionPlan {
+  const base = {
+    line: device.line,
+    imei: device.imei,
+    deviceName: device.name,
+  };
+
+  if (corr?.outcome === "contradicted") {
+    return {
+      ...base,
+      allowed: false,
+      consequences: [],
+      reassurances: [],
+      warning: "",
+      blockedReason:
+        "AT&T's network records don't match the report, so we won't suspend the line or block the device. Blocking on disputed evidence would strand a phone that appears to be working. An Asurion specialist reviews this before anything else happens.",
+    };
+  }
+
+  return {
+    ...base,
+    allowed: true,
+    consequences: [
+      `Line ${device.line} is suspended — no calls, texts or data on this number until a replacement is activated.`,
+      `IMEI ${device.imei} is submitted to the national blocklist, so the ${device.name} can't be activated on AT&T or any other US carrier.`,
+      "The device can't be sold or traded in by anyone who finds or took it.",
+      `If it turns up, call ${ASURION.short} on ${ASURION.claimsPhone} — reversing a blocklist entry can't be done from this app.`,
+    ],
+    reassurances: [
+      "Your phone number is not lost. It moves to your replacement device.",
+      `Everything in your Data Vault stays exactly where it is — it's anchored to ${device.line}, not to the handset.`,
+      "Your bill doesn't change, and coverage stays active throughout.",
+    ],
+    warning:
+      reason === "theft"
+        ? "Only do this if the device is genuinely gone. Blocking is how you stop someone else using or reselling it — but it is hard to undo."
+        : "Only do this if you're confident the device is gone for good. If there's a chance it's under a car seat, look first — a blocklist entry is hard to undo.",
+  };
 }
 
 /** The decision the agent lands on once every check has run. */

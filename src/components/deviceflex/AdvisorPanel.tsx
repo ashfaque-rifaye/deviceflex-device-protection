@@ -10,20 +10,15 @@
 import { Scale, Info, ArrowRight } from "lucide-react";
 import type { AdvisorVerdict, ClaimOption } from "@/lib/ai";
 import { ASURION } from "@/data/deductibles";
-import { WhyThisDecision } from "@/components/deviceflex/WhyThisDecision";
-import type { DecisionTrace } from "@/lib/ledger";
 
 export function AdvisorPanel({
   verdict,
   options,
   recommended,
-  trace,
 }: {
   verdict: AdvisorVerdict;
   options: ClaimOption[];
   recommended: ClaimOption | undefined;
-  /** Mechanism 3 — the replayable record of how this recommendation was reached. */
-  trace?: DecisionTrace;
 }) {
   // The two paths worth contrasting: the cheapest and what it saves against.
   const cheapest = [...options].sort((a, b) => a.deductible - b.deductible)[0];
@@ -82,8 +77,6 @@ export function AdvisorPanel({
             {recommended.title} is preselected below — change it if you&rsquo;d rather not
           </p>
         )}
-
-        {trace && <WhyThisDecision trace={trace} />}
       </div>
 
       <div className="flex items-start gap-2 border-t border-[#DCDFE3] bg-[#F3F4F6] px-6 py-3">

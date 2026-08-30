@@ -49,13 +49,19 @@ import {
   type FraudVerdict,
   corroborateClaim,
   incidentHoursAgo,
+  suspensionPlan,
 } from "@/lib/ai";
 import { telemetryFor } from "@/data/network-signals";
 import { decide } from "@/lib/ledger";
 import type { Member, MemberDevice, Claim } from "@/data/member";
 import type { DiagnosticReport } from "@/lib/diagnostics";
 import { analyzeDamage, type AssessResponse } from "@/lib/assess";
-import { FraudCheckRun } from "@/components/deviceflex/FraudCheckRun";
+import { EligibilityAgentModal } from "@/components/deviceflex/EligibilityAgentModal";
+import {
+  ReplacementFlow,
+  ReplacementConfirmed,
+  type ReplacementChoice,
+} from "@/components/deviceflex/ReplacementFlow";
 import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
 import { AdvisorPanel } from "@/components/deviceflex/AdvisorPanel";
 import { DiagnosticsModal } from "@/components/deviceflex/DiagnosticsModal";
@@ -123,6 +129,9 @@ function Flow() {
   const [diagReport, setDiagReport] = useState<DiagnosticReport | null>(null);
   const [diagOpen, setDiagOpen] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [agentOpen, setAgentOpen] = useState(false);
+  /** Whether the member consented to suspending the line and blocklisting the IMEI. */
+  const [suspended, setSuspended] = useState(false);
   const [incident, setIncident] = useState<IncidentDetails>({});
   const [verdictFraud, setVerdictFraud] = useState<FraudVerdict | null>(null);
   const [ack, setAck] = useState<AsurionAck | null>(null);
@@ -131,6 +140,8 @@ function Flow() {
   const [slot, setSlot] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [claimId, setClaimId] = useState<string | null>(null);
+  /** What the member picked in the Asurion-style replacement journey. */
+  const [replacement, setReplacement] = useState<ReplacementChoice | null>(null);
 
   const cfg = CLAIM_REASONS.find((r) => r.id === reason);
   const incidentAge = daysSince(incident.date);
@@ -185,12 +196,21 @@ function Flow() {
     if (corroboration) record(corroboration.trace);
   }, [corroboration, record]);
 
-  // Verification is now a sequence the member watches — see <FraudCheckRun />.
+  // Verification runs in a dialog the member watches — see <EligibilityAgentModal />.
   const signals = reason ? fraudCheck(m, reason, device, incident, corroboration?.value) : [];
-  const onVerified = (v: FraudVerdict) => {
+  const onVerified = (v: FraudVerdict, didSuspend: boolean) => {
     setVerdictFraud(v);
+    setSuspended(didSuspend);
     setVerified(true);
   };
+
+  // The suspension is a separate consented action, so what the member agreed to has to
+  // be tracked separately from whether the checks passed.
+  const plan = useMemo(
+    () =>
+      reason && cfg?.needsIdVerify ? suspensionPlan(m, device, reason, corroboration?.value) : null,
+    [reason, cfg, m, device, corroboration],
+  );
 
   // Memoised so the preselect effect below has a stable dependency.
   const options = useMemo(
@@ -233,6 +253,9 @@ function Flow() {
   const chosenStore = storeMatches.find((s) => s.store.id === storeId) ?? storeMatches[0] ?? null;
   const isHomeRepair = option?.id === "home-repair";
   const isShip = option?.id === "ship";
+  /** Paths that hand over a different handset, and so need a device chosen first. */
+  const needsReplacement =
+    option?.id === "swap" || option?.id === "ship" || option?.id === "upgrade";
   const needsSlot = !isShip;
   const feeDetail = deductibleFor(device, option?.feeKind ?? "replacement");
 
@@ -557,20 +580,48 @@ function Flow() {
               )}
             </div>
 
-            {/* The agent runs its checks in the open, then decides. */}
-            <FraudCheckRun
-              key={`${reason}-${incident.date ?? ""}`}
-              signals={signals}
-              verdict={fraudVerdict(signals)}
-              corroboration={corroboration?.value}
-              onComplete={onVerified}
-            />
-
-            {verified && (
-              <p className="mt-3 flex items-center gap-2 text-sm font-bold text-[#1F7A3D]">
-                <PhoneOff className="h-4 w-4" />
-                Line suspended · IMEI blocked — the device can't be used or resold
-              </p>
+            {/* The agent runs in a dialog — it needs the screen while it works, and it
+                must stop and ask before suspending the line. */}
+            {!verified ? (
+              <div className="mt-5 rounded-2xl border border-[#DCDFE3] p-5">
+                <div className="flex flex-wrap items-start gap-4">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#E7F5FB]">
+                    <ShieldCheck className="h-5 w-5 text-[#0072B2]" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-extrabold">Verify your claim</p>
+                    <p className="mt-1 text-sm text-[#686E74]">
+                      The Eligibility &amp; Fraud Agent runs {signals.length} checks — identity,
+                      account standing, your claim history, the device record, the reporting window
+                      and AT&amp;T&rsquo;s own network data. It asks before it suspends anything.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setAgentOpen(true)}
+                    className="btn-secondary shrink-0 text-sm"
+                  >
+                    Start verification
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-5 rounded-2xl border border-[#BFE3CB] bg-[#EAF7EE] p-5">
+                <p className="flex items-center gap-2 text-sm font-extrabold text-[#1F7A3D]">
+                  <ShieldCheck className="h-4 w-4" />
+                  {verdictFraud?.headline ?? "Verified"}
+                </p>
+                <p className="mt-1.5 text-sm text-[#1D2329]">
+                  {suspended
+                    ? `Line ${device.line} suspended · IMEI ${device.imei} blocked. Your number moves to the replacement.`
+                    : "Your line is still active — you chose not to block the device."}
+                </p>
+                <button
+                  onClick={() => setAgentOpen(true)}
+                  className="mt-2 text-xs font-bold text-[#0072B2] hover:underline"
+                >
+                  Review what was checked
+                </button>
+              </div>
             )}
 
             <Nav
@@ -715,7 +766,6 @@ function Flow() {
                 verdict={verdict}
                 options={options}
                 recommended={options.find((o) => o.recommended)}
-                trace={adviceDecision?.trace}
               />
             )}
 
@@ -827,10 +877,39 @@ function Flow() {
           </div>
         )}
 
+        {/* ── Step 4a — the replacement journey, Asurion's three screens ──
+            Only for paths that actually put a new handset in the member's hands. A
+            screen repair keeps the same device, so choosing a model would be nonsense. */}
+        {!done && step === 4 && option && needsReplacement && !replacement && (
+          <ReplacementFlow device={device} onBack={back} onDone={(c) => setReplacement(c)} />
+        )}
+
         {/* ── Step 4 — confirm, with real store routing ────────────── */}
-        {!done && step === 4 && option && (
+        {!done && step === 4 && option && (!needsReplacement || replacement) && (
           <div>
             <h2 className="text-xl font-extrabold">Confirm your {option.title.toLowerCase()}</h2>
+
+            {replacement && (
+              <div className="mt-3 flex items-center gap-3 rounded-xl border border-[#DCDFE3] bg-[#F2FAFD] p-3">
+                <img src={replacement.image} alt="" className="h-14 w-10 shrink-0 object-contain" />
+                <div className="min-w-0">
+                  <p className="att-small font-bold text-[#686E74]">
+                    {replacement.path === "upgrade" ? "Upgrading to" : "Replacing with"}
+                  </p>
+                  <p className="text-sm font-extrabold">{replacement.deviceName}</p>
+                  <p className="att-small">
+                    {replacement.colorName} · {replacement.storage} · $
+                    {replacement.deductible.toFixed(2)} deductible on your next bill
+                  </p>
+                </div>
+                <button
+                  onClick={() => setReplacement(null)}
+                  className="ml-auto shrink-0 text-xs font-bold text-[#0072B2] hover:underline"
+                >
+                  Change
+                </button>
+              </div>
+            )}
 
             {isShip && (
               <p className="mt-2 text-sm text-[#686E74]">
@@ -982,17 +1061,26 @@ function Flow() {
 
         {/* ── Done ─────────────────────────────────────────────────── */}
         {done && option && (
-          <Confirmation
-            option={option}
-            device={device}
-            slot={slot}
-            member={m}
-            claimId={claimId}
-            ack={ack}
-            fraudVerdict={verdictFraud}
-            storeName={chosenStore?.store.name ?? null}
-            onDashboard={() => navigate({ to: "/myatt/protection", search: { device: "" } })}
-          />
+          <>
+            {/* "Get ready to meet your new phone" comes first when there is a new phone —
+                it is what the member actually wants to see. The claim receipt follows. */}
+            {replacement && (
+              <div className="mb-4">
+                <ReplacementConfirmed choice={replacement} device={device} email={m.email} />
+              </div>
+            )}
+            <Confirmation
+              option={option}
+              device={device}
+              slot={slot}
+              member={m}
+              claimId={claimId}
+              ack={ack}
+              fraudVerdict={verdictFraud}
+              storeName={chosenStore?.store.name ?? null}
+              onDashboard={() => navigate({ to: "/myatt/protection", search: { device: "" } })}
+            />
+          </>
         )}
       </div>
 
@@ -1002,6 +1090,18 @@ function Flow() {
           hasPhotos={filled > 0}
           onClose={() => setDiagOpen(false)}
           onComplete={(r) => setDiagReport(r)}
+        />
+      )}
+
+      {agentOpen && reason && (
+        <EligibilityAgentModal
+          key={`${reason}-${incident.date ?? ""}-${incident.time ?? ""}`}
+          signals={signals}
+          verdict={fraudVerdict(signals)}
+          corroboration={corroboration?.value}
+          plan={plan}
+          onClose={() => setAgentOpen(false)}
+          onComplete={onVerified}
         />
       )}
     </div>

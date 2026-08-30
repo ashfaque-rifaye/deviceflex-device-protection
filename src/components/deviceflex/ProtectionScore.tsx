@@ -18,7 +18,6 @@ import {
   Check,
   X,
   Stethoscope,
-  Repeat,
   Info,
 } from "lucide-react";
 import {
@@ -29,6 +28,7 @@ import {
   type Nudge,
 } from "@/lib/ai";
 import { useAuth } from "@/lib/auth";
+import { InfoTip } from "@/components/att/InfoTip";
 import type { Member, MemberDevice } from "@/data/member";
 import { DiagnosticsModal } from "./DiagnosticsModal";
 
@@ -75,7 +75,35 @@ export function ProtectionScore({
       <div className="flex flex-wrap items-center gap-5 bg-[#F2FAFD] p-6">
         <Ring score={score} tone={band.tone} size={compact ? 104 : 120} />
         <div className="min-w-0 flex-1">
-          <p className="att-eyebrow">Household Protection Score</p>
+          <p className="att-eyebrow flex items-center gap-1">
+            Household Protection Score
+            {/* ADDITION ② — the closed loop, behind an (i).
+                It earns a mention but not permanent space: it is interesting the first time
+                and clutter every time after, which is exactly what att.com puts behind one
+                of these. The mechanism wording still lives on `posture.effects` for the
+                judges' impact page; this is the member's reading of the same state. */}
+            <InfoTip label="What your Protection Score changes" title="What your score changes">
+              <span className="block space-y-2.5">
+                {posture.memberEffects.map((e) => (
+                  <span key={e.title} className="flex gap-2">
+                    {e.good ? (
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#1F7A3D]" />
+                    ) : (
+                      <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9E5D00]" />
+                    )}
+                    <span className="min-w-0">
+                      <span className="block text-[13px] font-bold leading-snug">{e.title}</span>
+                      <span className="att-small block leading-snug">{e.detail}</span>
+                    </span>
+                  </span>
+                ))}
+                <span className="att-small block border-t border-[#DCDFE3] pt-2.5">
+                  Backing up your devices, fitting screen protectors and keeping everything covered
+                  all raise your score — and these get better as it goes up.
+                </span>
+              </span>
+            </InfoTip>
+          </p>
           <p className="att-h3 mt-0.5" style={{ color: band.tone }}>
             {band.label}
           </p>
@@ -91,39 +119,6 @@ export function ProtectionScore({
             Run diagnostics
           </button>
         )}
-      </div>
-
-      {/* ADDITION ② — the closed loop, in the member's own terms.
-          The first version of this panel was written in mechanism language and pointed at
-          the customer: "fraud sensitivity raised to elevated", "inventory pre-staging
-          armed". That reads as an accusation and jargon respectively, and one of the three
-          is a benefit that read like a warning. The mechanism wording still exists on
-          `posture.effects` for the judges' impact panel; the member gets `memberEffects`,
-          which describes the same state as consequences to them. */}
-      <div className="border-t border-[#DCDFE3] px-6 py-4">
-        <p className="att-eyebrow flex items-center gap-1.5">
-          <Repeat className="h-3.5 w-3.5 text-[#00388F]" />
-          What your score changes
-        </p>
-        <ul className="mt-3 space-y-2.5">
-          {posture.memberEffects.map((e) => (
-            <li key={e.title} className="flex gap-2.5">
-              {e.good ? (
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#1F7A3D]" />
-              ) : (
-                <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9E5D00]" />
-              )}
-              <span className="min-w-0">
-                <span className="block text-[13px] font-bold leading-snug">{e.title}</span>
-                <span className="att-small block leading-snug">{e.detail}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-        <p className="att-small mt-3">
-          Backing up your devices, fitting screen protectors and keeping everything covered all
-          raise your score — and these get better as it goes up.
-        </p>
       </div>
 
       {nudges.length > 0 && (
