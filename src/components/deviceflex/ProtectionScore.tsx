@@ -19,6 +19,7 @@ import {
   X,
   Stethoscope,
   Repeat,
+  Info,
 } from "lucide-react";
 import {
   scoreBand,
@@ -92,29 +93,36 @@ export function ProtectionScore({
         )}
       </div>
 
-      {/* ADDITION ② — the closed loop, stated.
-          A score nothing reads back is a readout. Showing the three things this number
-          currently controls is what makes it a control loop the member (and a judge) can
-          see working. These lines change as the score moves.
-
-          Shown on the compact tile too: the dashboard is the first place anyone looks, and
-          a control loop nobody notices may as well not be one. */}
+      {/* ADDITION ② — the closed loop, in the member's own terms.
+          The first version of this panel was written in mechanism language and pointed at
+          the customer: "fraud sensitivity raised to elevated", "inventory pre-staging
+          armed". That reads as an accusation and jargon respectively, and one of the three
+          is a benefit that read like a warning. The mechanism wording still exists on
+          `posture.effects` for the judges' impact panel; the member gets `memberEffects`,
+          which describes the same state as consequences to them. */}
       <div className="border-t border-[#DCDFE3] px-6 py-4">
         <p className="att-eyebrow flex items-center gap-1.5">
           <Repeat className="h-3.5 w-3.5 text-[#00388F]" />
-          What this score is controlling
+          What your score changes
         </p>
-        <ul className="mt-2.5 space-y-1.5">
-          {posture.effects.map((e) => (
-            <li key={e} className="flex gap-2 text-xs text-[#1D2329]">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#009FDB]" />
-              <span>{e}</span>
+        <ul className="mt-3 space-y-2.5">
+          {posture.memberEffects.map((e) => (
+            <li key={e.title} className="flex gap-2.5">
+              {e.good ? (
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#1F7A3D]" />
+              ) : (
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#9E5D00]" />
+              )}
+              <span className="min-w-0">
+                <span className="block text-[13px] font-bold leading-snug">{e.title}</span>
+                <span className="att-small block leading-snug">{e.detail}</span>
+              </span>
             </li>
           ))}
         </ul>
-        <p className="att-small mt-2.5">
-          Your score isn&rsquo;t only a number on this page — it feeds back into how your account is
-          underwritten. Raise it and these loosen automatically.
+        <p className="att-small mt-3">
+          Backing up your devices, fitting screen protectors and keeping everything covered all
+          raise your score — and these get better as it goes up.
         </p>
       </div>
 

@@ -658,8 +658,21 @@ export type Posture = {
   requiresInspection: boolean;
   /** Pre-staging arms when the household is trending toward a failure. */
   preStageArmed: boolean;
-  /** The feedback edges, written out so the UI can show the loop working. */
+  /**
+   * The feedback edges in mechanism language — for the judges' impact panel and the
+   * patent narrative. NOT for the member: it reads as surveillance and jargon.
+   */
   effects: string[];
+  /**
+   * The same three edges, written for the person whose account it is.
+   *
+   * These are two different audiences and conflating them was a real mistake: a
+   * customer told "fraud sensitivity raised to elevated" hears an accusation, and
+   * "inventory pre-staging armed" is a benefit that reads like a warning. Each entry
+   * below says what actually happens to *them*, in words they'd use, and the two
+   * lists always describe the same underlying state.
+   */
+  memberEffects: Array<{ title: string; detail: string; good: boolean }>;
 };
 
 export const POSTURE_ELEVATED_BELOW = 60;
@@ -688,6 +701,45 @@ export function protectionPosture(score: number): Posture {
       : "Inventory pre-staging idle — no device is trending toward failure.",
   );
 
+  const memberEffects: Posture["memberEffects"] = [
+    elevated
+      ? {
+          title: "A claim may take one extra step",
+          detail:
+            "If you file again soon, someone checks it before it's approved. It doesn't cost you anything — it just isn't instant.",
+          good: false,
+        }
+      : {
+          title: "Claims go through without extra checks",
+          detail: "File one and it's approved straight away, with no waiting on a review.",
+          good: true,
+        },
+    requiresInspection
+      ? {
+          title: "New devices need a quick check first",
+          detail:
+            "Adding a phone to your plan starts with a one-minute condition check on that phone.",
+          good: false,
+        }
+      : {
+          title: "You can add another device right away",
+          detail: "No inspection needed — pick the device and coverage starts.",
+          good: true,
+        },
+    preStageArmed
+      ? {
+          title: "A replacement is already waiting nearby",
+          detail:
+            "One of your devices is showing wear, so we've moved a spare to a store near you. If it fails, you walk in and swap instead of waiting on shipping.",
+          good: true,
+        }
+      : {
+          title: "Nothing on your plan is close to failing",
+          detail: "Every device is healthy enough that no spare needs holding for you.",
+          good: true,
+        },
+  ];
+
   return {
     score,
     band: scoreBand(score).label,
@@ -696,6 +748,7 @@ export function protectionPosture(score: number): Posture {
     requiresInspection,
     preStageArmed,
     effects,
+    memberEffects,
   };
 }
 
