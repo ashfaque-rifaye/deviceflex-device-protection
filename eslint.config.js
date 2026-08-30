@@ -6,7 +6,22 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", ".output", ".vinxi", ".nitro", ".wrangler", "src/routeTree.gen.ts"] },
+  // Build output, all of it. `.vercel/output` is the one that bites: the Vercel preset
+  // writes thousands of generated .mjs bundles there, and because eslint-plugin-prettier
+  // applies to every file rather than just ts/tsx, linting them turns `npm run lint` into
+  // a seven-minute run reporting ~45k formatting "errors" in minified code.
+  {
+    ignores: [
+      "dist",
+      ".output",
+      ".vercel",
+      ".vinxi",
+      ".nitro",
+      ".wrangler",
+      ".tanstack",
+      "src/routeTree.gen.ts",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
