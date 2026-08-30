@@ -142,6 +142,27 @@ export function DiagnosticsModal({
             </div>
           ) : (
             <div className="space-y-5">
+              {/* Live progress, then the result summary — the shape AT&T's own device
+                  health check uses: a percentage ring with the current operation named
+                  underneath while it runs, and Passed / Failed / Warnings counts once it
+                  settles. A list of ticks alone never answers "so is it healthy?". */}
+              <HealthIndicator
+                running={!done}
+                percent={
+                  done
+                    ? report.healthScore
+                    : Math.round((Math.min(i, flat.length) / flat.length) * 100)
+                }
+                label={done ? "Healthy" : "Progress"}
+                caption={
+                  done ? report.headline : (flat[Math.min(i, flat.length - 1)]?.running ?? "")
+                }
+                passed={flat.filter((c) => c.status === "pass").length}
+                failed={report.failures.length}
+                warnings={report.warnings.length}
+                revealed={done}
+              />
+
               {report.passes.map((p) => {
                 const Icon = PASS_ICON[p.id];
                 const idxs = p.checks.map((c) => globalIndex(p.id, c.id));
@@ -244,6 +265,126 @@ export function DiagnosticsModal({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * The health readout: a progress ring that becomes a score ring.
+ *
+ * While the run is in flight it shows how far through it is and names the operation
+ * currently executing. When it settles, the same ring holds the hardware-health score and
+ * three counts appear beside it — passed, failed, warnings — which is the summary a
+ * member (or a store associate) actually reads.
+ *
+ * Colour comes from the score, not from a fixed brand blue: a 33% result rendered in
+ * cheerful cyan would be misleading.
+ */
+function HealthIndicator({
+  running,
+  percent,
+  label,
+  caption,
+  passed,
+  failed,
+  warnings,
+  revealed,
+}: {
+  running: boolean;
+  percent: number;
+  label: string;
+  caption: string;
+  passed: number;
+  failed: number;
+  warnings: number;
+  revealed: boolean;
+}) {
+  const R = 34;
+  const C = 2 * Math.PI * R;
+  const pct = Math.max(0, Math.min(100, percent));
+  const tone = running ? "#009FDB" : pct >= 80 ? "#1F7A3D" : pct >= 50 ? "#9E5D00" : "#C70032";
+
+  return (
+    <div className="rounded-2xl border border-[#DCDFE3] bg-[#F2FAFD] p-5">
+      <div className="flex flex-wrap items-center gap-5">
+        <div className="relative grid h-[92px] w-[92px] shrink-0 place-items-center">
+          <svg viewBox="0 0 84 84" className="h-[92px] w-[92px] -rotate-90">
+            <circle cx="42" cy="42" r={R} fill="none" stroke="#DCDFE3" strokeWidth="8" />
+            <circle
+              cx="42"
+              cy="42"
+              r={R}
+              fill="none"
+              stroke={tone}
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={C}
+              strokeDashoffset={C * (1 - pct / 100)}
+              style={{ transition: "stroke-dashoffset 500ms ease-out, stroke 400ms ease" }}
+            />
+          </svg>
+          <span className="absolute text-center leading-none">
+            <span className="block text-[22px] font-extrabold tabular-nums" style={{ color: tone }}>
+              {pct}%
+            </span>
+            <span className="att-small block">{label}</span>
+          </span>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          {running ? (
+            <p className="flex items-center gap-2 text-sm font-bold">
+              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#0072B2]" />
+              <span className="min-w-0 truncate">{caption}</span>
+            </p>
+          ) : (
+            <p className="text-sm font-extrabold">{caption}</p>
+          )}
+
+          <div
+            className={`mt-3 grid grid-cols-3 gap-2 transition-opacity duration-500 ${
+              revealed ? "opacity-100" : "opacity-0"
+            }`}
+            aria-hidden={!revealed}
+          >
+            <Tally icon={<Check className="h-4 w-4" />} tone="#1F7A3D" label="Passed" n={passed} />
+            <Tally
+              icon={<XCircle className="h-4 w-4" />}
+              tone="#C70032"
+              label="Failed"
+              n={failed}
+            />
+            <Tally
+              icon={<AlertTriangle className="h-4 w-4" />}
+              tone="#9E5D00"
+              label="Warnings"
+              n={warnings}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Tally({
+  icon,
+  tone,
+  label,
+  n,
+}: {
+  icon: React.ReactNode;
+  tone: string;
+  label: string;
+  n: number;
+}) {
+  return (
+    <div className="rounded-xl border border-[#DCDFE3] bg-white px-3 py-2 text-center">
+      <span className="flex items-center justify-center gap-1.5" style={{ color: tone }}>
+        {icon}
+        <span className="text-lg font-extrabold tabular-nums">{n}</span>
+      </span>
+      <span className="att-small block">{label}</span>
     </div>
   );
 }

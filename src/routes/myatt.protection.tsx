@@ -18,13 +18,15 @@ import { GlobalWidgets } from "@/components/site/GlobalWidgets";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AccountNav } from "@/components/deviceflex/AccountNav";
 import { ProtectionScore } from "@/components/deviceflex/ProtectionScore";
+import { OnboardingTour } from "@/components/deviceflex/OnboardingTour";
+import { telemetryFor } from "@/data/network-signals";
 import { RequireAuth, useAuth } from "@/lib/auth";
 import { poolStatus } from "@/lib/ai";
 import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
 import { PlanChangeFlow } from "@/components/deviceflex/PlanChangeFlow";
 import { TIER_POOL, formatCapacity } from "@/data/member";
 import { getTier, TIERS } from "@/data/deviceflex";
-import type { Member } from "@/data/member";
+import type { Member, MemberDevice } from "@/data/member";
 
 export const Route = createFileRoute("/myatt/protection")({
   validateSearch: (s: Record<string, unknown>) => ({ device: (s.device as string) || "" }),
@@ -92,7 +94,12 @@ function Manage() {
               {tier?.name} · ${m.tierPrice}/mo. · {poolStatus(m).label}
             </p>
           </div>
-          <Link to="/myatt/claims/new" search={{ device: "" }} className="btn-primary">
+          <Link
+            to="/myatt/claims/new"
+            search={{ device: "" }}
+            className="btn-primary"
+            data-tour="claim"
+          >
             File a claim
           </Link>
         </div>
@@ -119,7 +126,9 @@ function Manage() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)]">
           <div className="space-y-6">
-            <ProtectionScore member={m} />
+            <div data-tour="score">
+              <ProtectionScore member={m} />
+            </div>
             <section
               className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
               style={{ boxShadow: "var(--att-shadow-1)" }}
@@ -180,6 +189,7 @@ function Manage() {
 
             {/* Covered devices */}
             <section
+              data-tour="devices"
               className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
               style={{ boxShadow: "var(--att-shadow-1)" }}
             >
@@ -189,36 +199,16 @@ function Manage() {
                   Your deductible if you claim — known upfront
                 </p>
               </div>
-              <ul className="mt-4 divide-y divide-[#DCDFE3]">
+
+              {/* Laid out as the "My Service" tile row rather than a list: a portrait
+                  card per line, each with a live network dot. Reading a household at a
+                  glance is what this row is for, and a stacked list makes five devices
+                  look like a queue rather than a family. */}
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {m.devices.map((d) => (
-                  <li key={d.id}>
-                    <Link
-                      to="/myatt/device/$id"
-                      params={{ id: d.id }}
-                      className="flex items-center gap-4 py-3 hover:bg-[#F3F4F6]"
-                    >
-                      <img
-                        src={d.image}
-                        alt={d.name}
-                        className="h-14 w-10 shrink-0 object-contain"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-extrabold">{d.name}</p>
-                        <p className="text-xs text-[#686E74]">
-                          {d.owner} · {d.line}
-                        </p>
-                        {d.protected && <DeductibleInline device={d} />}
-                      </div>
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${d.protected ? "bg-[#EAF7EE] text-[#1F7A3D]" : "bg-[#FDE9EE] text-[#C70032]"}`}
-                      >
-                        {d.protected ? "Covered" : "Not covered"}
-                      </span>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-[#0072B2]" />
-                    </Link>
-                  </li>
+                  <DevicePlanTile key={d.id} d={d} />
                 ))}
-              </ul>
+              </div>
             </section>
 
             {/* Plan actions */}
@@ -397,6 +387,31 @@ function Manage() {
           }}
         />
       )}
+
+      {/* Three steps, on the page that actually rewards explanation. The account
+          overview was the wrong home for this: nothing there is unfamiliar, whereas the
+          score, the device row and the claim entry all repay a sentence. */}
+      <OnboardingTour
+        storageKey={`att_tour_protection_v1:${m.userId}`}
+        steps={[
+          {
+            target: '[data-tour="score"]',
+            title: "Your protection health, at a glance",
+            body: "One score across every covered device — battery, screen risk and backups. It moves the moment you fix something.",
+            hint: "Tap the ⓘ beside the score to see what it changes for you.",
+          },
+          {
+            target: '[data-tour="devices"]',
+            title: "Every line on the plan",
+            body: "Each device shows whether it's covered, whether it's on the network right now, and exactly what a claim would cost — before anything breaks.",
+          },
+          {
+            target: '[data-tour="claim"]',
+            title: "When something does happen",
+            body: "Filing takes a few minutes. AT&T's own network records help verify what happened, and nothing is suspended without asking you first.",
+          },
+        ]}
+      />
     </>
   );
 }
@@ -425,6 +440,57 @@ function Action({
         <p className="text-xs text-[#686E74]">{desc}</p>
       </div>
       <ChevronRight className="mt-2 h-4 w-4 shrink-0 text-[#0072B2]" />
+    </Link>
+  );
+}
+
+/**
+ * One device on the plan, as a tile.
+ *
+ * Modelled on the "My Service" row in AT&T's support prototype: a portrait card carrying
+ * the device, the owner, the line and a coloured dot for whether the line is currently
+ * reachable. The dot is not decoration — it reads the same carrier telemetry Mechanism 1
+ * uses for claims, so what a member sees here is what the claim engine would see.
+ */
+function DevicePlanTile({ d }: { d: MemberDevice }) {
+  const t = telemetryFor(d.id);
+  const online = t ? t.disconnectPattern === "none" || t.activitySinceLastSeen : true;
+
+  return (
+    <Link
+      to="/myatt/device/$id"
+      params={{ id: d.id }}
+      className="flex flex-col items-center rounded-2xl border border-[#DCDFE3] p-4 text-center transition-colors hover:border-[#00388F] hover:bg-[#F2FAFD]"
+    >
+      <img src={d.image} alt="" className="h-24 w-16 object-contain" />
+      <p className="mt-2 line-clamp-2 text-sm font-extrabold">
+        {d.owner.split(" ")[0]}&rsquo;s {d.name}
+      </p>
+      <p className="att-small">{d.line}</p>
+
+      <p className="mt-1.5 flex items-center gap-1.5 text-[12px] font-bold">
+        <span
+          className={`h-2 w-2 rounded-full ${online ? "bg-[#1F7A3D]" : "bg-[#C70032]"}`}
+          aria-hidden
+        />
+        <span className={online ? "text-[#1F7A3D]" : "text-[#C70032]"}>
+          {online ? "Online · LTE" : "Offline"}
+        </span>
+      </p>
+
+      <span
+        className={`mt-2 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+          d.protected ? "bg-[#EAF7EE] text-[#1F7A3D]" : "bg-[#FDE9EE] text-[#C70032]"
+        }`}
+      >
+        {d.protected ? "Covered" : "Not covered"}
+      </span>
+
+      {d.protected && (
+        <span className="mt-1.5 block">
+          <DeductibleInline device={d} />
+        </span>
+      )}
     </Link>
   );
 }

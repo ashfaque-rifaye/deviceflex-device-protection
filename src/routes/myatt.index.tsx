@@ -15,8 +15,6 @@ import { GlobalWidgets } from "@/components/site/GlobalWidgets";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AccountNav } from "@/components/deviceflex/AccountNav";
 import { DeviceCard, AddDevicePanel } from "@/components/deviceflex/DeviceCard";
-import { ProtectionScore } from "@/components/deviceflex/ProtectionScore";
-import { OnboardingTour } from "@/components/deviceflex/OnboardingTour";
 import { openChat } from "@/components/site/GlobalWidgets";
 import { RequireAuth, useAuth } from "@/lib/auth";
 import { getTier } from "@/data/deviceflex";
@@ -143,26 +141,8 @@ function Overview() {
           )}
         </div>
 
-        {/* Protection Score — Proactive Care, as a proper tile on the dashboard */}
-        {m.enrolled && (
-          <section className="mt-8" data-tour="score">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="att-h3">Your protection health</h2>
-              <Link to="/myatt/protection" search={{ device: "" }} className="link-blue text-sm">
-                Manage protection
-              </Link>
-            </div>
-            <div className="mt-4">
-              <ProtectionScore member={m} compact limit={3} />
-            </div>
-          </section>
-        )}
-
         {/* I need to */}
-        <section
-          className="mt-6 rounded-2xl border border-[#DCDFE3] bg-white p-5"
-          data-tour="actions"
-        >
+        <section className="mt-6 rounded-2xl border border-[#DCDFE3] bg-white p-5">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <span className="att-h4">I need to:</span>
             {m.enrolled && <Quick to="/myatt/claims/new" Icon={Camera} label="File a claim" />}
@@ -186,7 +166,7 @@ function Overview() {
         </section>
 
         {/* My devices — AT&T style, each with Manage Plan */}
-        <section className="mt-6" data-tour="devices">
+        <section className="mt-6">
           <div className="flex items-center justify-between">
             <h2 className="att-h3">My devices</h2>
             {m.enrolled && (
@@ -203,47 +183,6 @@ function Overview() {
           </div>
         </section>
       </div>
-
-      {/* Three steps, shown once. Enough to point out what's new on this page without
-          turning the dashboard into a lesson — the tour is skippable from every step and
-          replayable with ?tour=1 for a demo run. */}
-      <OnboardingTour
-        storageKey={`att_tour_myatt_v1:${m.userId}`}
-        steps={
-          m.enrolled
-            ? [
-                {
-                  target: '[data-tour="score"]',
-                  title: "Your protection health, at a glance",
-                  body: "One score across every covered device — battery, screen risk and backups. It moves the moment you fix something.",
-                  hint: "Tap the ⓘ next to the score to see what it changes for you.",
-                },
-                {
-                  target: '[data-tour="actions"]',
-                  title: "Everything starts here",
-                  body: "Filing a claim, redeeming your accessory, managing the family pool and opening your vault all live on this row.",
-                },
-                {
-                  target: '[data-tour="devices"]',
-                  title: "Each device, with its own plan",
-                  body: "Coverage, installment details and health sit on the device card. Open one to see what a claim would cost before anything happens.",
-                },
-              ]
-            : [
-                {
-                  target: '[data-tour="actions"]',
-                  title: "Start with protection",
-                  body: "Your devices aren't covered yet. Getting protection takes about a minute, and each device confirms its own condition as part of it.",
-                  hint: "Choose “Get protection” to see which of your devices are eligible.",
-                },
-                {
-                  target: '[data-tour="devices"]',
-                  title: "These are the devices we'd cover",
-                  body: "Every device on the account is listed with why it is — or isn't — eligible today.",
-                },
-              ]
-        }
-      />
     </>
   );
 }

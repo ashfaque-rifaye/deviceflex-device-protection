@@ -966,3 +966,50 @@
     background-position: 0 50%;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ONBOARDING COACH MARKS
+   The card travels between targets under a CSS transition; its contents are
+   remounted per step, so they need their own entrance or the new text would
+   appear fully-formed halfway through the move. A short rise-and-fade reads as
+   the card settling rather than as two separate animations.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes att-tour-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.att-tour-content {
+  animation: att-tour-in 340ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: 90ms;
+}
+
+/* The ring breathes once it has arrived, which is enough to say "look here"
+   without the restlessness of a permanent pulse. */
+@keyframes att-tour-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 159, 219, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(0, 159, 219, 0);
+  }
+}
+
+.att-tour-ring {
+  animation: att-tour-ring 2.2s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .att-tour-content,
+  .att-tour-ring {
+    animation: none;
+  }
+}
