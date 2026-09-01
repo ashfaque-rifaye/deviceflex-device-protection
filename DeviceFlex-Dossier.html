@@ -1,0 +1,1410 @@
+<title>DeviceFlex Dossier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+  /* ── Tokens ────────────────────────────────────────────────────────────
+     Light palette lives on bare :root so the un-stamped (system) state is
+     complete. Dark redefines TOKENS ONLY, twice: once behind the media query
+     guarded against an explicit light choice, once behind the explicit stamp. */
+  :root {
+    --ground: #f5f8fa;
+    --paper: #ffffff;
+    --sunk: #eef3f7;
+    --ink: #14181c;
+    --muted: #5d6b7a;
+    --faint: #8494a3;
+    --rule: #dbe3ea;
+    --rule-soft: #e9eef3;
+
+    --navy: #00388f;
+    --signal: #009fdb;
+    --link: #0072b2;
+
+    --pass: #1f7a3d;
+    --warn: #8a5200;
+    --fail: #c70032;
+
+    --pass-bg: #eaf7ee;
+    --warn-bg: #fff4e3;
+    --fail-bg: #fdf1f4;
+    --signal-bg: #e9f6fd;
+
+    --shadow: 0 1px 2px rgba(20, 24, 28, 0.04), 0 8px 24px -12px rgba(20, 24, 28, 0.12);
+
+    --display: "Familjen Grotesk", "Segoe UI", system-ui, sans-serif;
+    --body: "Newsreader", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #090d11;
+      --paper: #10161d;
+      --sunk: #161f28;
+      --ink: #e7edf3;
+      --muted: #97a6b5;
+      --faint: #6c7d8d;
+      --rule: #223040;
+      --rule-soft: #1a2531;
+
+      --navy: #6ba8ff;
+      --signal: #35bdf2;
+      --link: #63b8e8;
+
+      --pass: #5cc98a;
+      --warn: #e0a253;
+      --fail: #ff7a9c;
+
+      --pass-bg: #10241a;
+      --warn-bg: #2a1f0e;
+      --fail-bg: #2b1219;
+      --signal-bg: #0d2532;
+
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #090d11;
+    --paper: #10161d;
+    --sunk: #161f28;
+    --ink: #e7edf3;
+    --muted: #97a6b5;
+    --faint: #6c7d8d;
+    --rule: #223040;
+    --rule-soft: #1a2531;
+
+    --navy: #6ba8ff;
+    --signal: #35bdf2;
+    --link: #63b8e8;
+
+    --pass: #5cc98a;
+    --warn: #e0a253;
+    --fail: #ff7a9c;
+
+    --pass-bg: #10241a;
+    --warn-bg: #2a1f0e;
+    --fail-bg: #2b1219;
+    --signal-bg: #0d2532;
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px -14px rgba(0, 0, 0, 0.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Shell ─────────────────────────────────────────────────────────── */
+  .shell {
+    max-width: 1420px;
+    margin: 0 auto;
+    padding: 0 28px 96px;
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+  }
+  @media (max-width: 1080px) {
+    .shell { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .rail { position: static; border-right: 0; padding-right: 0; margin-bottom: 40px; }
+  }
+
+  /* ── Masthead ──────────────────────────────────────────────────────── */
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .masthead-in {
+    max-width: 1420px;
+    margin: 0 auto;
+    padding: 44px 28px 40px;
+  }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .kicker .tick {
+    width: 26px; height: 1px; background: var(--signal); display: inline-block;
+  }
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(38px, 6vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -0.028em;
+    margin: 18px 0 0;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 20px;
+    line-height: 1.55;
+    color: var(--muted);
+    max-width: 62ch;
+    margin: 16px 0 0;
+  }
+  .standfirst strong { color: var(--ink); font-weight: 600; }
+
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 10px 28px;
+    margin-top: 26px; padding-top: 22px;
+    border-top: 1px solid var(--rule-soft);
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+  }
+  .meta b { color: var(--ink); font-weight: 500; }
+  .meta a { color: var(--link); }
+
+  /* ── Rail ──────────────────────────────────────────────────────────── */
+  .rail {
+    position: sticky;
+    top: 24px;
+    padding: 32px 20px 0 0;
+    border-right: 1px solid var(--rule-soft);
+  }
+  .rail-label {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 14px;
+  }
+  .rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+  .rail a {
+    display: grid; grid-template-columns: 26px 1fr; gap: 8px;
+    padding: 5px 8px 5px 0; border-radius: 5px;
+    font-family: var(--display); font-size: 13.5px; line-height: 1.35;
+    color: var(--muted); text-decoration: none;
+  }
+  .rail a:hover { color: var(--ink); background: var(--sunk); }
+  .rail a:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+  .rail .n { font-family: var(--mono); font-size: 11px; color: var(--faint); padding-top: 2px; }
+
+  /* ── Sections ──────────────────────────────────────────────────────── */
+  main { padding-top: 32px; min-width: 0; }
+  section { scroll-margin-top: 20px; padding: 40px 0; border-top: 1px solid var(--rule-soft); }
+  section:first-of-type { border-top: 0; padding-top: 8px; }
+
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+  .sec-num {
+    font-family: var(--mono); font-size: 12px; font-weight: 500;
+    color: var(--navy); letter-spacing: 0.08em;
+  }
+  h2 {
+    font-family: var(--display); font-weight: 600;
+    font-size: clamp(25px, 3.2vw, 33px); line-height: 1.14;
+    letter-spacing: -0.02em; margin: 0; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--display); font-weight: 600; font-size: 18.5px;
+    letter-spacing: -0.01em; margin: 34px 0 8px; text-wrap: balance;
+  }
+  h4 {
+    font-family: var(--mono); font-weight: 500; font-size: 11.5px;
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted);
+    margin: 26px 0 8px;
+  }
+  p { margin: 0 0 14px; max-width: 68ch; }
+  main > section > p:first-of-type { margin-top: 14px; }
+  ul, ol.body-list { margin: 0 0 16px; padding-left: 20px; max-width: 68ch; }
+  li { margin: 5px 0; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+  a { color: var(--link); }
+
+  code, .mono { font-family: var(--mono); font-size: 0.86em; }
+  code {
+    background: var(--sunk); padding: 1px 5px; border-radius: 4px;
+    border: 1px solid var(--rule-soft);
+  }
+
+  /* ── Devices ───────────────────────────────────────────────────────── */
+  .lede {
+    font-size: 19px; line-height: 1.55; color: var(--ink);
+    border-left: 2px solid var(--signal); padding-left: 18px; margin: 0 0 22px;
+    max-width: 64ch;
+  }
+
+  .card {
+    background: var(--paper); border: 1px solid var(--rule);
+    border-radius: 10px; padding: 20px 22px; box-shadow: var(--shadow);
+  }
+  .grid { display: grid; gap: 14px; margin: 18px 0; }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 900px) { .g2, .g3, .g4 { grid-template-columns: minmax(0, 1fr); } }
+
+  .card h5 {
+    font-family: var(--display); font-size: 15px; font-weight: 600;
+    margin: 0 0 5px; letter-spacing: -0.005em;
+  }
+  .card p { font-size: 15px; margin: 0; color: var(--muted); }
+  .card p + p { margin-top: 9px; }
+
+  .stat { border-left: 2px solid var(--signal); padding: 2px 0 2px 16px; }
+  .stat b {
+    display: block; font-family: var(--display); font-weight: 700;
+    font-size: 27px; letter-spacing: -0.02em; line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat span { font-size: 13.5px; color: var(--muted); line-height: 1.4; display: block; margin-top: 3px; }
+
+  .scroller { overflow-x: auto; margin: 18px 0; border-radius: 10px; border: 1px solid var(--rule); background: var(--paper); }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 560px; }
+  th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+  th {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted); font-weight: 500;
+    background: var(--sunk); white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 13px; white-space: nowrap; }
+  td strong { font-weight: 600; }
+
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: 10.5px;
+    letter-spacing: 0.07em; text-transform: uppercase; padding: 2px 8px;
+    border-radius: 999px; border: 1px solid currentColor; white-space: nowrap;
+  }
+  .p-real { color: var(--pass); background: var(--pass-bg); }
+  .p-sim { color: var(--warn); background: var(--warn-bg); }
+  .p-none { color: var(--fail); background: var(--fail-bg); }
+
+  .note {
+    background: var(--sunk); border: 1px solid var(--rule);
+    border-radius: 10px; padding: 16px 20px; margin: 20px 0;
+    font-size: 15.5px;
+  }
+  .note p { margin: 0; max-width: none; }
+  .note p + p { margin-top: 10px; }
+  .note .tag {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--signal); display: block; margin-bottom: 6px;
+  }
+  .note.caution .tag { color: var(--warn); }
+
+  .claim {
+    background: var(--paper); border: 1px solid var(--rule); border-left: 3px solid var(--navy);
+    border-radius: 8px; padding: 16px 20px; margin: 12px 0;
+  }
+  .claim .cn {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--navy); display: block; margin-bottom: 7px;
+  }
+  .claim p { font-size: 15.5px; margin: 0; max-width: none; }
+  .claim .why { margin-top: 10px; color: var(--muted); font-size: 14.5px; font-style: italic; }
+
+  figure { margin: 26px 0; }
+  figure svg { display: block; width: 100%; max-width: 100%; height: auto; }
+  /* Emphasis inside the diagram. Cyan is only AA at large sizes on a light ground,
+     so 11-12px annotations take the navy token; cyan stays on strokes and fills,
+     where 3:1 is the bar for a graphical object. */
+  figure svg .em { fill: var(--navy); }
+  figure svg .em-line { stroke: var(--signal); }
+  figure svg .em-arrow { fill: var(--signal); }
+  figure svg .em-box { stroke: var(--navy); }
+  /* The boundary chip carries its own ground, so it takes a fixed navy rather than
+     the theme token — in dark the token lifts to a pale blue and white-on-pale-blue
+     drops to 2.4:1. A filled badge should not depend on the surface behind it. */
+  figure svg .band { fill: #00388f; }
+  figure svg .band-t { fill: #ffffff; }
+  figcaption {
+    font-size: 14px; color: var(--muted); margin-top: 12px;
+    padding-left: 14px; border-left: 1px solid var(--rule);
+    max-width: 76ch;
+  }
+  .fig-frame {
+    background: var(--paper); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 22px; overflow-x: auto; box-shadow: var(--shadow);
+  }
+
+  .flow { display: grid; gap: 0; margin: 18px 0; counter-reset: fs; }
+  .flow-step {
+    display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 16px;
+    padding: 14px 0; border-top: 1px solid var(--rule-soft);
+  }
+  .flow-step:first-child { border-top: 0; }
+  .flow-step .fs-n {
+    font-family: var(--mono); font-size: 11px; color: var(--signal);
+    padding-top: 3px; letter-spacing: 0.06em;
+  }
+  .flow-step h5 { font-family: var(--display); font-size: 16px; font-weight: 600; margin: 0 0 3px; }
+  .flow-step p { font-size: 15px; color: var(--muted); margin: 0; }
+  .flow-step .sys {
+    font-family: var(--mono); font-size: 12px; color: var(--faint);
+    margin-top: 6px; display: block;
+  }
+
+  .kv { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 4px 20px; margin: 14px 0; font-size: 15px; }
+  @media (max-width: 700px) { .kv { grid-template-columns: minmax(0, 1fr); gap: 2px; } .kv dt { margin-top: 12px; } }
+  .kv dt { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 4px; }
+  .kv dd { margin: 0; }
+
+  hr.sig {
+    border: 0; height: 1px; background: var(--rule);
+    margin: 0; position: relative;
+  }
+
+  footer.doc {
+    max-width: 1420px; margin: 0 auto; padding: 34px 28px 64px;
+    border-top: 1px solid var(--rule); font-family: var(--mono);
+    font-size: 12px; color: var(--faint); line-height: 1.7;
+  }
+  footer.doc a { color: var(--link); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+</style>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <p class="kicker"><span class="tick"></span> AT&amp;T Sprint-a-thon 2026 · Product &amp; IP dossier</p>
+    <h1>DeviceFlex</h1>
+    <p class="standfirst">
+      AT&amp;T Protect Advantage, rebuilt around a single architectural rule:
+      <strong>AI perceives, deterministic functions decide.</strong> A working prototype of
+      the membership, and the five technical mechanisms underneath it that are worth a patent.
+    </p>
+    <div class="meta">
+      <span><b>Status</b> Working prototype · 18 routes · ~19.9k lines</span>
+      <span><b>Live</b> <a href="https://deviceflex-device-protection.vercel.app">deviceflex-device-protection.vercel.app</a></span>
+      <span><b>Stack</b> TanStack Start · React 19 · Nitro</span>
+      <span><b>Revised</b> 1 Sep 2026</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" aria-label="Contents">
+    <p class="rail-label">Contents</p>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span><span>Executive summary</span></a></li>
+      <li><a href="#s2"><span class="n">02</span><span>Problem &amp; market</span></a></li>
+      <li><a href="#s3"><span class="n">03</span><span>The solution</span></a></li>
+      <li><a href="#s4"><span class="n">04</span><span>Differentiators</span></a></li>
+      <li><a href="#s5"><span class="n">05</span><span>Patentability &amp; IP</span></a></li>
+      <li><a href="#s6"><span class="n">06</span><span>Functional architecture</span></a></li>
+      <li><a href="#s7"><span class="n">07</span><span>System architecture</span></a></li>
+      <li><a href="#s8"><span class="n">08</span><span>Security &amp; compliance</span></a></li>
+      <li><a href="#s9"><span class="n">09</span><span>Monetization</span></a></li>
+      <li><a href="#s10"><span class="n">10</span><span>Reverse-engineering defence</span></a></li>
+      <li><a href="#s11"><span class="n">11</span><span>Roadmap &amp; GTM</span></a></li>
+      <li><a href="#s12"><span class="n">12</span><span>Risk &amp; degradation</span></a></li>
+      <li><a href="#s13"><span class="n">13</span><span>Cold start &amp; data flywheel</span></a></li>
+      <li><a href="#s14"><span class="n">14</span><span>What is real in the build</span></a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <!-- ══ 01 ══════════════════════════════════════════════════════════ -->
+  <section id="s1">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Executive summary &amp; product overview</h2></div>
+
+    <p class="lede">
+      Device protection is the only product a customer pays for monthly and hopes never to use.
+      DeviceFlex turns it into a membership that does something every month — and rebuilds the
+      claim itself around evidence only a carrier can see.
+    </p>
+
+    <h3>The vision</h3>
+    <p>
+      DeviceFlex is <strong>AT&amp;T Protect Advantage reimagined as an AI-powered device
+      membership</strong>. Not a competing product — a layer on top of the $5.2B protection
+      programme AT&amp;T already operates and the claim-to-upgrade experience already on its
+      roadmap. The ultimate goal is to convert a passive insurance line into an engagement
+      surface: something a member opens, uses and benefits from between claims.
+    </p>
+    <p>
+      Underneath the membership sits the part that is genuinely novel and genuinely defensible:
+      a decision architecture in which probabilistic models are confined to <em>perception</em>
+      and every consequential decision is made by a pure, replayable function over account
+      state. That split is what makes the system trustworthy, auditable, and — critically for
+      an IP filing — a technical mechanism rather than an abstract idea.
+    </p>
+
+    <h3>Target audience</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h5>Primary · the covered household</h5>
+        <p>21.4M AT&amp;T mobility customers, ~18M of them on a protection feature. The member
+        who cracks a screen, loses a phone, or simply wants to know what they're paying for.</p>
+      </div>
+      <div class="card">
+        <h5>Secondary · retail &amp; care</h5>
+        <p>Store associates and ProTech agents, who inherit a claim already verified, already
+        priced, and already routed to the right node with stock on hand.</p>
+      </div>
+      <div class="card">
+        <h5>Tertiary · the underwriter</h5>
+        <p>Asurion and its underwriter, who receive a complete, corroborated, auditable claim
+        payload instead of an affidavit and a phone call.</p>
+      </div>
+    </div>
+
+    <h3>Core value proposition</h3>
+    <p>
+      For the member: <strong>you find out what a claim costs and how it resolves before you
+      commit to anything, and the network helps prove your story so you don't have to.</strong>
+      For AT&amp;T: a mechanism that closes the 18%-online-versus-70%-retail attach gap while
+      making automated underwriting decisions reproducible enough to defend.
+    </p>
+  </section>
+
+  <!-- ══ 02 ══════════════════════════════════════════════════════════ -->
+  <section id="s2">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Problem statement &amp; market context</h2></div>
+
+    <p>
+      Device protection is a mature, commoditised category. Verizon, T-Mobile and AT&amp;T all
+      resell substantially the same Asurion-administered product with substantially the same
+      terms. Differentiation on price is impossible; differentiation on <em>experience</em> has
+      not been seriously attempted.
+    </p>
+
+    <div class="grid g4">
+      <div class="stat"><b>18% / 70%</b><span>Protection attach online versus in retail — the wedge</span></div>
+      <div class="stat"><b>$5.2B</b><span>AT&amp;T device-protection programme revenue, 2025</span></div>
+      <div class="stat"><b>~0.9%</b><span>Monthly claim rate — a large, stable base</span></div>
+      <div class="stat"><b>1–3 days</b><span>Typical shipped-replacement wait today</span></div>
+    </div>
+
+    <h3>Where it breaks today</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h5>The deductible is a surprise</h5>
+        <p>A member discovers their $275 replacement deductible at the counter or at step two of
+        a claim form. The single most important number in the product is the one hidden longest.</p>
+      </div>
+      <div class="card">
+        <h5>Loss claims run on trust alone</h5>
+        <p>An administrator that does not operate a network cannot check whether a phone really
+        went dark. It can believe the customer or demand an affidavit. This is where most claim
+        fraud lives, and honest customers pay for it in premiums and friction.</p>
+      </div>
+      <div class="card">
+        <h5>Coverage is bound to a handset</h5>
+        <p>The policy names an IMEI; the backup belongs to whichever cloud account the customer
+        set up months earlier. Restoring takes days and only works if they did something right
+        long before the incident.</p>
+      </div>
+      <div class="card">
+        <h5>Zero utility between claims</h5>
+        <p>The product activates only during a disaster. There is nothing to open, nothing to
+        check, and no reason to value it in the eleven months nothing happens.</p>
+      </div>
+    </div>
+
+    <h3>Why the existing alternatives fall short</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Alternative</th><th>What it does</th><th>Where it fails</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Asurion / phoneclaim.com</strong></td><td>Web claim intake, tiered deductibles, next-day shipping</td><td>No network visibility. Manual fraud review. Handset-bound coverage. No engagement surface.</td></tr>
+          <tr><td><strong>AppleCare+</strong></td><td>Excellent repair network, strong brand trust</td><td>Single-manufacturer. No carrier data. No household pooling. Cannot see the line at all.</td></tr>
+          <tr><td><strong>Verizon / T-Mobile protection</strong></td><td>Same underwriter, near-identical terms</td><td>Structurally identical, so competes only on price — which erodes the category for everyone.</td></tr>
+          <tr><td><strong>Self-insuring</strong></td><td>Pay retail when something breaks</td><td>A $1,199 flagship against a $275 deductible is bad arithmetic, but the product never makes that comparison visible.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ 03 ══════════════════════════════════════════════════════════ -->
+  <section id="s3">
+    <div class="sec-head"><span class="sec-num">03</span><h2>The solution &amp; value proposition</h2></div>
+
+    <p>
+      DeviceFlex sits inside the existing myAT&amp;T experience. There is no separate app and no
+      new brand for a customer to learn — the buy flow, account overview and device pages are the
+      ones they already use, with protection promoted from a line item to a managed plan.
+    </p>
+
+    <h3>Three tiers, one membership</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Capability</th><th>Basic · $15/mo</th><th>Plus · $25/mo</th><th>Family · $40/mo</th></tr></thead>
+        <tbody>
+          <tr><td>Devices covered</td><td class="num">1</td><td class="num">1</td><td class="num">Up to 5</td></tr>
+          <tr><td>Screen &amp; back-glass repair</td><td>$0, unlimited</td><td>$0, unlimited</td><td>$0, unlimited</td></tr>
+          <tr><td>Replacement deductible</td><td colspan="3">Asurion tier schedule — $25 / $100 / $225 / $275 by device tier</td></tr>
+          <tr><td>Home screen repair</td><td>—</td><td>Included</td><td>Included</td></tr>
+          <tr><td>Data Vault</td><td class="num">50 GB</td><td class="num">500 GB</td><td class="num">1 TB shared</td></tr>
+          <tr><td>Annual accessory perk</td><td>—</td><td class="num">1 free</td><td class="num">2 free</td></tr>
+          <tr><td>&ldquo;New, not refurbished&rdquo;</td><td>—</td><td>Yes</td><td>Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>What success looks like for the member</h3>
+    <div class="grid g3">
+      <div class="card"><h5>Before anything breaks</h5><p>They know their deductible, their device's health, and that a spare has been moved to a store near them if one is trending toward failure.</p></div>
+      <div class="card"><h5>At the moment of loss</h5><p>Three photos or a two-line report. The network corroborates it. Nothing is suspended without them agreeing to it.</p></div>
+      <div class="card"><h5>Afterwards</h5><p>A new device — not refurbished — rebuilt from a manifest anchored to their phone number, not the handset that's gone.</p></div>
+    </div>
+
+    <div class="note">
+      <span class="tag">Deliberately cut</span>
+      <p>An earlier concept included a borrowable gadget library and loaner devices. Both were
+      removed. A loaner's availability is <em>non-deterministic</em> — it cannot be promised —
+      and gadget logistics add cost while diluting the core. The Data Vault is the deterministic
+      substitute: data continuity is guaranteed even when a spare handset is not. Cutting them
+      made the concept tighter and more patentable, because it forced the value into a technical
+      mechanism rather than a service perk.</p>
+    </div>
+  </section>
+
+  <!-- ══ 04 ══════════════════════════════════════════════════════════ -->
+  <section id="s4">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Unique differentiators &amp; competitive edge</h2></div>
+
+    <p class="lede">
+      One sentence carries the whole moat: <strong>AT&amp;T runs the network. Asurion, Apple and
+      the insurers do not.</strong>
+    </p>
+
+    <h3>The unfair advantage</h3>
+    <p>
+      For every line on the account, AT&amp;T already knows when the device last reached a tower,
+      which one, whether it went dark abruptly or wound down cleanly, and whether the SIM has since
+      turned up in a different handset. A protection administrator without a network can ask a
+      customer to fill in a form. It has no equivalent, and no path to one — this is a structural
+      asymmetry, not a head start.
+    </p>
+
+    <h3>Innovation vectors</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Vector</th><th>Contribution</th><th>Replicable by a competitor?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Proprietary data</strong></td><td>Carrier-side device-presence telemetry</td><td>No — requires operating a network</td></tr>
+          <tr><td><strong>Data architecture</strong></td><td>State manifest keyed to subscriber line, not IMEI</td><td>Partially — but only a carrier owns the line identity</td></tr>
+          <tr><td><strong>Algorithm</strong></td><td>Deterministic replayable decision engine with hashed traces</td><td>Yes in principle — but it is the claimed mechanism</td></tr>
+          <tr><td><strong>Physical network</strong></td><td>5,000 stores + 700 uBreakiFix locations for pre-staging</td><td>No — Asurion is a vendor, not a retail owner</td></tr>
+          <tr><td><strong>Business model</strong></td><td>Tiered membership on an existing $5.2B base</td><td>Yes — which is exactly why we do not patent this part</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>The defensive moat</h3>
+    <p>
+      Three layers, in decreasing order of strength. <strong>Structural:</strong> network telemetry
+      is unavailable to non-carriers at any price. <strong>Legal:</strong> the five mechanisms in
+      §05, filed as an integrated system claim. <strong>Operational:</strong> pre-staging binds
+      software decisions to physical inventory movement across a store estate a competitor would
+      have to build.
+    </p>
+  </section>
+
+  <!-- ══ 05 ══════════════════════════════════════════════════════════ -->
+  <section id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Patentability &amp; intellectual property</h2></div>
+
+    <div class="note caution">
+      <span class="tag">The governing constraint</span>
+      <p>Under the <strong>Alice/Mayo</strong> two-step test, &ldquo;a tiered device-protection
+      membership with better ARPU&rdquo; is <em>not patentable</em>. Insurance and pricing tiers
+      are a fundamental economic practice — an abstract idea — and implementing one &ldquo;on an
+      app&rdquo; fails step one.</p>
+      <p>To survive, a claim must clear <strong>step two</strong>: an inventive concept delivering
+      a concrete technical improvement to how the machine works, not what the business achieves.
+      Courts uphold <em>Enfish</em> (a specific data structure that improved computer performance)
+      and <em>McRO</em> (a specific rules-based technique); they reject &ldquo;AI-powered
+      system&rdquo; claims describing only what software does.</p>
+      <p><strong>We patent the mechanism, not the membership.</strong></p>
+    </div>
+
+    <h3>Novelty — the five mechanisms</h3>
+
+    <div class="grid g2">
+      <div class="card">
+        <h5>1 · Network-Signal-Corroborated Claim Engine</h5>
+        <p>Fuses carrier-side device-presence telemetry — last-seen-on-network, disconnection
+        pattern, SIM/IMEI status, cell-site context — with the claim flow to auto-corroborate
+        loss and theft and gate fraud before a human reviews it.</p>
+        <p><em>Technical effect:</em> improves the machine's fraud-decision accuracy using signals
+        structurally unavailable to Asurion and Apple. Not a business rule — a machine that
+        ingests network signals and produces a faster, more accurate decision.</p>
+      </div>
+      <div class="card">
+        <h5>2 · Line-Anchored Restoration Manifest</h5>
+        <p>A continuously reconciled, device-agnostic state manifest keyed to the
+        <em>subscriber identifier</em> rather than the IMEI, with handsets as pointers, plus a
+        cryptographic continuity token binding coverage and manifest pointer to the line.</p>
+        <p><em>Technical effect:</em> reduces restore from days to under two minutes and makes the
+        15-minute swap a <em>provisioning</em> improvement rather than a logistics promise. This
+        is the <em>Enfish</em> argument — a data structure that makes the system work better.</p>
+      </div>
+      <div class="card">
+        <h5>3 · Deterministic, Replayable Decision Ledger</h5>
+        <p>Every automated decision is emitted by a pure function and recorded with digests of its
+        canonical input and output. Replay re-executes the same function against the recorded input
+        and compares digests.</p>
+        <p><em>Technical effect:</em> eliminates model drift and enables verifiable, reproducible
+        automated underwriting — a specific improvement over black-box ML, and the answer to
+        &ldquo;how do we know the AI was right?&rdquo;</p>
+      </div>
+      <div class="card">
+        <h5>4 · Multi-Path Resolution Optimizer with Inventory Pre-Staging</h5>
+        <p>A deterministic device-health decay index that, on crossing a threshold, pre-positions a
+        matching replacement plus restore snapshot at the nearest capable fulfilment node.</p>
+        <p><em>Technical effect:</em> ties software decisions to physical supply-chain movement — a
+        concrete real-world effect, which is precisely what clears Alice step two.</p>
+      </div>
+      <div class="card">
+        <h5>5 · Device-Attested Underwriting Gate</h5>
+        <p>On-device diagnostics produce a signed condition attestation over sensors, battery,
+        housing and identity; enrolment is gated on a valid, recent, signature-verified attestation.</p>
+        <p><em>Technical effect:</em> prevents adverse selection and pre-existing-damage fraud
+        through a technical security mechanism rather than a policy rule, aligned with
+        device-identity standards work.</p>
+      </div>
+      <div class="card" style="border-color: var(--signal);">
+        <h5>The organising principle</h5>
+        <p>Every &ldquo;AI&rdquo; decision is two layers: an <strong>AI perception layer</strong>
+        that reads photos, network signals and questions, and a <strong>deterministic decision
+        layer</strong> that turns those facts into an auditable verdict.</p>
+        <p>The AI makes it smart. The determinism makes it trustworthy and patentable. No
+        competitor can copy the perception layer, because it runs on AT&amp;T's own network
+        signals.</p>
+      </div>
+    </div>
+
+    <h3>Non-obviousness — why a PHOSITA would not expect this</h3>
+    <p>
+      The prevailing direction of travel in automated underwriting is <em>more</em> model, not
+      less: end-to-end ML scoring the whole claim. A person having ordinary skill in the art,
+      handed a vision model and a claim flow, would wire the model's confidence directly into the
+      approve/deny path. This design does the opposite — it deliberately <em>quarantines</em> the
+      probabilistic component to perception and forbids it from touching the decision, then makes
+      that boundary auditable by hashing both sides.
+    </p>
+    <p>
+      The second non-obvious step is inverting the key of the restoration data structure. Every
+      incumbent binds coverage and backup to the handset, because the handset is what breaks and
+      what gets replaced. Keying to the subscriber line — the one identifier the carrier controls
+      and which <em>survives</em> the incident — is counter-intuitive precisely because the line
+      is not the thing being insured.
+    </p>
+
+    <h3>Illustrative claim framework</h3>
+    <p class="mono" style="color: var(--muted); font-size: 13px;">For the IDF; not final legal language.</p>
+
+    <div class="claim">
+      <span class="cn">Independent claim 1 · system</span>
+      <p>A device-protection system comprising: a subscriber-identifier-anchored state manifest
+      continuously reconciled from a covered device; a network-telemetry ingestion module that
+      corroborates a claim event against carrier-side device-presence signals; a deterministic
+      decision engine that emits a replayable decision trace ranking resolution paths against live
+      fulfilment-node inventory and technician availability; and a provisioning module that
+      restores the manifest to a replacement device bound to the same subscriber identifier.</p>
+    </div>
+
+    <div class="claim">
+      <span class="cn">Claim 2 · dependent</span>
+      <p>The system of claim 1, wherein the network telemetry comprises last-seen-on-network time,
+      disconnection pattern, and cell-site location, and wherein the decision engine withholds a
+      device-blocklist submission when the telemetry contradicts the reported claim event.</p>
+      <p class="why">The withholding limitation is doing real work here — it distinguishes the
+      claim from a system that merely displays telemetry alongside a decision.</p>
+    </div>
+
+    <div class="claim">
+      <span class="cn">Claim 3 · dependent</span>
+      <p>The system of claim 1, wherein the decision engine computes a device-health decay index
+      from battery capacity, impact-risk profile, warranty state and backup currency, and
+      pre-positions a replacement device and restore snapshot at a fulfilment node when the index
+      crosses a deterministic threshold.</p>
+    </div>
+
+    <div class="claim">
+      <span class="cn">Claim 4 · dependent</span>
+      <p>The system of claim 1, wherein enrolment is gated by a signed on-device condition
+      attestation, the attestation comprising an enumerated check set, a derived health score and
+      a signature over a canonical serialisation thereof, and wherein the gate is enforced in the
+      state-mutation layer such that no presentation-layer path can bypass it.</p>
+    </div>
+
+    <div class="claim">
+      <span class="cn">Claim 5 · dependent</span>
+      <p>The system of claim 1, wherein each decision trace comprises a digest over a canonical,
+      key-ordered serialisation of the decision function's input and output, and wherein replaying
+      a trace re-executes the recorded function against the recorded input and compares the
+      resulting digest to the recorded digest.</p>
+      <p class="why">Canonical key ordering is not a detail — without it two structurally identical
+      inputs digest differently and the ledger proves nothing.</p>
+    </div>
+
+    <h3>Prior-art framing</h3>
+    <p>
+      Existing solutions rely on manual claim forms, human fraud review, handset-bound coverage,
+      and shipping-based replacement with customer-managed backup. None corroborate claims using
+      carrier network telemetry; none anchor a restoration manifest to the subscriber line; none
+      use a deterministic, replayable decision ledger. This invention uniquely integrates
+      network-rooted verification, line-anchored provisioning and reproducible decisioning into one
+      system.
+    </p>
+
+    <h3>Mapping to AT&amp;T's patent anchors</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Anchor</th><th>How DeviceFlex hits it</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Products &amp; services</strong></td><td>Protect Advantage, Mobility core, device provisioning — directly on the roadmap</td></tr>
+          <tr><td><strong>Competitor offerings</strong></td><td>Clear differentiation versus Asurion, AppleCare, Verizon, T-Mobile</td></tr>
+          <tr><td><strong>Industry standards</strong></td><td>On-device attestation and network-signal claims align to 3GPP and device-identity work</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note caution">
+      <span class="tag">Sequencing constraint</span>
+      <p>The US is first-to-file, and presenting to judges is a public disclosure. <strong>The
+      Invention Disclosure Form must be filed before the demo.</strong> Recommended anchor:
+      mechanisms 1 + 2 + 3 as a single integrated system claim — that trio is uniquely AT&amp;T,
+      technically concrete enough to clear Alice step two, and impossible for Asurion or Apple to
+      replicate.</p>
+    </div>
+  </section>
+
+  <!-- ══ 06 ══════════════════════════════════════════════════════════ -->
+  <section id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Functional architecture &amp; user workflows</h2></div>
+
+    <h3>End-to-end journey</h3>
+    <div class="flow">
+      <div class="flow-step">
+        <span class="fs-n">01</span>
+        <div>
+          <h5>Discover — during the buy flow</h5>
+          <p>Protection appears as a tiered membership at the add-ons step of a normal device
+          purchase, not as a checkbox. Deductibles are visible before the plan is chosen.</p>
+          <span class="sys">/buy/phones → /buy/plan → /buy/addons → /buy/cart</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="fs-n">02</span>
+        <div>
+          <h5>Enrol — through one of two real doors</h5>
+          <p>Either the 30-day new-device window or an Open Enrollment promotional window. Each
+          device must present a signed condition attestation from its own diagnostics run before
+          coverage starts — the gate is enforced in the reducer, so no screen can route around it.</p>
+          <span class="sys">/myatt/enroll · eligibility.ts · attestation.ts</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="fs-n">03</span>
+        <div>
+          <h5>Live with it — the monthly surface</h5>
+          <p>A Protection Score across the household drives real feedback: it sets the fraud-review
+          threshold, whether adding a device needs an inspection, and whether a spare is
+          pre-positioned. Vault backups, the accessory perk and the family pool all sit here.</p>
+          <span class="sys">/myatt/protection · /myatt/vault · /myatt/family · /myatt/perks</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="fs-n">04</span>
+        <div>
+          <h5>Claim — the moment of truth</h5>
+          <p>Choose what happened, choose the device, then either three photos (damage), an incident
+          report (loss/theft) or remote diagnostics (malfunction/battery). The Eligibility &amp;
+          Fraud Agent runs six checks in a dialog, showing each operation as it executes.</p>
+          <span class="sys">/myatt/claims/new · EligibilityAgentModal.tsx</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="fs-n">05</span>
+        <div>
+          <h5>Consent — before anything irreversible</h5>
+          <p>Suspending a line and blocklisting an IMEI stops the handset working on every US
+          carrier. It is a separate, explicitly consented step that names every consequence beside
+          what does <em>not</em> change — and it is refused outright when the network contradicts
+          the report.</p>
+          <span class="sys">suspensionPlan() · consent gate</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="fs-n">06</span>
+        <div>
+          <h5>Resolve — replace or upgrade</h5>
+          <p>The Advisor ranks repair, home repair, swap, ship and upgrade on cost, time, data and
+          outcome. Choosing a replacement path opens the three-screen Asurion journey: pick path,
+          pick device, then billing split into due-today versus due-monthly.</p>
+          <span class="sys">resolutionOptions() · advise() · ReplacementFlow.tsx</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="fs-n">07</span>
+        <div>
+          <h5>Restore — from the line, not the handset</h5>
+          <p>The replacement is provisioned from the line's manifest. The broken device
+          participates in nothing — which is why it working, being destroyed or being blocklisted
+          makes no difference to the restore.</p>
+          <span class="sys">provisionFromManifest() · SmartRestore.tsx</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>Module inventory</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Module</th><th>Purpose</th><th>Key surface</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Storefront</strong></td><td>Replica AT&amp;T buy flow — PLP, PDP, plan, add-ons, cart</td><td><code>buy.*</code></td></tr>
+          <tr><td><strong>Account shell</strong></td><td>myAT&amp;T overview, device cards, account tray, nav</td><td><code>myatt.index</code>, <code>myatt.device.$id</code></td></tr>
+          <tr><td><strong>Enrolment</strong></td><td>Two-door eligibility, attestation gate, tier selection</td><td><code>myatt.enroll</code></td></tr>
+          <tr><td><strong>Plan management</strong></td><td>Protection Score, device tiles, tier change, perk</td><td><code>myatt.protection</code></td></tr>
+          <tr><td><strong>Claim engine</strong></td><td>Five reason branches, agent modal, consent gate, advisor</td><td><code>myatt.claims.new</code></td></tr>
+          <tr><td><strong>Replacement journey</strong></td><td>Replace-vs-upgrade, device grid, billing breakdown</td><td><code>ReplacementFlow.tsx</code></td></tr>
+          <tr><td><strong>Data Vault</strong></td><td>Line manifests, continuity tokens, cleaner, Smart Restore</td><td><code>myatt.vault</code>, <code>manifest.ts</code></td></tr>
+          <tr><td><strong>Agent layer</strong></td><td>Eight deterministic agents over account state</td><td><code>lib/ai.ts</code></td></tr>
+          <tr><td><strong>Decision ledger</strong></td><td>Canonical serialisation, digests, replay</td><td><code>lib/ledger.ts</code></td></tr>
+          <tr><td><strong>Vision bridge</strong></td><td>Server-only VLM call with schema validation and fallback</td><td><code>lib/vision.server.ts</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Edge cases, handled explicitly</h3>
+    <div class="grid g2">
+      <div class="card"><h5>Network contradicts the member</h5><p>The claim proceeds to a specialist rather than auto-approving, and the blocklist submission is withheld. Blocking on disputed evidence would strand a working device.</p></div>
+      <div class="card"><h5>Vision provider unreachable</h5><p>Falls back to the deterministic on-device assessment and says so in the UI. A demo must never show a spinner that never resolves.</p></div>
+      <div class="card"><h5>Device already damaged at enrolment</h5><p>The attestation fails, enrolment is refused, and the refusal is <em>evidenced</em> — the failing check set is stored, not just asserted.</p></div>
+      <div class="card"><h5>Claim filed outside the 60-day window</h5><p>Still accepted, flagged for Asurion review rather than silently rejected, with the day count stated.</p></div>
+      <div class="card"><h5>No incident time given</h5><p>Corroboration degrades gracefully to a pattern-only verdict at reduced confidence rather than fabricating agreement.</p></div>
+      <div class="card"><h5>Malfunction or battery claim</h5><p>The engine declines to speak: a device that will not charge can still register normally, so network presence is neither support nor contradiction. Diagnostics carry it.</p></div>
+      <div class="card"><h5>Stale persisted account state</h5><p>A record saved before a schema field existed still loads; <code>reconcile()</code> backfills manifests, ledger and attestations on read.</p></div>
+      <div class="card"><h5>Tier downgrade drops devices</h5><p>The plan-change flow names which devices lose coverage before the change is committed, rather than silently truncating the pool.</p></div>
+    </div>
+  </section>
+
+  <!-- ══ 07 ══════════════════════════════════════════════════════════ -->
+  <section id="s7">
+    <div class="sec-head"><span class="sec-num">07</span><h2>System architecture &amp; technical design</h2></div>
+
+    <p>
+      The diagram below is the whole argument in one picture: what enters the system, where
+      probability is permitted, where it is forbidden, and what the system does to the physical
+      world as a result.
+    </p>
+
+    <figure>
+      <div class="fig-frame">
+        <svg viewBox="0 0 1200 880" role="img" aria-label="Layered architecture showing five input sources feeding a probabilistic perception layer, a hard boundary permitting only structured facts through, a deterministic decision engine of pure functions, a decision ledger recording input and output digests, and four physical-world effects including consent-gated blocklist submission and inventory pre-staging.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+            </marker>
+            <marker id="ar-sig" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" class="em-arrow"/>
+            </marker>
+          </defs>
+
+          <g font-family="IBM Plex Mono, monospace" fill="currentColor">
+
+            <!-- BAND 1 · SOURCES -->
+            <text x="40" y="26" font-size="11" letter-spacing="1.6" opacity=".62">INPUTS</text>
+            <g stroke="currentColor" stroke-width="1" fill="none" opacity=".45">
+              <rect x="40" y="40" width="200" height="62" rx="6"/>
+              <rect x="256" y="40" width="200" height="62" rx="6"/>
+              <rect x="472" y="40" width="200" height="62" rx="6"/>
+            </g>
+            <g class="em-box" stroke-width="1.6" fill="none">
+              <rect x="688" y="40" width="200" height="62" rx="6"/>
+              <rect x="904" y="40" width="200" height="62" rx="6"/>
+            </g>
+            <g font-size="12.5" text-anchor="middle">
+              <text x="140" y="66">Customer photos</text>
+              <text x="140" y="84" font-size="11" opacity=".6">3 images, base64</text>
+              <text x="356" y="66">Incident report</text>
+              <text x="356" y="84" font-size="11" opacity=".6">date · time · account</text>
+              <text x="572" y="66">On-device diagnostics</text>
+              <text x="572" y="84" font-size="11" opacity=".6">17 checks, 4 passes</text>
+              <text x="788" y="60" class="em">Carrier telemetry</text>
+              <text x="788" y="78" font-size="11" class="em" opacity=".8">last-seen · SIM · cell site</text>
+              <text x="788" y="94" font-size="10" class="em" opacity=".7">AT&amp;T-only</text>
+              <text x="1004" y="60" class="em">Account &amp; billing</text>
+              <text x="1004" y="78" font-size="11" class="em" opacity=".8">plan · claims · device registry</text>
+              <text x="1004" y="94" font-size="10" class="em" opacity=".7">AT&amp;T-only</text>
+            </g>
+
+            <!-- arrows into perception -->
+            <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
+              <line x1="140" y1="102" x2="140" y2="150"/>
+              <line x1="356" y1="102" x2="356" y2="150"/>
+              <line x1="572" y1="102" x2="572" y2="150"/>
+            </g>
+            <!-- structured sources bypass perception entirely -->
+            <g class="em-line" stroke-width="1.6" marker-end="url(#ar-sig)" stroke-dasharray="0">
+              <line x1="788" y1="102" x2="788" y2="368"/>
+              <line x1="1004" y1="102" x2="1004" y2="368"/>
+            </g>
+            <text x="800" y="240" font-size="10.5" class="em" opacity=".85">already structured —</text>
+            <text x="800" y="255" font-size="10.5" class="em" opacity=".85">no model required</text>
+
+            <!-- BAND 2 · PERCEPTION -->
+            <rect x="28" y="150" width="656" height="126" rx="10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="6 5" opacity=".55"/>
+            <text x="44" y="172" font-size="11" letter-spacing="1.4" opacity=".62">PERCEPTION — PROBABILISTIC</text>
+            <g stroke="currentColor" stroke-width="1" fill="none" opacity=".5">
+              <rect x="44" y="186" width="192" height="72" rx="6"/>
+              <rect x="260" y="186" width="192" height="72" rx="6"/>
+              <rect x="476" y="186" width="192" height="72" rx="6"/>
+            </g>
+            <g font-size="12.5" text-anchor="middle">
+              <text x="140" y="212">Damage Assessment</text>
+              <text x="140" y="230" font-size="11" opacity=".62">vision model · VLM</text>
+              <text x="140" y="247" font-size="10.5" opacity=".5">severity · confidence</text>
+              <text x="356" y="212">Anomaly detector</text>
+              <text x="356" y="230" font-size="11" opacity=".62">disconnect pattern</text>
+              <text x="356" y="247" font-size="10.5" opacity=".5">abnormal? y/n</text>
+              <text x="572" y="212">Coverage assistant</text>
+              <text x="572" y="230" font-size="11" opacity=".62">conversational RAG</text>
+              <text x="572" y="247" font-size="10.5" opacity=".5">intent · phrasing</text>
+            </g>
+            <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
+              <line x1="140" y1="258" x2="140" y2="368"/>
+              <line x1="356" y1="258" x2="356" y2="368"/>
+              <line x1="572" y1="258" x2="572" y2="368"/>
+            </g>
+
+            <!-- THE BOUNDARY -->
+            <line x1="28" y1="376" x2="1172" y2="376" class="em-line" stroke-width="2.5"/>
+            <rect x="366" y="360" width="470" height="32" rx="16" class="band"/>
+            <text x="601" y="381" font-size="12" text-anchor="middle" class="band-t" letter-spacing="0.4">STRUCTURED FACTS ONLY — NO PROBABILITY CROSSES</text>
+
+            <!-- BAND 3 · DECISION ENGINE -->
+            <rect x="28" y="410" width="1144" height="176" rx="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+            <text x="44" y="432" font-size="11" letter-spacing="1.4" opacity=".62">DETERMINISTIC DECISION ENGINE — PURE FUNCTIONS OVER ACCOUNT STATE</text>
+            <g stroke="currentColor" stroke-width="1" fill="none" opacity=".5">
+              <rect x="44" y="446" width="264" height="122" rx="6"/>
+              <rect x="324" y="446" width="264" height="122" rx="6"/>
+              <rect x="604" y="446" width="264" height="122" rx="6"/>
+              <rect x="884" y="446" width="272" height="122" rx="6"/>
+            </g>
+            <g font-size="12" text-anchor="middle">
+              <text x="176" y="470" font-size="12.5">corroborateClaim()</text>
+              <text x="176" y="490" font-size="10.5" opacity=".62">telemetry vs reported time</text>
+              <text x="176" y="507" font-size="10.5" opacity=".62">→ corroborated · inconclusive</text>
+              <text x="176" y="523" font-size="10.5" opacity=".62">→ contradicted + confidence</text>
+              <text x="176" y="547" font-size="10.5" opacity=".45">Mechanism 1</text>
+
+              <text x="456" y="470" font-size="12.5">verifyAttestation()</text>
+              <text x="456" y="490" font-size="10.5" opacity=".62">signature · freshness · score</text>
+              <text x="456" y="507" font-size="10.5" opacity=".62">enforced in the reducer</text>
+              <text x="456" y="523" font-size="10.5" opacity=".62">→ eligible · refused</text>
+              <text x="456" y="547" font-size="10.5" opacity=".45">Mechanism 5</text>
+
+              <text x="736" y="470" font-size="12.5">resolutionOptions() · advise()</text>
+              <text x="736" y="490" font-size="10.5" opacity=".62">ranks repair · swap · ship</text>
+              <text x="736" y="507" font-size="10.5" opacity=".62">against live stock + bench</text>
+              <text x="736" y="523" font-size="10.5" opacity=".62">→ ordered paths + reasoning</text>
+              <text x="736" y="547" font-size="10.5" opacity=".45">Mechanism 4</text>
+
+              <text x="1020" y="470" font-size="12.5">protectionPosture() · preStage()</text>
+              <text x="1020" y="490" font-size="10.5" opacity=".62">score → fraud threshold,</text>
+              <text x="1020" y="507" font-size="10.5" opacity=".62">inspection rule, staging arm</text>
+              <text x="1020" y="523" font-size="10.5" opacity=".62">→ closed control loop</text>
+              <text x="1020" y="547" font-size="10.5" opacity=".45">Addition ②</text>
+            </g>
+
+            <!-- feedback loop arrow: posture back into the engine -->
+            <path d="M 1156 520 C 1186 520 1186 600 1100 600 L 120 600 C 44 600 44 520 44 520"
+                  fill="none" class="em-line" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar-sig)"/>
+            <text x="600" y="616" font-size="11" text-anchor="middle" class="em">closed loop — the score sets the thresholds the engine reads next time</text>
+
+            <!-- BAND 4 · LEDGER -->
+            <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
+              <line x1="600" y1="586" x2="600" y2="640"/>
+            </g>
+            <rect x="300" y="646" width="600" height="70" rx="8" fill="none" stroke="currentColor" stroke-width="1.6"/>
+            <text x="600" y="672" font-size="12.5" text-anchor="middle">Decision ledger — canonical JSON → digest(input) · digest(output)</text>
+            <text x="600" y="692" font-size="11" text-anchor="middle" opacity=".62">replay re-executes the recorded function and compares digests</text>
+            <text x="600" y="708" font-size="10.5" text-anchor="middle" opacity=".45">Mechanism 3 · records BOTH the perception output and the deterministic verdict</text>
+
+            <!-- BAND 5 · EFFECTS -->
+            <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
+              <line x1="150" y1="586" x2="150" y2="768"/>
+              <line x1="450" y1="716" x2="450" y2="768"/>
+              <line x1="750" y1="716" x2="750" y2="768"/>
+              <line x1="1050" y1="586" x2="1050" y2="768"/>
+            </g>
+            <text x="40" y="752" font-size="11" letter-spacing="1.6" opacity=".62">EFFECTS — PHYSICAL &amp; EXTERNAL</text>
+            <g stroke="currentColor" stroke-width="1" fill="none" opacity=".5">
+              <rect x="44" y="768" width="212" height="76" rx="6"/>
+              <rect x="344" y="768" width="212" height="76" rx="6"/>
+              <rect x="644" y="768" width="212" height="76" rx="6"/>
+            </g>
+            <rect x="944" y="768" width="212" height="76" rx="6" fill="none" class="em-box" stroke-width="1.6"/>
+            <g font-size="12" text-anchor="middle">
+              <text x="150" y="792">Asurion intake</text>
+              <text x="150" y="810" font-size="10.5" opacity=".62">one payload shape,</text>
+              <text x="150" y="826" font-size="10.5" opacity=".62">whatever the claim type</text>
+
+              <text x="450" y="792">Blocklist &amp; suspension</text>
+              <text x="450" y="810" font-size="10.5" opacity=".62">consent-gated · withheld</text>
+              <text x="450" y="826" font-size="10.5" opacity=".62">when telemetry disputes</text>
+
+              <text x="750" y="792">Store pre-staging</text>
+              <text x="750" y="810" font-size="10.5" opacity=".62">device + restore snapshot</text>
+              <text x="750" y="826" font-size="10.5" opacity=".62">moved to a named node</text>
+
+              <text x="1050" y="786" class="em">Line-anchored provisioning</text>
+              <text x="1050" y="804" font-size="10.5" class="em" opacity=".8">manifest keyed to the number,</text>
+              <text x="1050" y="820" font-size="10.5" class="em" opacity=".8">handset is a pointer</text>
+              <text x="1050" y="836" font-size="10" class="em" opacity=".7">Mechanism 2</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <figcaption>
+        The architectural claim in one figure. Photos, incident reports and diagnostics pass
+        through probabilistic models; carrier telemetry and account state bypass them entirely
+        because they are already structured. Nothing probabilistic crosses the boundary — the
+        decision engine receives facts, not confidences, and every verdict it emits is recorded
+        with digests of both sides. The dashed return path is the closed control loop: the
+        Protection Score the engine computes becomes an input to the thresholds it reads next time.
+      </figcaption>
+    </figure>
+
+    <h3>Tech stack, as built</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Framework</td><td>TanStack Start · React 19</td><td>File-based routing with typed search params; SSR without a separate server codebase</td></tr>
+          <tr><td>Server runtime</td><td>Nitro</td><td>Preset-portable — the same build targets Vercel, Cloudflare Workers or Node with one env var</td></tr>
+          <tr><td>Build</td><td>Vite 8 · Rolldown</td><td>Sub-5-second production builds; route-level code splitting by default</td></tr>
+          <tr><td>Styling</td><td>Tailwind v4 + an AT&amp;T token layer</td><td>Design tokens in <code>styles.css</code> carry the real brand values; utilities compose them</td></tr>
+          <tr><td>Validation</td><td>Zod</td><td>Model output is validated at the boundary — a malformed VLM response falls back rather than propagating</td></tr>
+          <tr><td>Vision provider</td><td>OpenAI-compatible chat-completions</td><td>Fireworks today; an AMD/vLLM endpoint is three environment variables, not a rewrite</td></tr>
+          <tr><td>State</td><td>React context + localStorage</td><td>Prototype only. See §07 for the production shape.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Data flow, end to end</h3>
+    <ol class="body-list">
+      <li><strong>Ingress.</strong> Photos are read client-side, converted to data URIs, and posted to a TanStack server function. They never touch a third-party host from the browser.</li>
+      <li><strong>Perception.</strong> The server function lazily imports <code>vision.server.ts</code> so the provider module never enters the client bundle. The API key is read from <code>process.env</code> server-side only.</li>
+      <li><strong>Validation.</strong> The model's reply is parsed out of any markdown fence and validated against a flat Zod schema. Failure throws a <code>VisionError</code>, and the caller falls back to the deterministic assessment.</li>
+      <li><strong>Decision.</strong> Structured facts plus account state enter pure functions. <code>now</code> is passed as a parameter rather than read from the clock, because a function that calls <code>Date.now()</code> internally is not replayable.</li>
+      <li><strong>Recording.</strong> <code>decide()</code> is a combinator, not a logging wrapper — it runs the function and returns <code>{ value, trace }</code>, so a recorded decision and an executed one are the same event by construction.</li>
+      <li><strong>Reconciliation.</strong> Every state mutation passes through <code>reconcile()</code>, which recomputes the score and rebuilds every line manifest. &ldquo;Continuously reconciled&rdquo; is therefore true by construction, not by discipline.</li>
+      <li><strong>Egress.</strong> Whatever the claim type, one payload shape reaches Asurion. Swapping the simulated transport for a real POST changes nothing upstream.</li>
+    </ol>
+
+    <h3>Production shape — what would change</h3>
+    <p>
+      The prototype's persistence is deliberately trivial. A deployed system keeps the same
+      decision architecture and replaces the edges:
+    </p>
+    <dl class="kv">
+      <dt>State</dt><dd>Postgres for account and claim state; the manifest as a versioned JSONB document keyed by subscriber identifier, with row-level security by line.</dd>
+      <dt>Ledger</dt><dd>Append-only, write-once storage with an S3 Object Lock or equivalent retention policy — a ledger that can be edited proves nothing.</dd>
+      <dt>Telemetry</dt><dd>Read through AT&amp;T's internal network-data APIs rather than a seeded file, with strict purpose limitation and a short retention window.</dd>
+      <dt>Signing</dt><dd>Attestations signed in the device's secure enclave and verified against the manufacturer root; continuity tokens signed by a carrier key in an HSM.</dd>
+      <dt>Inference</dt><dd>Vision serving behind an internal gateway with per-tenant quotas, request signing and a circuit breaker to the deterministic path.</dd>
+      <dt>Scale</dt><dd>~0.9% monthly claim rate on 18M subscribers is ~162k claims/month — trivial write volume. The load is read-heavy dashboard traffic, which is edge-cacheable per line, and burst inference at incident peaks, which queues behind the deterministic fallback.</dd>
+    </dl>
+  </section>
+
+  <!-- ══ 08 ══════════════════════════════════════════════════════════ -->
+  <section id="s8">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Security, compliance &amp; governance</h2></div>
+
+    <div class="note caution">
+      <span class="tag">Stated plainly</span>
+      <p>This is a prototype. Its &ldquo;signatures&rdquo; are FNV-1a digests over canonical JSON,
+      not signed credentials — a browser has no key material and no secure element, and faking
+      that convincingly would be worse than saying so. The <em>structure</em> is what is claimable;
+      the cryptography is what a deployment supplies. Every such boundary is labelled in the source.</p>
+    </div>
+
+    <h3>Data protection, as designed for production</h3>
+    <div class="grid g2">
+      <div class="card"><h5>In transit</h5><p>TLS 1.3 throughout. Vision requests leave only from the server runtime, never the browser, so no provider credential is ever client-reachable.</p></div>
+      <div class="card"><h5>At rest</h5><p>AES-256 on the vault and claim store. Photographic evidence is the most sensitive artefact in the system and carries the shortest retention — deleted once the claim closes.</p></div>
+      <div class="card"><h5>Authentication</h5><p>Federated through the existing AT&amp;T ID, not a parallel identity. The prototype's demo login is explicitly not authentication and is labelled as such in code.</p></div>
+      <div class="card"><h5>Authorization</h5><p>Line-scoped. The manifest is keyed by subscriber identifier, which makes row-level security natural: a member can only ever read manifests for lines on their account.</p></div>
+      <div class="card"><h5>The irreversible action</h5><p>Blocklist submission requires explicit informed consent, is refused when telemetry disputes the report, and is enforced in the mutation layer rather than the UI.</p></div>
+      <div class="card"><h5>Decision auditability</h5><p>Every automated underwriting decision carries a replayable trace. This is a compliance asset, not just a patent claim — it is what an adverse-action review needs.</p></div>
+    </div>
+
+    <h3>Regulatory alignment</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Regime</th><th>Relevance</th><th>Architectural response</th></tr></thead>
+        <tbody>
+          <tr><td><strong>CPNI</strong> (47 U.S.C. §222)</td><td>Highest-priority. Network telemetry — cell-site location, call detail — is customer proprietary network information.</td><td>Purpose limitation to an active claim on the member's own line; short retention; every access recorded in the ledger.</td></tr>
+          <tr><td><strong>State insurance regulation</strong></td><td>Protection is an insurance product; automated adverse decisions are regulated.</td><td>Human-in-the-loop by design — the agent flags, it never refuses. The replay trace evidences any decision on review.</td></tr>
+          <tr><td><strong>CCPA / CPRA</strong></td><td>California residents' access and deletion rights over vault contents and claim evidence.</td><td>Manifest keyed to the line makes export and deletion a single-subject operation rather than a scavenger hunt.</td></tr>
+          <tr><td><strong>GDPR</strong></td><td>Applies to any EU-resident subscriber; Article 22 covers automated decision-making.</td><td>The deterministic engine supplies the &ldquo;meaningful information about the logic involved&rdquo; that Article 22 requires — literally, by replay.</td></tr>
+          <tr><td><strong>SOC 2</strong></td><td>Expected of any system handling this data at AT&amp;T scale.</td><td>Append-only ledger and enforced-in-reducer gates map directly onto change-management and access-control criteria.</td></tr>
+          <tr><td><strong>PCI DSS</strong></td><td>Deductibles are billed, not charged at checkout.</td><td>Deliberately out of scope — no card data enters this system. The prototype's checkout is a no-op for exactly this reason.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>AI governance</h3>
+    <p>
+      The perception/decision split is itself the governance mechanism. A model cannot approve,
+      deny, price or blocklist — it can only describe what it observed. That constraint is
+      architectural rather than procedural, which means it holds under pressure and can be
+      demonstrated rather than attested.
+    </p>
+  </section>
+
+  <!-- ══ 09 ══════════════════════════════════════════════════════════ -->
+  <section id="s9">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Monetization &amp; unit economics</h2></div>
+
+    <h3>Pricing architecture</h3>
+    <p>
+      A three-tier ladder replacing a flat feature charge. The mechanism is straightforward:
+      Basic anchors, Plus carries the margin, Family drives household lock-in and multiplies
+      device count per account.
+    </p>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Lever</th><th>Today</th><th>With DeviceFlex</th><th>Mechanism</th></tr></thead>
+        <tbody>
+          <tr><td>Protection attach</td><td class="num">~40%</td><td class="num">55–65%</td><td>Close the 18%-online / 70%-retail gap by making the digital journey answer the deductible question</td></tr>
+          <tr><td>ARPU (protection)</td><td class="num">$25</td><td class="num">up to $40</td><td>Tier ladder; Family raises revenue per <em>account</em> faster than per device</td></tr>
+          <tr><td>Revenue streams</td><td class="num">1</td><td class="num">7+</td><td>Tiers, home-repair add-on, accessory upsell beyond the perk, enterprise/fleet, trade-in capture</td></tr>
+          <tr><td>Replacement time</td><td class="num">1–3 days</td><td class="num">~15 min</td><td>Pre-staging plus line-anchored provisioning</td></tr>
+          <tr><td>Feature churn</td><td class="num">~1.26%</td><td>lower</td><td>Family pool and shared vault create household switching costs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Cost to serve</h3>
+    <p>
+      The economics are unusually favourable because the expensive component is bounded by the
+      claim rate, not by traffic. At ~0.9% monthly claims, roughly 99% of member sessions invoke
+      <em>no</em> inference at all — dashboards, scores, vault views and eligibility checks are all
+      pure functions over state the system already holds.
+    </p>
+    <div class="grid g3">
+      <div class="card"><h5>Inference</h5><p>Three images per damage claim, once. A small VLM on batched serving is cents per claim, and the deterministic fallback caps the downside at zero.</p></div>
+      <div class="card"><h5>Storage</h5><p>The vault dominates. Per-device allocation rather than flat tier ceilings means a three-device family is not billed capacity for five.</p></div>
+      <div class="card"><h5>Fulfilment</h5><p>The real cost. Pre-staging shifts spend from expedited shipping to inventory positioning — cheaper per event, and it converts a cost into a differentiator.</p></div>
+    </div>
+
+    <h3>How pricing scales with the customer</h3>
+    <p>
+      Expansion is device-count-driven rather than seat-driven, which suits a household: a member
+      who adds a tablet, a watch or a child's phone moves up the ladder without a renegotiation.
+      The accessory perk is a deliberate margin sacrifice that buys a monthly reason to open the
+      app — engagement that a protection product otherwise has no way to purchase.
+    </p>
+  </section>
+
+  <!-- ══ 10 ══════════════════════════════════════════════════════════ -->
+  <section id="s10">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Reverse-engineering defence &amp; trade secrets</h2></div>
+
+    <p>
+      A published patent teaches the mechanism. That is the trade: disclosure for exclusivity. What
+      it does <em>not</em> teach is the tuning — and the tuning is where a competitor would have to
+      spend years even with the patent in hand.
+    </p>
+
+    <h3>Server-side barriers</h3>
+    <div class="grid g2">
+      <div class="card"><h5>Never in the client bundle</h5><p>The vision provider module is lazily imported inside a server function, so it does not enter the client graph. Prompt text, schema and provider identity stay server-side.</p></div>
+      <div class="card"><h5>Telemetry stays behind the API</h5><p>The browser receives a verdict and its reasons, never the raw device-presence record. A scraped client learns the shape of the answer, not the signal.</p></div>
+      <div class="card"><h5>Thresholds served, not shipped</h5><p>In production the posture thresholds, decay-index weights and tier boundaries are configuration fetched per session, not constants compiled into JavaScript.</p></div>
+      <div class="card"><h5>Ledger is append-only server-side</h5><p>Traces are written where the client cannot reach them. Replay is offered as an API operation, not as client-side re-execution.</p></div>
+    </div>
+
+    <h3>What stays a trade secret</h3>
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Asset</th><th>Protection</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>Anomaly-detection model for disconnect patterns</td><td>Trade secret</td><td>Trained on carrier data nobody else holds; disclosing the features invites gaming</td></tr>
+          <tr><td>Decay-index weights and threshold</td><td>Trade secret</td><td>The patent claims &ldquo;a deterministic index crossing a threshold&rdquo;; the specific weights are tuning</td></tr>
+          <tr><td>Fraud-posture calibration</td><td>Trade secret</td><td>Publishing the exact claim count that triggers review tells a bad actor how to stay under it</td></tr>
+          <tr><td>Vision prompt and schema</td><td>Trade secret</td><td>Months of iteration; trivially copied if exposed</td></tr>
+          <tr><td>Manifest structure &amp; token binding</td><td>Patent</td><td>Structural and inspectable in effect — better claimed than hidden</td></tr>
+          <tr><td>Perception/decision split</td><td>Patent</td><td>The architecture is the claim; secrecy would be self-defeating</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ══ 11 ══════════════════════════════════════════════════════════ -->
+  <section id="s11">
+    <div class="sec-head"><span class="sec-num">11</span><h2>Strategic roadmap &amp; go-to-market</h2></div>
+
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Phase</th><th>Scope</th><th>Success measure</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Now</strong> — prototype</td><td>Full journey, five mechanisms, deployed and clickable</td><td>Sprint-a-thon; IDF filed before demo</td></tr>
+          <tr><td><strong>Phase 1</strong> — 0–3 mo</td><td>IDF through the InspireIP portal; deductible transparency shipped into the live digital claim flow as a standalone change</td><td>Disclosure number issued; measurable lift in digital attach</td></tr>
+          <tr><td><strong>Phase 2</strong> — 3–6 mo</td><td>Network corroboration behind a flag on loss/theft claims, shadow-mode first — decisions logged, not enforced</td><td>Corroboration agreement rate versus manual review outcomes</td></tr>
+          <tr><td><strong>Phase 3</strong> — 6–9 mo</td><td>Line-anchored manifest for a single device family; attestation gate at enrolment</td><td>Restore time; adverse-selection claim rate at 90 days</td></tr>
+          <tr><td><strong>Phase 4</strong> — 9–15 mo</td><td>Pre-staging pilot in one metro; tier ladder replaces the flat feature charge</td><td>Same-day swap rate; ARPU movement</td></tr>
+          <tr><td><strong>Platform</strong> — 15 mo+</td><td>Corroboration and attestation exposed as internal services to Fraud, Care and Retail</td><td>Adoption by teams outside protection</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Distribution</h3>
+    <p>
+      There is no customer-acquisition problem to solve — the audience is already inside myAT&amp;T.
+      The channels that matter are internal: the digital claim flow, the buy-flow add-ons step,
+      retail point of sale, and the ProTech agent console. The strategic prize is the fourth one:
+      corroboration and attestation are generic capabilities that Fraud, Care and Retail all want,
+      which turns a protection feature into a platform service.
+    </p>
+    <p>
+      One external channel is worth naming: on-device attestation and network-signal verification
+      both touch standards work (3GPP, device identity). Contributing there is slow, but it is how
+      a mechanism becomes an industry assumption that AT&amp;T happens to already own.
+    </p>
+  </section>
+
+  <!-- ══ 12 ══════════════════════════════════════════════════════════ -->
+  <section id="s12">
+    <div class="sec-head"><span class="sec-num">12</span><h2>Technical risk &amp; system degradation</h2></div>
+
+    <p class="lede">
+      The design principle for every failure mode: <strong>degrade to deterministic.</strong> Every
+      dependency in this system has a defined answer for what happens when it is unavailable, and
+      in every case the answer is a working, honest, lower-fidelity product — never a spinner.
+    </p>
+
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Dependency</th><th>Failure</th><th>Fallback</th><th>Member impact</th></tr></thead>
+        <tbody>
+          <tr><td>Vision provider</td><td>Down, slow, or unconfigured</td><td>Deterministic on-device assessment, labelled in the UI</td><td>Claim proceeds; severity from diagnostics rather than photos</td></tr>
+          <tr><td>Network telemetry API</td><td>Unavailable</td><td>Corroboration returns <em>inconclusive</em>, never a fabricated pass</td><td>Loss claim routes to manual review, as it does today</td></tr>
+          <tr><td>Asurion intake</td><td>Unreachable</td><td>Payload queued with idempotency key; member sees a claim id immediately</td><td>None — the claim is filed from their perspective</td></tr>
+          <tr><td>Store inventory feed</td><td>Stale or down</td><td>Optimizer drops to shipping paths and says stock could not be confirmed</td><td>Fewer same-day options offered, no false promises</td></tr>
+          <tr><td>Vault storage</td><td>Degraded</td><td>Manifest reconciliation pauses; last-known manifest still provisions</td><td>Restore may miss the most recent hours</td></tr>
+          <tr><td>Cloud region</td><td>Zone loss</td><td>Nitro's preset portability means the same build runs elsewhere; state is the constraint, not compute</td><td>Read-only degradation during failover</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Vendor lock-in</h3>
+    <p>
+      Deliberately minimised at the two places it would hurt. The vision bridge speaks the
+      OpenAI-compatible chat-completions shape, which Fireworks, vLLM and an AMD cloud-native
+      endpoint all implement — switching provider is three environment variables. The server build
+      targets Nitro presets, so Vercel, Cloudflare and Node are configuration rather than
+      migration. The genuine lock-in is to AT&amp;T's own network data, which is the point.
+    </p>
+
+    <h3>Honest risks</h3>
+    <div class="grid g3">
+      <div class="card"><h5>CPNI approval is the long pole</h5><p>Using cell-site data for claim adjudication is a privacy and regulatory question before it is an engineering one. Shadow mode in Phase 2 exists to build that case with evidence.</p></div>
+      <div class="card"><h5>Corroboration can be wrong</h5><p>A phone left in a drawer looks like a lost phone. This is why the mechanism flags rather than refuses, and why a contradicted claim withholds the blocklist instead of denying the claim.</p></div>
+      <div class="card"><h5>Pre-staging carries inventory cost</h5><p>Positioning stock against a prediction ties up capital. The threshold is the control, and it should start conservative and loosen on measured hit rate.</p></div>
+    </div>
+  </section>
+
+  <!-- ══ 13 ══════════════════════════════════════════════════════════ -->
+  <section id="s13">
+    <div class="sec-head"><span class="sec-num">13</span><h2>Cold start &amp; the data flywheel</h2></div>
+
+    <h3>Why there is no cold start problem</h3>
+    <p>
+      This is the quiet advantage of building inside an incumbent. On day one the system already
+      knows every device on the account, its purchase date, warranty state, installment position,
+      claim history and — uniquely — its live network presence. There is no empty state to design
+      around, because AT&amp;T has been collecting the inputs for years for other reasons.
+    </p>
+    <p>
+      Concretely: a brand-new member with zero interaction history still gets a populated
+      Protection Score, a real deductible for every device, a genuine eligibility verdict against
+      both enrolment doors, and corroboration available from their first claim. The deterministic
+      engine needs <em>state</em>, not <em>history</em> — which is precisely why the decision layer
+      being deterministic matters commercially and not only legally.
+    </p>
+
+    <h3>The flywheel</h3>
+    <div class="flow">
+      <div class="flow-step"><span class="fs-n">01</span><div><h5>Members file claims</h5><p>Each one pairs a reported account of events with the network's record of the same window.</p></div></div>
+      <div class="flow-step"><span class="fs-n">02</span><div><h5>Outcomes label the data</h5><p>Whether a specialist upheld or overturned a corroboration verdict is a free, high-quality label — generated by a process that has to happen anyway.</p></div></div>
+      <div class="flow-step"><span class="fs-n">03</span><div><h5>The anomaly model sharpens</h5><p>Disconnect-pattern classification improves against real adjudicated outcomes rather than synthetic assumptions.</p></div></div>
+      <div class="flow-step"><span class="fs-n">04</span><div><h5>Thresholds tighten deterministically</h5><p>Better perception raises confidence, which lets the deterministic thresholds narrow — more claims auto-approve, fewer honest members wait.</p></div></div>
+      <div class="flow-step"><span class="fs-n">05</span><div><h5>Failures teach pre-staging</h5><p>Every actual device failure is a label for the decay index. Hit rate improves, inventory positioning gets cheaper, same-day swap rate climbs.</p></div></div>
+      <div class="flow-step"><span class="fs-n">06</span><div><h5>The ledger makes it safe to iterate</h5><p>Because every historical decision can be replayed, a threshold change can be evaluated against the entire back catalogue before it ships. This is the flywheel's bearing — it is what lets the loop turn quickly without turning recklessly.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ══ 14 ══════════════════════════════════════════════════════════ -->
+  <section id="s14">
+    <div class="sec-head"><span class="sec-num">14</span><h2>What is real in the build</h2></div>
+
+    <p>
+      A prototype that overstates itself is worse than one that admits its edges, so this section
+      is the inventory. Everything below is verifiable by opening the source or the deployed site.
+    </p>
+
+    <div class="scroller">
+      <table>
+        <thead><tr><th>Component</th><th>Status</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td>All 18 routes, full journey</td><td><span class="pill p-real">Real</span></td><td>Buy flow, account, enrolment, claim, replacement, vault, family, perks, impact</td></tr>
+          <tr><td>Asurion deductible schedule</td><td><span class="pill p-real">Real</span></td><td>$25 / $100 / $225 / $275 by device tier; $0 uncapped screen repair; $850 non-return fee</td></tr>
+          <tr><td>Enrolment rules</td><td><span class="pill p-real">Real</span></td><td>30-day new-device window and Open Enrollment, with the good-working-condition gate</td></tr>
+          <tr><td>Vision model call</td><td><span class="pill p-real">Real</span></td><td>OpenAI-compatible, Zod-validated, provider-swappable. Unconfigured in production, so it falls back and says so</td></tr>
+          <tr><td>Decision ledger &amp; replay</td><td><span class="pill p-real">Real</span></td><td>Canonical serialisation, digests, live re-execution. Verified byte-identical on replay</td></tr>
+          <tr><td>Consent gate on blocklisting</td><td><span class="pill p-real">Real</span></td><td>Enforced flow; refused outright when telemetry contradicts</td></tr>
+          <tr><td>Attestation gate on enrolment</td><td><span class="pill p-real">Real</span></td><td>Enforced in the state reducer, not the UI</td></tr>
+          <tr><td>AT&amp;T design system</td><td><span class="pill p-real">Real</span></td><td>Published palette and type; contrast audited at 34/34 pairs, 15 AAA / 18 AA, none failing</td></tr>
+          <tr><td>Carrier network telemetry</td><td><span class="pill p-sim">Seeded</span></td><td>Eight devices with realistic signals, expressed as offsets from now so the demo never goes stale. One deliberately contradicts</td></tr>
+          <tr><td>Signatures &amp; tokens</td><td><span class="pill p-sim">Digest</span></td><td>FNV-1a over canonical JSON — a checksum, not a credential. Labelled as such throughout the source</td></tr>
+          <tr><td>Store inventory &amp; technicians</td><td><span class="pill p-sim">Fixed</span></td><td>Four Orlando-area stores with fixed stock and slots, so the agent's answers are reproducible</td></tr>
+          <tr><td>Account persistence</td><td><span class="pill p-sim">Local</span></td><td>localStorage per demo account; survives reload, resets on demand</td></tr>
+          <tr><td>Payment &amp; checkout</td><td><span class="pill p-none">Absent</span></td><td>Deliberately not built. No card entry exists anywhere in the system</td></tr>
+          <tr><td>Real authentication</td><td><span class="pill p-none">Absent</span></td><td>A demo session selector, explicitly labelled as not authentication</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Three demo accounts</h3>
+    <div class="grid g3">
+      <div class="card"><h5>Alex Rivera · enrolled</h5><p>Family tier, five devices, two prior claims, score 85. The main demo path — and the account whose iPhone 17e telemetry deliberately contradicts a loss report.</p></div>
+      <div class="card"><h5>Jordan Kim · not enrolled</h5><p>Three ageing devices, an outstanding balance. Shows eligibility rules under Open Enrollment and the not-protected state.</p></div>
+      <div class="card"><h5>Maya Osei · brand new</h5><p>One phone, nine days old. Comes in through the 30-day new-device window — the other enrolment door, and the cleanest run at the flow.</p></div>
+    </div>
+
+    <div class="note">
+      <span class="tag">Suggested demo path · about four minutes</span>
+      <p><strong>1.</strong> Sign in as Alex → Manage protection: the score, the closed loop behind
+      the ⓘ, the device tiles with live network status. <strong>2.</strong> File a loss claim on the
+      iPhone 17 Pro Max → watch the six checks run → the network corroborates at 88% →
+      <em>stop at the consent gate</em>. <strong>3.</strong> Repeat on the iPhone 17e → the network
+      contradicts at 93%, the SIM is in another handset, and the blocklist is withheld.
+      <strong>4.</strong> Take the upgrade path → replace-vs-upgrade at the same $275 →
+      billing split. <strong>5.</strong> Finish on <code>/deviceflex/impact</code> and replay a
+      decision live.</p>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<footer class="doc">
+  <p>AT&amp;T DeviceFlex · Sprint-a-thon 2026 · Product &amp; IP dossier · Internal draft, not for external distribution.</p>
+  <p>Figures sourced from internal AT&amp;T programme data and Mintel, <em>Mobile Network Providers — US</em>, January 2026. Deductible schedule from the Protect Advantage brochure (49-state consumer edition). Prototype at <a href="https://deviceflex-device-protection.vercel.app">deviceflex-device-protection.vercel.app</a>.</p>
+</footer>
