@@ -93,7 +93,7 @@
   <p class="sub">Today's device protection is one‑dimensional: you pay ~$15–25/mo and hope you never use it.</p>
   <div class="grid cols3">
     <div class="card"><h3>Slow claims</h3><p>1–3 day shipping + paperwork before a working device.</p></div>
-    <div class="card"><h3>Hidden fees</h3><p>$29–$225 deductibles feel punitive on a paid subscription.</p></div>
+    <div class="card"><h3>Hidden fees</h3><p>Replacement deductibles run $25–$275 by device tier, and a member typically meets the number at the counter or at step two of a claim form — the most important figure in the product is the one hidden longest.</p></div>
     <div class="card"><h3>Single‑device</h3><p>1 policy = 1 device; 43% multi‑device households underserved.</p></div>
     <div class="card"><h3>Zero monthly utility</h3><p>The product only "activates" during a disaster — no engagement, no delight.</p></div>
     <div class="card"><h3>Refurb dissatisfaction</h3><p>Customers dislike refurbished replacements — a real AT&amp;T research pain.</p></div>
@@ -105,9 +105,9 @@
   <h2><span class="num">03</span>The solution — capability stack &amp; tiers</h2>
   <p class="sub">Real, usable value every month — powered by an agentic AI layer.</p>
   <div>
-    <span class="pill">15‑min Instant Swap · $0 deductible</span>
-    <span class="pill">Free loaner during repair</span>
-    <span class="pill">Gadget &amp; accessory library*</span>
+    <span class="pill">15‑min in‑store swap</span>
+    <span class="pill">$0 screen &amp; back‑glass repair</span>
+    <span class="pill">Deductible known upfront</span>
     <span class="pill">Annual accessory perk</span>
     <span class="pill">Home screen repair (~30 min)</span>
     <span class="pill">AI cross‑device data vault</span>
@@ -118,17 +118,17 @@
   <table>
     <thead><tr><th>Feature</th><th>Basic — $15/mo</th><th>Plus — $25/mo</th><th>Family — $40/mo (5 devices)</th></tr></thead>
     <tbody>
-      <tr><td>Instant store swap · $0 deductible</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
-      <tr><td>Free loaner during repair</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
-      <tr><td>Gadget &amp; accessory library*</td><td>—</td><td>Yes</td><td>Yes</td></tr>
-      <tr><td>Annual accessory perk</td><td>$9.99</td><td>1 FREE</td><td>2 FREE</td></tr>
+      <tr><td>15‑minute in‑store swap</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Screen &amp; back‑glass repair</td><td>$0, unlimited</td><td>$0, unlimited</td><td>$0, unlimited</td></tr>
+      <tr><td>Replacement deductible</td><td colspan="3">Asurion tier schedule — $25 / $100 / $225 / $275 by device tier, shown before you commit</td></tr>
+      <tr><td>Annual accessory perk</td><td>—</td><td>1 FREE</td><td>2 FREE</td></tr>
       <tr><td>Home screen repair</td><td>+$8/mo</td><td>Included</td><td>Included</td></tr>
       <tr><td>AI cross‑device vault</td><td>50 GB</td><td>500 GB</td><td>1 TB shared</td></tr>
       <tr><td>"New, not refurbished" guarantee</td><td>—</td><td>Yes</td><td>Yes</td></tr>
       <tr><td>AI Damage Assessment · Coverage Coach</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
     </tbody>
   </table>
-  <p class="sub" style="margin-top:10px">*Launch scope = accessories + wearables only, refundable deposits &amp; eligibility rules; flagship‑phone loaners limited to swap/repair. Full "travel device library" = Phase 2.</p>
+  <p class="sub" style="margin-top:10px">A borrowable gadget library and loaner devices were cut deliberately. A loaner's availability is non‑deterministic — it cannot be promised — and gadget logistics add cost while diluting the core. The Data Vault is the deterministic substitute: data continuity is guaranteed even when a spare handset is not.</p>
 </section>
 
 <section>
@@ -140,13 +140,13 @@
       <div class="agent"><div class="dot">1</div><div><h3>Damage Assessment Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Vision model: 3 photos → severity → resolution path → auto‑book.</p></div></div>
       <div class="agent"><div class="dot">2</div><div><h3>Coverage Coach Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Conversational RAG over policy — plain‑English "am I covered?", fees upfront.</p></div></div>
       <div class="agent"><div class="dot">3</div><div><h3>Claim‑to‑Upgrade Advisor</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Compares repair vs swap vs upgrade with real cost + time, personalized.</p></div></div>
-      <div class="agent"><div class="dot">4</div><div><h3>Smart Restore Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Migrates data to a loaner/replacement in &lt;2 min; dedupe + memory rescue.</p></div></div>
+      <div class="agent"><div class="dot">4</div><div><h3>Smart Restore Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Rebuilds a replacement from the line's manifest in &lt;2 min; dedupe + memory rescue.</p></div></div>
       <div class="agent"><div class="dot">5</div><div><h3>Proactive Care Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Watches device health, predicts failures, nudges — the <b>monthly</b> engagement engine.</p></div></div>
     </div>
     <div>
       <p class="lead" style="margin:0 0 4px;font-size:12px;letter-spacing:.08em">BEHIND THE SCENES</p>
-      <div class="agent"><div class="dot bg">6</div><div><h3>Retail &amp; Inventory Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Real‑time swap/loaner availability, store routing, demand forecasting.</p></div></div>
-      <div class="agent"><div class="dot bg">7</div><div><h3>Eligibility &amp; Fraud Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Identity/consent, deposits, gadget‑library abuse control.</p></div></div>
+      <div class="agent"><div class="dot bg">6</div><div><h3>Retail &amp; Inventory Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Real‑time swap stock and bench time, store routing, pre‑staging.</p></div></div>
+      <div class="agent"><div class="dot bg">7</div><div><h3>Eligibility &amp; Fraud Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">Identity, consent gating, network corroboration, fraud posture.</p></div></div>
       <div class="agent"><div class="dot bg">8</div><div><h3>Family Orchestration Agent</h3><p style="margin:0;font-size:12.5px;color:var(--gray)">5‑device pool, parental controls, shared vault.</p></div></div>
       <div class="card" style="margin-top:14px;background:var(--pale);border-color:#c9e6f5">
         <h3>The 5 winning additions</h3>
@@ -155,7 +155,7 @@
           <li><b>Guided Claim‑to‑Upgrade engine</b> — one AI comparison of every path (this <i>is</i> AT&amp;T's roadmap).</li>
           <li><b>Proactive Coverage Coach</b> — predictive, personalized nudges.</li>
           <li><b>ROI calculator</b> — "what a member pays vs saves" (the plan pays for itself).</li>
-          <li><b>Sustainability</b> — loaners + repairs + refurb‑avoidance = circular, less e‑waste.</li>
+          <li><b>Sustainability</b> — repair‑first routing + refurb‑avoidance = circular, less e‑waste.</li>
         </ul>
       </div>
     </div>
@@ -163,14 +163,47 @@
 </section>
 
 <section>
-  <h2><span class="num">05</span>Why it wins — &amp; the Q&amp;A defense</h2>
+  <h2><span class="num">05</span>What is actually defensible — AI perceives, deterministic functions decide</h2>
+  <p class="sub">A tiered membership is not patentable — insurance and pricing tiers are an abstract idea, and putting one "on an app" fails <i>Alice</i> step one. We patent the mechanism, not the membership.</p>
+
+  <div class="card" style="background:var(--pale);border-color:#c9e6f5">
+    <h3>The organising principle</h3>
+    <p style="margin:0;font-size:13px">Every "AI" decision is two layers. A <b>perception layer</b> reads photos, network signals and questions and emits structured facts. A <b>deterministic decision layer</b> turns those facts into an auditable verdict by pure, replayable function. The vision model says <i>"severity: moderate, confidence 0.82"</i>; the decision — approve → home repair → $0 — is made by a function anyone can re‑run.</p>
+    <p style="margin:8px 0 0;font-size:13px"><b>The AI makes it smart. The determinism makes it trustworthy and patentable.</b> A model cannot approve, deny, price or blocklist — it can only describe what it observed. That constraint is architectural, not procedural, so it can be demonstrated rather than attested.</p>
+  </div>
+
+  <table style="margin-top:14px">
+    <thead><tr><th>#</th><th>Mechanism</th><th>Technical effect — what improves about the machine</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><b>Network‑Signal‑Corroborated Claim Engine</b><br><span class="sub">The AT&amp;T‑only moat</span></td><td>Fuses carrier‑side device‑presence telemetry — last‑seen, disconnect pattern, SIM/IMEI status, cell site — with the claim flow to corroborate loss and theft before a human reviews it. Uses signals structurally unavailable to Asurion and Apple.</td></tr>
+      <tr><td>2</td><td><b>Line‑Anchored Restoration Manifest</b></td><td>A continuously reconciled state manifest keyed to the <i>subscriber identifier</i>, not the IMEI, with handsets as pointers. Cuts restore from days to under two minutes — the <i>Enfish</i> argument, a data structure that makes the system work better.</td></tr>
+      <tr><td>3</td><td><b>Deterministic, Replayable Decision Ledger</b></td><td>Every decision is emitted by a pure function and recorded with digests of its canonical input and output. Replay re‑executes and compares. Eliminates model drift; answers "how do we know the AI was right?"</td></tr>
+      <tr><td>4</td><td><b>Multi‑Path Resolution Optimizer with Inventory Pre‑Staging</b></td><td>A deterministic device‑health decay index that pre‑positions a replacement plus restore snapshot at the nearest capable node on crossing a threshold. Ties software decisions to physical supply‑chain movement — a real‑world effect, which is what clears <i>Alice</i> step two.</td></tr>
+      <tr><td>5</td><td><b>Device‑Attested Underwriting Gate</b></td><td>On‑device diagnostics produce a signed condition attestation; enrolment is gated on a valid, recent, signature‑verified one, enforced in the state‑mutation layer so no screen can bypass it. Prevents adverse selection as a technical mechanism, not a policy rule.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid cols2" style="margin-top:14px">
+    <div class="card">
+      <h3>Why a skilled person would not expect it</h3>
+      <p style="margin:0;font-size:12.5px;color:var(--gray)">The direction of travel in automated underwriting is <i>more</i> model — end‑to‑end ML scoring the whole claim. This deliberately quarantines the probabilistic component to perception, forbids it from touching the decision, then makes that boundary auditable by hashing both sides. The second non‑obvious step is inverting the key of the restoration structure: every incumbent binds coverage to the handset, because the handset is what breaks.</p>
+    </div>
+    <div class="card" style="border-color:var(--navy);border-left-width:4px">
+      <h3>Sequencing — this one is not optional</h3>
+      <p style="margin:0;font-size:12.5px">The US is first‑to‑file, and <b>presenting to judges is a public disclosure</b>. The Invention Disclosure Form must be filed <b>before</b> the demo. Recommended anchor: mechanisms <b>1 + 2 + 3</b> as a single integrated system claim — uniquely AT&amp;T, concrete enough to clear <i>Alice</i> step two, and impossible for Asurion or Apple to replicate.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="num">06</span>Why it wins — &amp; the Q&amp;A defense</h2>
   <div class="grid cols2">
     <div class="card">
       <h3>Business levers</h3>
       <ul class="tight">
         <li><span class="win">Attach ↑</span> — close the 18%→70% online‑vs‑retail gap.</li>
         <li><span class="win">ARPU ↑</span> — $25 → up to $40 via tiers.</li>
-        <li><span class="win">New streams ↑</span> — home‑repair add‑on, gadget deposits, accessory upsell, enterprise.</li>
+        <li><span class="win">New streams ↑</span> — home‑repair add‑on, accessory upsell, enterprise/fleet, trade‑in capture.</li>
         <li><span class="win">Churn ↓</span> — family pool + vault = household lock‑in.</li>
         <li><span class="win">Retail reactivated</span> — swaps, pickups, perks drive foot traffic MVNOs can't.</li>
       </ul>
@@ -178,7 +211,7 @@
     <div class="card">
       <h3>Objections, pre‑answered</h3>
       <table class="risk">
-        <tr><td>Ops / gadget library</td><td>Accessories &amp; wearables only at launch; deposits + eligibility; travel = Phase 2.</td></tr>
+        <tr><td>Ops / inventory pre‑staging</td><td>Positioning stock against a prediction ties up capital; the decay threshold is the control — start conservative, loosen on measured hit rate.</td></tr>
         <tr><td>Cannibalization</td><td>Independent of Next Up; trade‑in + try‑before‑buy <i>drive</i> upgrades.</td></tr>
         <tr><td>Copyability</td><td>Asurion is a vendor — the moat is AT&amp;T stores + $5.2B program + brand.</td></tr>
         <tr><td>AI liability</td><td>Human‑in‑the‑loop; store associate confirms final path.</td></tr>
@@ -189,7 +222,7 @@
 </section>
 
 <section>
-  <h2><span class="num">06</span>The demo — one clean story <span style="font-weight:600;color:var(--gray);font-size:13px">(~4 min · one screen = one message)</span></h2>
+  <h2><span class="num">07</span>The demo — one clean story <span style="font-weight:600;color:var(--gray);font-size:13px">(~4 min · one screen = one message)</span></h2>
   <p class="sub">Secondary features (ROI calculator, sustainability, ops agents) live in optional tabs — never in the main path.</p>
   <div class="demo">
     <div class="scene"><div class="n">0</div><div><h3>Hook <span style="color:var(--gray);font-weight:400">(spoken, ~10s)</span></h3><div class="msg">"Everyone's cracked a phone. Today = claim, 3‑day wait, $225 deductible. Watch this."</div></div></div>

@@ -32,7 +32,8 @@ import {
 import { computeProtectionScore } from "@/lib/ai";
 import { reconcileManifest, rebindManifest } from "@/lib/manifest";
 import { appendTrace, type DecisionTrace } from "@/lib/ledger";
-import { verifyAttestation, type ConditionAttestation } from "@/lib/attestation";
+import { verifyAttestation, attestFromReport, type ConditionAttestation } from "@/lib/attestation";
+import { runDiagnostics } from "@/lib/diagnostics";
 
 const SESSION_KEY = "att_pa_session"; // which demo account is signed in
 const STATE_PREFIX = "att_pa_state_v2:"; // that account's mutated record
@@ -109,6 +110,27 @@ function reconcile(m: Member): Member {
   m.manifests = reconcileManifest(m);
   m.ledger ??= [];
   m.attestations ??= {};
+
+  // Mechanism 5 — backfill the enrolment evidence for grandfathered devices.
+  //
+  // Seeded accounts arrive with devices already `protected: true`, which left the
+  // strongest question about this mechanism unanswerable: "where is the signed
+  // attestation for *this* covered device?" There wasn't one, so the gate only ever
+  // visibly fired on a new enrolment.
+  //
+  // These are generated rather than seeded as data, for two reasons. The signature is
+  // a digest over a body containing `issued`, so a hardcoded one would not verify. And
+  // freshness is part of validity — an attestation older than 30 days stops gating, so
+  // a literal date in a fixture goes stale exactly the way `network-signals.ts` avoids.
+  // Running the real inspection and signing its result means what a judge inspects is
+  // the same evidence the enrolment path produces, not a lookalike.
+  // Keyed on presence, not validity: an attestation is a record of what the device
+  // reported, so a failing one must not be re-run until it passes. Keying on `valid`
+  // would re-inspect a degraded device on every single mutation and restamp its date.
+  for (const d of m.devices) {
+    if (!d.protected || m.attestations[d.id]) continue;
+    m.attestations[d.id] = attestFromReport(d, runDiagnostics(d));
+  }
   return m;
 }
 

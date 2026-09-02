@@ -19,6 +19,7 @@ The five patentable mechanisms are built and verified (see `PATENT.md`). That ad
 blueprint gaps and closed none of the ones below.
 
 ### 0.1 The blueprint still sells the cut features — HIGH
+
 `DeviceFlex-Blueprint.html:110,114,123` still lists **"Gadget & accessory library"** and
 **"Free loaner during repair"** as capability pills and a tier row. Both were deliberately
 removed from the offering — a loaner's availability is non-deterministic and can't be
@@ -26,20 +27,46 @@ promised; the vault is the deterministic substitute. The blueprint is now sellin
 the product no longer does.
 
 ### 0.2 The blueprint says nothing about the mechanisms — HIGH
-It still describes DeviceFlex as an eight-agent feature set. The patent framing — *AI
-perceives, deterministic functions decide*, and the five mechanisms underneath — is the
+
+It still describes DeviceFlex as an eight-agent feature set. The patent framing — _AI
+perceives, deterministic functions decide_, and the five mechanisms underneath — is the
 strongest version of the story and appears nowhere in the one-pager a judge would read.
 
 ### 0.3 Alex's covered devices carry no attestations — LOW
+
 `MEMBER_ENROLLED` has five protected devices seeded before Mechanism 5 existed, so they read
-as grandfathered. Correct behaviour, but if a judge asks "where's the attestation for *this*
+as grandfathered. Correct behaviour, but if a judge asks "where's the attestation for _this_
 device?" on the enrolled account, there isn't one. Seeding them would close the loop.
+
+---
+
+## CLOSED — 2 Sep 2026
+
+Everything below was verified fixed in the code, not just intended.
+
+| Gap                                                      | How it was closed                                                                                                                                                                                                                                                                                                                                                         |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0.1** Blueprint sells the cut features                 | Gadget-library and loaner pills and tier rows removed; the footnote now explains _why_ they were cut rather than describing launch scope for something that doesn't exist. Remaining agent/benefit/risk copy that named loaners or gadget deposits rewritten.                                                                                                             |
+| **0.2** Blueprint says nothing about the mechanisms      | New §05 _"What is actually defensible — AI perceives, deterministic functions decide"_: the organising principle, all five mechanisms with their technical effects, the non-obviousness argument, and the first-to-file sequencing warning. Later sections renumbered.                                                                                                    |
+| **0.3** Alex's covered devices carry no attestations     | `reconcile()` now backfills a signed attestation for any protected device without one, by running the real inspection and signing its result. Generated rather than seeded because the signature is a digest over `issued` — a hardcoded one would not verify, and a literal date would go stale. Surfaced on the device page as a _Signed condition attestation_ record. |
+| **1.1** Blueprint promises `$0 deductible`               | Replaced with the real Asurion schedule ($25 / $100 / $225 / $275, shown before you commit) plus the $0 screen-and-back-glass repair that *is* real. The §02 problem card's stale "$29–$225" range corrected too.                                                                                                                                                         |
+| **2.2** Megamenu tabs other than Shop say "Coming soon." | All four menus built from `src/data/meganav.ts`, transcribed from att.com's live header — rails, quick-action rows, column headings, links and promo cards.                                                                                                                                                                                                               |
+| **2.3** Checkout is a no-op                              | Now says so: the button is disabled and carries a note that payment is out of scope and no card details are collected anywhere. It is no longer a click that silently goes nowhere.                                                                                                                                                                                       |
+
+### Also fixed, and not previously listed here
+
+- **`advise()` claimed "an upgrade carries no deductible at all"** — stale copy contradicting `deductibles.ts`, which was deliberately corrected so an upgrade taken through a claim carries the _same_ replacement deductible. The Advisor's headline reasoning was the last place still asserting the old $0-via-Next-Up model.
+- **The claim-flow info note repeated the same Next Up framing** and was gated on `device.nextUp`, when the upgrade path is actually gated on the device being beyond economical repair. Both the condition and the text were wrong; the note now fires when the upgrade option genuinely isn't offered and says why.
+- **The coverage assistant said "Upgrades run through Next Up Anytime"** — a third instance of the same stale assumption, in `assistantReply`. Now distinguishes the two: an upgrade through a claim, versus Next Up as a separate programme that only adds a guaranteed trade-in value and is unavailable on the handset being claimed for.
+- **The damage-assessment badge claimed "DeviceFlex AI" on every run**, including the ones where the deterministic stand-in produced the verdict. It now names the path that actually ran and surfaces the `fallbackReason` that was already being carried and never shown. This is the one place the perception layer could be overstated, and §12's "degrade to deterministic" promise is only checkable if the UI says which happened.
+- **Unbuilt shell links dead-ended to the top of the page.** Mega-nav entries without a route render as labels rather than `href="#"` anchors, and the root swallows the default on any remaining `#` link.
 
 ---
 
 ## 1. Credibility — the story contradicts itself
 
 ### 1.1 The blueprint still promises `$0 deductible` — HIGH
+
 `DeviceFlex-Blueprint.html:108` and `:121` both advertise "Instant store swap · **$0
 deductible**" across all three tiers. The code implements the real Asurion schedule:
 Tier 1 $25 · Tier 2 $100 · Tier 3 $225 · Tier 4 $275 (`src/data/deductibles.ts`).
@@ -50,6 +77,7 @@ products. The code is the one that's right, and its version is the better pitch:
 blueprint needs to be brought in line, not the other way round.
 
 ### 1.2 PLP prices are plausible fills, not att.com's real numbers — MEDIUM
+
 `src/data/plp.ts` carries `price` as a free-text string per device. These were filled in
 by hand; the exact monthly figures were never extracted from the captured att.com markup.
 Everything else on that page is real, which makes the prices the one soft spot on an
@@ -60,23 +88,27 @@ otherwise verifiable screen. The source HTML is on disk if we want to parse them
 ## 2. Demo path — places the click-through dead-ends
 
 ### 2.1 No claims history route — MEDIUM
+
 `src/routes/` has `myatt.claims.new.tsx` but no `myatt.claims.tsx`. Nothing links to a
 history page today, so there is no broken link — but `MEMBER_ENROLLED` carries two
 resolved claims (`c1024`, `c0987`) that the member can never see, and "here's everything
 that's happened to your household's devices" is a natural beat after Scene 3.
 
 ### 2.2 Megamenu tabs other than Shop render "Coming soon." — MEDIUM
+
 `src/components/site/SiteHeader.tsx:235`. Deals, AT&T Difference and Support all open a
-full-width panel containing the words *Coming soon.* Any stray click during the demo
+full-width panel containing the words _Coming soon._ Any stray click during the demo
 lands on the one screen that admits it is a prototype. Either populate them or make the
 non-Shop items inert links.
 
 ### 2.3 Checkout is a no-op — LOW, deliberate
+
 `src/routes/buy.cart.tsx:240` — "Check out" does nothing. This is an intentional stop:
 the flow would need card and personal-data entry, and this is a pixel-accurate AT&T
 clone. Worth stating out loud in the demo rather than clicking and hoping.
 
 ### 2.4 FAQ answer is literal placeholder text — LOW
+
 `src/routes/buy.phones.index.tsx:233` renders "Placeholder answer explaining details
 about this question." for every FAQ entry. The questions are real and taken from att.com;
 the answers were never written. Visible if anyone expands one.
@@ -86,10 +118,12 @@ the answers were never written. Visible if anyone expands one.
 ## 3. Dead weight
 
 ### 3.1 Two unused footer components — LOW
+
 `src/components/site/HomeFooter.tsx` and `BuyFlowFooter.tsx` are imported by zero files
 (verified). `SiteFooter.tsx` replaced both. Safe to delete.
 
 ### 3.2 Unused cracked-screen samples — LOW
+
 `public/att/samples/` holds 7 images; the claim flow uses a subset. `cracked-screen-corner.png`
 and `cracked-screen-moderate.png` in particular were generated during iteration and may no
 longer be wired to anything. Worth confirming before they ship in the build.
@@ -99,6 +133,7 @@ longer be wired to anything. Worth confirming before they ship in the build.
 ## 4. Infrastructure
 
 ### 4.1 Vision model is unconfigured — MEDIUM, decide before demo day
+
 `src/lib/vision.server.ts` is a real OpenAI-compatible VLM call, but `.env.example` ships
 `AI_API_KEY=` empty. With no key the claim flow silently falls back to the deterministic
 assessment in `src/lib/ai.ts` and says so in the UI.
@@ -109,10 +144,12 @@ latency and non-determinism on stage. The fallback is safe and repeatable. Which
 pick, pick it in advance — not by discovering an empty key ten minutes before.
 
 ### 4.2 Lovable is one commit behind — LOW
+
 `lovable-sync` is at 59070da, `main` at 25c367a. The only difference is `SYNC.md`, a docs
 file. Effectively in sync. Sync procedure is in `SYNC.md`.
 
 ### 4.3 `tsc` cannot be run standalone in CI — LOW
+
 Per the note above, `npx tsc --noEmit` fails without a dev-server-generated route tree.
 If typechecking ever moves into CI it will need `npm run build` (or the router plugin's
 generate step) to run first.
@@ -122,6 +159,7 @@ generate step) to run first.
 ## 5. Outside the app
 
 ### 5.1 Source deck and doc still carry the old numbers — MEDIUM
+
 The original Word doc and PPT still contain the inconsistent figures the blueprint later
 reconciled: 21.4M vs 18M subscriber base, 28% demand vs ~40% attach conflated. The
 narrative pages also still carry AI-tool citation artifacts (`citeturn2search…`). The
@@ -129,6 +167,7 @@ blueprint fixed the story; the source files were never updated to match. Anythin
 might actually read needs the reconciled chain.
 
 ### 5.2 Private material must not be published — HARD RULE
+
 `Screenshots/`, `chat-images/` and `First Document.docx` are gitignored and must stay
 that way. Several are captures of a real myAT&T account — account numbers, balances,
 billing pages.

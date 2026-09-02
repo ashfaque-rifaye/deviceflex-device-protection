@@ -125,6 +125,21 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  // Safety net for the shell's unbuilt links.
+  //
+  // The storefront chrome is transcribed from att.com, so a lot of it points at pages
+  // this prototype does not have and carries `href="#"`. Clicking one scrolls the page
+  // to the top, which on stage looks like the site broke rather than like a link that
+  // was never wired. Swallowing the default leaves them visibly inert instead.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement | null)?.closest?.("a");
+      if (a && a.getAttribute("href") === "#") e.preventDefault();
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

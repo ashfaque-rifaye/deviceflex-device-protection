@@ -379,7 +379,15 @@ function Mega({
   );
 }
 
-/** A mega-nav link: a real route where the prototype has one, inert otherwise. */
+/**
+ * A mega-nav link. Entries the prototype actually routes are real links; the rest
+ * render as plain labels rather than `href="#"` anchors.
+ *
+ * The nav is transcribed whole from att.com so the shell reads as the real site,
+ * which means most entries have nowhere to go here. Left as `#` anchors they jump
+ * the page to the top on click — on stage that reads as a broken site rather than
+ * an unbuilt one. As labels they promise nothing and cost nothing.
+ */
 function MegaLinkEl({
   link,
   onClose,
@@ -389,14 +397,16 @@ function MegaLinkEl({
   onClose: () => void;
   className: string;
 }) {
-  const cls = `${className} hover:text-[#0072B2] hover:underline`;
-  return link.to ? (
-    <Link to={link.to} onClick={onClose} className={cls}>
+  if (!link.to) {
+    return <span className={`${className} cursor-default`}>{link.label}</span>;
+  }
+  return (
+    <Link
+      to={link.to}
+      onClick={onClose}
+      className={`${className} hover:text-[#0072B2] hover:underline`}
+    >
       {link.label}
     </Link>
-  ) : (
-    <a href="#" className={cls}>
-      {link.label}
-    </a>
   );
 }

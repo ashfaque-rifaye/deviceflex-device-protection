@@ -771,11 +771,25 @@ function Flow() {
           <div>
             {damage && (
               <>
+                {/*
+                  Name the path that actually ran. The badge used to say "DeviceFlex AI"
+                  either way, which claimed a vision model on runs where the deterministic
+                  stand-in produced the verdict — the one place in the flow where the
+                  perception layer could be overstated. `fallbackReason` was already being
+                  carried here and never shown.
+                */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EAF7EE] px-3 py-1 text-xs font-bold text-[#1F7A3D]">
-                    <Sparkle className="h-3.5 w-3.5" />
-                    DeviceFlex AI · {Math.round(damage.confidence * 100)}% confidence
-                  </span>
+                  {damage.source === "model" ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EAF7EE] px-3 py-1 text-xs font-bold text-[#1F7A3D]">
+                      <Sparkle className="h-3.5 w-3.5" />
+                      Vision model · {Math.round(damage.confidence * 100)}% confidence
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F4F6] px-3 py-1 text-xs font-bold text-[#454B52]">
+                      <Stethoscope className="h-3.5 w-3.5" />
+                      On-device assessment · {Math.round(damage.confidence * 100)}% confidence
+                    </span>
+                  )}
                   <span className="rounded-full bg-[#FFF3E0] px-3 py-1 text-xs font-bold text-[#9E5D00]">
                     {damage.severity} damage
                   </span>
@@ -787,6 +801,18 @@ function Flow() {
                 </div>
                 <h2 className="mt-4 text-xl font-extrabold">Here's what we found</h2>
                 <p className="mt-2 text-sm text-[#686E74]">{damage.summary}</p>
+                {damage.source !== "model" && (
+                  <p className="mt-2 flex items-start gap-1.5 text-xs text-[#686E74]">
+                    <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0072B2]" />
+                    <span>
+                      {damage.fallbackReason
+                        ? `${damage.fallbackReason} — this reading came from the device's own diagnostics instead.`
+                        : "This reading came from the device's own diagnostics rather than a vision model."}{" "}
+                      The deductible and resolution below are unaffected: they are computed from the
+                      assessment, whichever produced it.
+                    </span>
+                  </p>
+                )}
                 <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                   {damage.detected.map((d) => (
                     <li key={d} className="flex items-start gap-2 text-sm">
@@ -893,12 +919,12 @@ function Flow() {
               </div>
             </fieldset>
 
-            {!device.nextUp && (
+            {!options.some((o) => o.id === "upgrade") && (
               <p className="mt-4 flex items-start gap-2 rounded-xl bg-[#F3F4F6] p-3 text-xs text-[#686E74]">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />
                 <span>
-                  Upgrading instead of replacing requires <b>Next Up Anytime</b> and a device that
-                  can't be economically repaired. This device isn't enrolled in Next Up.
+                  Upgrading instead of replacing is offered when a device can&rsquo;t be
+                  economically repaired. This one can be, so repair comes first.
                 </span>
               </p>
             )}

@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   Signal,
   AlertTriangle,
+  Info,
   Edit2,
   Trash2,
   ChevronDown,
@@ -237,7 +238,29 @@ function CartPage() {
                 </a>
                 .
               </p>
-              <button className="btn-primary mt-5 w-full">Check out</button>
+              {/*
+                Checkout is deliberately not built — no card entry exists anywhere in this
+                system, which is what keeps it out of PCI scope. A dead "Check out" button
+                invites a click that goes nowhere, so the button says what it is instead.
+              */}
+              <button
+                type="button"
+                disabled
+                aria-describedby="checkout-scope-note"
+                className="btn-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Check out
+              </button>
+              <p
+                id="checkout-scope-note"
+                className="mt-2 flex items-start gap-1.5 text-xs text-[#686E74]"
+              >
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0072B2]" />
+                <span>
+                  Payment is out of scope for this prototype — no card details are collected
+                  anywhere in it. Protection is added to the plan without a checkout step.
+                </span>
+              </p>
             </div>
 
             <div className="rounded-2xl border border-[#DCDFE3] bg-white p-5 text-sm">

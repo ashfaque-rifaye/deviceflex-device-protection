@@ -401,7 +401,7 @@ export function advise(
     return {
       headline: `Replace it — repair isn't worth it on this one`,
       reasoning: upgrade
-        ? `The frame damage means it won't hold a new screen properly, so the free screen repair isn't an option here — the glass won't seat against a bent frame. A swap is ${money(replaceFee)}, your Tier ${tier} replacement deductible, against ${money(device.retail)} to buy the device outright. You're also on Next Up Anytime, and an upgrade carries no deductible at all, so if you'd rather move up a model that's the cheaper path today.`
+        ? `The frame damage means it won't hold a new screen properly, so the free screen repair isn't an option here — the glass won't seat against a bent frame. A swap is ${money(replaceFee)}, your Tier ${tier} replacement deductible, against ${money(device.retail)} to buy the device outright. If you'd rather move up a model, upgrading through the claim costs the same ${money(replaceFee)} and comes with the manufacturer's warranty instead of ours.`
         : `The frame damage means it won't hold a new screen properly, so the free screen repair isn't an option here — the glass won't seat against a bent frame. A swap is ${money(replaceFee)}, your Tier ${tier} replacement deductible, against ${money(device.retail)} to buy the device outright.`,
       pick: pick.id,
     };
@@ -1487,8 +1487,8 @@ export function assistantReply(input: string, ctx: ChatContext): ChatMessage {
     return {
       role: "agent",
       text: nextUp.length
-        ? `Upgrades run through Next Up Anytime — ${nextUp.map((d) => `${d.owner.split(" ")[0]}'s ${d.name}`).join(" and ")} ${nextUp.length > 1 ? "are" : "is"} enrolled. Your membership also locks a guaranteed trade-in value, so if a device can't be economically repaired we'll offer the upgrade instead of a like-for-like replacement.`
-        : "Upgrades run through Next Up Anytime. None of your devices are enrolled right now, but your membership still locks a guaranteed trade-in value on each one.",
+        ? `If a device can't be economically repaired, we offer an upgrade beside the like-for-like replacement — same deductible, but you pick a newer model and it carries the manufacturer's warranty. Separately, ${nextUp.map((d) => `${d.owner.split(" ")[0]}'s ${d.name}`).join(" and ")} ${nextUp.length > 1 ? "are" : "is"} on Next Up Anytime, which locks a guaranteed trade-in value against the balance. Next Up needs a device in good working order, so it isn't available on the handset you're claiming for.`
+        : "If a device can't be economically repaired, we offer an upgrade beside the like-for-like replacement — same deductible, but you pick a newer model and it carries the manufacturer's warranty. None of your devices are on Next Up Anytime right now, but your membership still locks a guaranteed trade-in value on each one.",
       actions: [
         { label: "See my devices", to: "/myatt" },
         { label: "Shop phones", to: "/buy/phones" },

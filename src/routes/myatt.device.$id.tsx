@@ -32,6 +32,7 @@ import { IconSim, IconKebab, IconChevronR } from "@/components/deviceflex/AttIco
 import { RequireAuth, useAuth } from "@/lib/auth";
 import { DeductibleCard } from "@/components/deviceflex/DeductibleCard";
 import { getTier } from "@/data/deviceflex";
+import { verifyAttestation, shortSignature } from "@/lib/attestation";
 import { preStage, findStores, PRESTAGE_THRESHOLD } from "@/lib/ai";
 import type { Member, MemberDevice } from "@/data/member";
 
@@ -421,7 +422,55 @@ function TabInfo({ d, member }: { d: MemberDevice; member: Member }) {
           v={d.installmentsLeft ? `${d.installmentsLeft} of 36` : "Paid off"}
         />
       </dl>
+
+      <AttestationRecord device={d} member={member} />
     </div>
+  );
+}
+
+/**
+ * MECHANISM 5, made inspectable.
+ *
+ * The gate runs in the reducer, which is the right place for a control but the wrong
+ * place for a demo — enforcement nobody can see reads as a claim rather than a fact.
+ * This surfaces the actual record: what was checked, what it scored, when, and the
+ * signature over it. It reports condition, not coverage, so a device that has degraded
+ * since enrolment says so plainly instead of being quietly rounded up to "fine".
+ */
+function AttestationRecord({ device, member }: { device: MemberDevice; member: Member }) {
+  const att = member.attestations?.[device.id];
+  if (!att) return null;
+  const verdict = verifyAttestation(att);
+  const failed = att.checks.filter((c) => c.status === "fail").length;
+  const warned = att.checks.filter((c) => c.status === "warn").length;
+  const ok = verdict.valid;
+
+  return (
+    <section className="mt-6 rounded-xl border border-[#DCDFE3] p-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h4 className="flex items-center gap-2 text-[14px] font-bold">
+          <BadgeCheck className={`h-4 w-4 ${ok ? "text-[#1F7A3D]" : "text-[#8A5200]"}`} />
+          Signed condition attestation
+        </h4>
+        <span className="font-mono text-[11px] text-[#686E74]">{shortSignature(att)}</span>
+      </div>
+
+      <p className="mt-2 text-[13px] text-[#454B52]">{att.statement}</p>
+
+      <dl className="mt-3 grid gap-x-8 gap-y-2 border-t border-[#DCDFE3] pt-3 text-[13px] sm:grid-cols-2">
+        <Row k="Health score" v={`${att.healthScore} / 100`} />
+        <Row k="Checks" v={`${att.checks.length} run · ${failed} failed · ${warned} to watch`} />
+        <Row k="Issued" v={new Date(att.issued).toLocaleDateString()} />
+        <Row k="Gate" v={ok ? "Would pass enrolment" : "Would not pass enrolment today"} />
+      </dl>
+
+      {!ok && (
+        <p className="mt-3 text-[12px] text-[#686E74]">
+          This device is covered — the gate applies when coverage starts, not afterwards. The record
+          shows its condition now, which is why it appears in your recommended actions.
+        </p>
+      )}
+    </section>
   );
 }
 
