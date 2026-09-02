@@ -31,7 +31,7 @@ import { GlobalWidgets } from "@/components/site/GlobalWidgets";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AccountNav } from "@/components/deviceflex/AccountNav";
 import { RequireAuth, RequirePlan, useAuth } from "@/lib/auth";
-import { CLAIM_REASONS, type ClaimReasonId } from "@/data/deviceflex";
+import { CLAIM_REASONS, CLAIM_GROUPS, type ClaimReasonId } from "@/data/deviceflex";
 import {
   runDiagnostics,
   resolutionOptions,
@@ -119,6 +119,8 @@ function Flow() {
 
   const [step, setStep] = useState(0);
   const [reason, setReason] = useState<ClaimReasonId | null>(null);
+  /** Which "what happened" group is expanded for its follow-up question. */
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [device, setDevice] = useState<MemberDevice>(
     covered.find((d) => d.id === preselect) ?? covered[0],
   );
@@ -377,22 +379,57 @@ function Flow() {
               Your plan covers damage, loss, theft and out-of-warranty malfunction.
             </p>
             <div className="mt-5 grid gap-3">
-              {CLAIM_REASONS.map((r) => (
-                <button
-                  key={r.id}
-                  onClick={() => {
-                    setReason(r.id);
-                    setStep(1);
-                  }}
-                  className={`flex items-start justify-between gap-4 rounded-xl border p-4 text-left hover:border-[#0057B8] ${reason === r.id ? "border-[#00388F] bg-[#E7F5FB]" : "border-[#DCDFE3]"}`}
-                >
-                  <div>
-                    <p className="font-extrabold">{r.title}</p>
-                    <p className="mt-0.5 text-sm text-[#686E74]">{r.desc}</p>
+              {CLAIM_GROUPS.map((g) => {
+                const open = openGroup === g.id;
+                return (
+                  <div
+                    key={g.id}
+                    className={`rounded-xl border ${open ? "border-[#00388F] bg-[#E7F5FB]" : "border-[#DCDFE3]"}`}
+                  >
+                    <button
+                      onClick={() => {
+                        // One reason means there is nothing to disambiguate — go straight on.
+                        if (g.reasons.length === 1) {
+                          setReason(g.reasons[0]);
+                          setStep(1);
+                          return;
+                        }
+                        setOpenGroup(open ? null : g.id);
+                      }}
+                      aria-expanded={g.reasons.length > 1 ? open : undefined}
+                      className="flex w-full items-start justify-between gap-4 rounded-xl p-4 text-left hover:border-[#0057B8]"
+                    >
+                      <div>
+                        <p className="font-extrabold">{g.title}</p>
+                        <p className="mt-0.5 text-sm text-[#686E74]">{g.desc}</p>
+                      </div>
+                      <ArrowRight
+                        className={`mt-1 h-5 w-5 shrink-0 text-[#0072B2] transition-transform ${open ? "rotate-90" : ""}`}
+                      />
+                    </button>
+
+                    {open && g.followUp && (
+                      <div className="border-t border-[#BBDDF0] px-4 pb-4 pt-3">
+                        <p className="text-sm text-[#1D2329]">{g.followUp.prompt}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {g.followUp.options.map((o) => (
+                            <button
+                              key={o.id}
+                              onClick={() => {
+                                setReason(o.id);
+                                setStep(1);
+                              }}
+                              className="rounded-full border border-[#00388F] bg-white px-4 py-2 text-sm font-bold text-[#00388F] hover:bg-[#00388F] hover:text-white"
+                            >
+                              {o.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-[#0072B2]" />
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

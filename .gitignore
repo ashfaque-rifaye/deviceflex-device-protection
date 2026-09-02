@@ -18,4 +18,7 @@ dev.log
 Screenshots/
 chat-images/
 First Document.docx
+# Prompt dumps pasted from a signed-in att.com session: they carry the account
+# number, customer id and live auth tokens along with the markup we wanted.
+Prompt - *.txt
 

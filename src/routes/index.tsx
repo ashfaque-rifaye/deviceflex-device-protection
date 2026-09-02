@@ -31,10 +31,10 @@ const IMG = {
   galaxyS26: "/att/devices/samsung-galaxy-s26/black-hero.png",
   galaxyS26Ultra: "/att/devices/samsung-galaxy-s26-ultra/black-hero.png",
   guarantee: "/att/misc/att-guarantee.jpg",
-  // Lifestyle shot of a cracked phone in hand. Falls back to the crack render below
-  // until the photo is dropped in, so the banner never shows a broken image.
-  protect: "/att/misc/protect-cracked-phone.webp",
-  protectFallback: "/att/samples/cracked-screen-severe.png",
+  // The Protect Advantage tile shows the outcome, not the accident: the same
+  // AT&T device render the deals carousel uses, returned whole.
+  protect: "/att/devices/apple-iphone-17-pro-max/cosmic-orange-hero.webp",
+  protectFallback: "/att/devices/apple-iphone-17-pro/cosmic-orange-hero.webp",
 };
 
 const DEALS = [
@@ -176,11 +176,10 @@ function Index() {
                 </a>
               </div>
               <div className="relative">
-                <div className="pointer-events-none absolute -left-24 top-1/2 z-10 h-[130%] w-56 -translate-y-1/2 rounded-full border-[24px] border-[#009FDB]" />
                 <img
                   src={heroImg}
                   alt="People at home using AT&T Internet Air"
-                  className="relative z-0 h-full w-full object-cover"
+                  className="h-full w-full object-cover"
                   style={{ minHeight: 340 }}
                 />
               </div>
@@ -258,7 +257,6 @@ function Index() {
         <div className="mx-auto max-w-[1280px] px-4 py-14 sm:px-6 lg:px-10">
           <div className="grid overflow-hidden rounded-3xl border border-[#DCDFE3] lg:grid-cols-2">
             <div className="relative bg-gradient-to-br from-[#0057B8] via-[#0072B2] to-[#009FDB] p-10 text-white">
-              <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full border-[22px] border-white/12" />
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/90">
                 AT&amp;T Protect Advantage
               </p>
@@ -306,7 +304,7 @@ function Index() {
             <div className="relative grid place-items-center bg-[#F2FAFD] p-8">
               <img
                 src={IMG.protect}
-                alt="A cracked phone held in one hand"
+                alt="iPhone 17 Pro Max, repaired and returned"
                 loading="lazy"
                 onError={(e) => {
                   const img = e.currentTarget;

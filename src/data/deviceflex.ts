@@ -121,6 +121,58 @@ export const CLAIM_REASONS: ClaimReason[] = [
   },
 ];
 
+/**
+ * The five reasons collapse into three flows: photos, identity verification, or
+ * diagnostics. Asking a member to choose between "lost" and "stolen" before they
+ * have chosen what kind of thing happened is a distinction the *claim* needs, not
+ * one the member is thinking about — so the first screen offers the three, and a
+ * group with more than one reason asks its follow-up only once it is picked.
+ */
+export type ClaimGroup = {
+  id: "damage" | "missing" | "faulty";
+  title: string;
+  desc: string;
+  /** Reasons this group resolves to. One entry means no follow-up is asked. */
+  reasons: ClaimReasonId[];
+  /** The question asked when there is more than one reason to separate. */
+  followUp?: { prompt: string; options: { id: ClaimReasonId; label: string }[] };
+};
+
+export const CLAIM_GROUPS: ClaimGroup[] = [
+  {
+    id: "damage",
+    title: "Damaged device",
+    desc: "Dropped, cracked screen, liquid or spill damage.",
+    reasons: ["damage"],
+  },
+  {
+    id: "missing",
+    title: "Lost or stolen",
+    desc: "You can't find it, or someone took it.",
+    reasons: ["loss", "theft"],
+    followUp: {
+      prompt: "Which was it? Theft adds a blocklist request, so we ask before filing.",
+      options: [
+        { id: "loss", label: "I lost it" },
+        { id: "theft", label: "It was stolen" },
+      ],
+    },
+  },
+  {
+    id: "faulty",
+    title: "Not working properly",
+    desc: "Won't charge or power on, camera or speaker faults, or a battery that won't hold.",
+    reasons: ["malfunction", "battery"],
+    followUp: {
+      prompt: "Is this the battery? A battery claim carries its own fee, not a replacement one.",
+      options: [
+        { id: "malfunction", label: "Something else is faulty" },
+        { id: "battery", label: "It's the battery" },
+      ],
+    },
+  },
+];
+
 export const CAPABILITIES = [
   {
     title: "$0 screen & back-glass repair",

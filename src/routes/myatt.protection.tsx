@@ -22,7 +22,6 @@ import { OnboardingTour } from "@/components/deviceflex/OnboardingTour";
 import { telemetryFor } from "@/data/network-signals";
 import { RequireAuth, useAuth } from "@/lib/auth";
 import { poolStatus } from "@/lib/ai";
-import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
 import { PlanChangeFlow } from "@/components/deviceflex/PlanChangeFlow";
 import { TIER_POOL, formatCapacity } from "@/data/member";
 import { getTier, TIERS } from "@/data/deviceflex";
@@ -193,12 +192,7 @@ function Manage() {
               className="rounded-2xl border border-[#DCDFE3] bg-white p-6"
               style={{ boxShadow: "var(--att-shadow-1)" }}
             >
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="att-h4">Devices on this plan</h2>
-                <p className="text-xs text-[#686E74]">
-                  Your deductible if you claim — known upfront
-                </p>
-              </div>
+              <h2 className="att-h4">Devices on this plan</h2>
 
               {/* Laid out as the "My Service" tile row rather than a list: a portrait
                   card per line, each with a live network dot. Reading a household at a
@@ -485,12 +479,6 @@ function DevicePlanTile({ d }: { d: MemberDevice }) {
       >
         {d.protected ? "Covered" : "Not covered"}
       </span>
-
-      {d.protected && (
-        <span className="mt-1.5 block">
-          <DeductibleInline device={d} />
-        </span>
-      )}
     </Link>
   );
 }

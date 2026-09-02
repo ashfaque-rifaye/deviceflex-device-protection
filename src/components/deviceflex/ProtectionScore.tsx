@@ -197,44 +197,48 @@ function NudgeRow({
     );
   }
 
+  // The card lives in a 360px rail, so the action sits *under* the copy rather than
+  // beside it. Side-by-side left the text about 110px wide and broke it one word
+  // per line — the layout, not the wording, was what made these unreadable.
   return (
-    <div className="group flex items-start gap-3 rounded-xl border border-[#DCDFE3] p-3 transition-colors hover:border-[#00388F]">
-      <span
-        className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full"
-        style={{ background: `${tone}14` }}
+    <div className="group relative rounded-xl border border-[#DCDFE3] p-3 transition-colors hover:border-[#00388F]">
+      <button
+        aria-label="Dismiss this recommendation"
+        onClick={() => dismissNudge(nudge.id)}
+        className="absolute right-1.5 top-1.5 rounded p-1 text-[#878C94] opacity-0 transition hover:bg-[#F3F4F6] hover:text-[#686E74] focus:opacity-100 group-hover:opacity-100"
       >
-        <Icon className="h-4 w-4" style={{ color: tone }} />
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-[13px] font-bold leading-snug">{nudge.text}</span>
-        <span className="att-small mt-0.5 block leading-snug">{nudge.detail}</span>
-      </span>
-      <div className="flex shrink-0 items-center gap-1">
-        {a && (
-          <button
-            onClick={run}
-            disabled={busy}
-            className="whitespace-nowrap text-xs font-bold text-[#0072B2] hover:underline disabled:opacity-60"
-          >
-            {busy ? (
-              <span className="inline-flex items-center gap-1">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Working…
-              </span>
-            ) : (
-              <>
-                {a.kind === "battery" ? "Run diagnostics" : a.label}{" "}
-                <ChevronRight className="inline h-3.5 w-3.5" />
-              </>
-            )}
-          </button>
-        )}
-        <button
-          aria-label="Dismiss this recommendation"
-          onClick={() => dismissNudge(nudge.id)}
-          className="rounded p-1 text-[#878C94] opacity-0 transition hover:bg-[#F3F4F6] hover:text-[#686E74] focus:opacity-100 group-hover:opacity-100"
+        <X className="h-3.5 w-3.5" />
+      </button>
+
+      <div className="flex items-start gap-2.5">
+        <span
+          className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full"
+          style={{ background: `${tone}14` }}
         >
-          <X className="h-3.5 w-3.5" />
-        </button>
+          <Icon className="h-4 w-4" style={{ color: tone }} />
+        </span>
+        <div className="min-w-0 flex-1 pr-5">
+          <p className="text-[13px] font-bold leading-snug text-[#1D2329]">{nudge.text}</p>
+          <p className="att-small mt-1 leading-snug">{nudge.detail}</p>
+          {a && (
+            <button
+              onClick={run}
+              disabled={busy}
+              className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#0072B2] hover:underline disabled:opacity-60"
+            >
+              {busy ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Working…
+                </>
+              ) : (
+                <>
+                  {a.kind === "battery" ? "Run diagnostics" : a.label}
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

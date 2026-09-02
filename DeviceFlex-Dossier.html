@@ -903,7 +903,7 @@
 
     <figure>
       <div class="fig-frame">
-        <svg viewBox="0 0 1200 880" role="img" aria-label="Layered architecture showing five input sources feeding a probabilistic perception layer, a hard boundary permitting only structured facts through, a deterministic decision engine of pure functions, a decision ledger recording input and output digests, and four physical-world effects including consent-gated blocklist submission and inventory pre-staging.">
+        <svg viewBox="0 0 1200 1050" role="img" aria-label="Two stacked lanes. The upper lane is today's claim path: a self-reported form, a manual review, Asurion intake, a shipped replacement and a customer-managed restore, with nothing measured along it. The lower lane is DeviceFlex: five named source systems, three of which pass through probabilistic perception while carrier telemetry and account state bypass it, everything converging on a typed fact contract, then a deterministic decision engine of four components whose posture output feeds back as its own input, a decision ledger recording input and output digests, and four physical effects ending at the same Asurion intake.">
           <defs>
             <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
@@ -915,167 +915,233 @@
 
           <g font-family="IBM Plex Mono, monospace" fill="currentColor">
 
-            <!-- BAND 1 · SOURCES -->
-            <text x="40" y="26" font-size="11" letter-spacing="1.6" opacity=".62">INPUTS</text>
+            <!-- ══ LANE 1 · TODAY ═══════════════════════════════════════════ -->
+            <text x="40" y="22" font-size="11" letter-spacing="1.6" opacity=".62">TODAY — PROTECT ADVANTAGE, AS ADMINISTERED</text>
+
+            <g opacity=".75">
+              <g stroke="currentColor" stroke-width="1" fill="none" opacity=".5">
+                <rect x="40" y="36" width="176" height="54" rx="6"/>
+                <rect x="276" y="36" width="176" height="54" rx="6"/>
+                <rect x="512" y="36" width="176" height="54" rx="6"/>
+                <rect x="748" y="36" width="176" height="54" rx="6"/>
+                <rect x="984" y="36" width="176" height="54" rx="6"/>
+              </g>
+              <g font-size="12" text-anchor="middle">
+                <text x="128" y="60">Claim form</text>
+                <text x="128" y="77" font-size="10.5" opacity=".62">the customer's account</text>
+                <text x="364" y="60">Manual review</text>
+                <text x="364" y="77" font-size="10.5" opacity=".62">affidavit if disputed</text>
+                <text x="600" y="60">Asurion intake</text>
+                <text x="600" y="77" font-size="10.5" opacity=".62">administrator of record</text>
+                <text x="836" y="60">Replacement ships</text>
+                <text x="836" y="77" font-size="10.5" opacity=".62">24–48 hours</text>
+                <text x="1072" y="60">Customer restores</text>
+                <text x="1072" y="77" font-size="10.5" opacity=".62">their own backup</text>
+              </g>
+              <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)" opacity=".65">
+                <line x1="220" y1="63" x2="270" y2="63"/>
+                <line x1="456" y1="63" x2="506" y2="63"/>
+                <line x1="692" y1="63" x2="742" y2="63"/>
+                <line x1="928" y1="63" x2="978" y2="63"/>
+              </g>
+              <g font-size="9.5" text-anchor="middle" opacity=".7">
+                <text x="245" y="56">free text</text>
+                <text x="481" y="56">verdict</text>
+                <text x="717" y="56">claim record</text>
+                <text x="953" y="56">handset</text>
+              </g>
+            </g>
+            <text x="40" y="116" font-size="11.5" opacity=".72">Nothing on this path is measured — no carrier signal reaches it, coverage is bound to the handset's IMEI, and no decision can be re-run.</text>
+
+            <!-- ══ THE SEAM ═════════════════════════════════════════════════ -->
+            <line x1="28" y1="142" x2="1172" y2="142" stroke="currentColor" stroke-width="1" stroke-dasharray="4 5" opacity=".4"/>
+            <text x="40" y="170" font-size="11" letter-spacing="1.6" class="em">WITH DEVICEFLEX — SAME ADMINISTRATOR, EVERY UPSTREAM INPUT MEASURED</text>
+
+            <!-- ══ BAND 1 · SOURCE SYSTEMS ══════════════════════════════════ -->
+            <text x="40" y="196" font-size="11" letter-spacing="1.4" opacity=".62">SOURCE SYSTEMS — WHAT EACH ONE EMITS</text>
             <g stroke="currentColor" stroke-width="1" fill="none" opacity=".45">
-              <rect x="40" y="40" width="200" height="62" rx="6"/>
-              <rect x="256" y="40" width="200" height="62" rx="6"/>
-              <rect x="472" y="40" width="200" height="62" rx="6"/>
+              <rect x="40" y="210" width="176" height="82" rx="6"/>
+              <rect x="276" y="210" width="176" height="82" rx="6"/>
+              <rect x="512" y="210" width="176" height="82" rx="6"/>
             </g>
             <g class="em-box" stroke-width="1.6" fill="none">
-              <rect x="688" y="40" width="200" height="62" rx="6"/>
-              <rect x="904" y="40" width="200" height="62" rx="6"/>
+              <rect x="748" y="210" width="176" height="82" rx="6"/>
+              <rect x="984" y="210" width="176" height="82" rx="6"/>
             </g>
             <g font-size="12.5" text-anchor="middle">
-              <text x="140" y="66">Customer photos</text>
-              <text x="140" y="84" font-size="11" opacity=".6">3 images, base64</text>
-              <text x="356" y="66">Incident report</text>
-              <text x="356" y="84" font-size="11" opacity=".6">date · time · account</text>
-              <text x="572" y="66">On-device diagnostics</text>
-              <text x="572" y="84" font-size="11" opacity=".6">17 checks, 4 passes</text>
-              <text x="788" y="60" class="em">Carrier telemetry</text>
-              <text x="788" y="78" font-size="11" class="em" opacity=".8">last-seen · SIM · cell site</text>
-              <text x="788" y="94" font-size="10" class="em" opacity=".7">AT&amp;T-only</text>
-              <text x="1004" y="60" class="em">Account &amp; billing</text>
-              <text x="1004" y="78" font-size="11" class="em" opacity=".8">plan · claims · device registry</text>
-              <text x="1004" y="94" font-size="10" class="em" opacity=".7">AT&amp;T-only</text>
+              <text x="128" y="234">Handset camera</text>
+              <text x="128" y="252" font-size="10.5" opacity=".62">3 images, data URI</text>
+              <text x="128" y="269" font-size="10.5" opacity=".62">posted server-side only</text>
+
+              <text x="364" y="234">Claim intake form</text>
+              <text x="364" y="252" font-size="10.5" opacity=".62">incident date, time,</text>
+              <text x="364" y="269" font-size="10.5" opacity=".62">circumstances</text>
+
+              <text x="600" y="234">On-device inspection</text>
+              <text x="600" y="252" font-size="10.5" opacity=".62">17 checks, health score,</text>
+              <text x="600" y="269" font-size="10.5" opacity=".62">signed attestation</text>
+
+              <text x="836" y="230" class="em">Carrier network</text>
+              <text x="836" y="248" font-size="10.5" class="em" opacity=".85">last-seen, disconnect,</text>
+              <text x="836" y="264" font-size="10.5" class="em" opacity=".85">SIM &amp; IMEI, cell site</text>
+              <text x="836" y="282" font-size="10" class="em" opacity=".7">AT&amp;T-only</text>
+
+              <text x="1072" y="230" class="em">Account &amp; billing</text>
+              <text x="1072" y="248" font-size="10.5" class="em" opacity=".85">plan, tier, claim history,</text>
+              <text x="1072" y="264" font-size="10.5" class="em" opacity=".85">line manifest, registry</text>
+              <text x="1072" y="282" font-size="10" class="em" opacity=".7">AT&amp;T-only</text>
             </g>
 
-            <!-- arrows into perception -->
+            <!-- unstructured sources descend into perception -->
             <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
-              <line x1="140" y1="102" x2="140" y2="150"/>
-              <line x1="356" y1="102" x2="356" y2="150"/>
-              <line x1="572" y1="102" x2="572" y2="150"/>
+              <line x1="128" y1="292" x2="128" y2="324"/>
+              <line x1="364" y1="292" x2="364" y2="324"/>
+              <line x1="600" y1="292" x2="600" y2="324"/>
             </g>
-            <!-- structured sources bypass perception entirely -->
-            <g class="em-line" stroke-width="1.6" marker-end="url(#ar-sig)" stroke-dasharray="0">
-              <line x1="788" y1="102" x2="788" y2="368"/>
-              <line x1="1004" y1="102" x2="1004" y2="368"/>
+            <!-- structured sources skip it entirely and land on the contract -->
+            <g class="em-line" stroke-width="1.6" marker-end="url(#ar-sig)">
+              <line x1="836" y1="292" x2="836" y2="482"/>
+              <line x1="1072" y1="292" x2="1072" y2="482"/>
             </g>
-            <text x="800" y="240" font-size="10.5" class="em" opacity=".85">already structured —</text>
-            <text x="800" y="255" font-size="10.5" class="em" opacity=".85">no model required</text>
+            <text x="848" y="378" font-size="10.5" class="em" opacity=".85">already structured —</text>
+            <text x="848" y="393" font-size="10.5" class="em" opacity=".85">no model in the path</text>
 
-            <!-- BAND 2 · PERCEPTION -->
-            <rect x="28" y="150" width="656" height="126" rx="10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="6 5" opacity=".55"/>
-            <text x="44" y="172" font-size="11" letter-spacing="1.4" opacity=".62">PERCEPTION — PROBABILISTIC</text>
+            <!-- ══ BAND 2 · PERCEPTION ══════════════════════════════════════ -->
+            <rect x="28" y="330" width="672" height="122" rx="10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="6 5" opacity=".55"/>
+            <text x="44" y="352" font-size="11" letter-spacing="1.4" opacity=".62">PERCEPTION — PROBABILISTIC, ADVISORY ONLY</text>
             <g stroke="currentColor" stroke-width="1" fill="none" opacity=".5">
-              <rect x="44" y="186" width="192" height="72" rx="6"/>
-              <rect x="260" y="186" width="192" height="72" rx="6"/>
-              <rect x="476" y="186" width="192" height="72" rx="6"/>
+              <rect x="44" y="366" width="168" height="72" rx="6"/>
+              <rect x="280" y="366" width="168" height="72" rx="6"/>
+              <rect x="516" y="366" width="168" height="72" rx="6"/>
             </g>
             <g font-size="12.5" text-anchor="middle">
-              <text x="140" y="212">Damage Assessment</text>
-              <text x="140" y="230" font-size="11" opacity=".62">vision model · VLM</text>
-              <text x="140" y="247" font-size="10.5" opacity=".5">severity · confidence</text>
-              <text x="356" y="212">Anomaly detector</text>
-              <text x="356" y="230" font-size="11" opacity=".62">disconnect pattern</text>
-              <text x="356" y="247" font-size="10.5" opacity=".5">abnormal? y/n</text>
-              <text x="572" y="212">Coverage assistant</text>
-              <text x="572" y="230" font-size="11" opacity=".62">conversational RAG</text>
-              <text x="572" y="247" font-size="10.5" opacity=".5">intent · phrasing</text>
+              <text x="128" y="390">Damage assessment</text>
+              <text x="128" y="408" font-size="10.5" opacity=".62">vision model</text>
+              <text x="128" y="425" font-size="10.5" opacity=".62">severity, findings</text>
+
+              <text x="364" y="390">Disconnect analysis</text>
+              <text x="364" y="408" font-size="10.5" opacity=".62">pattern classifier</text>
+              <text x="364" y="425" font-size="10.5" opacity=".62">abrupt or graceful</text>
+
+              <text x="600" y="390">Coverage assistant</text>
+              <text x="600" y="408" font-size="10.5" opacity=".62">retrieval + LLM</text>
+              <text x="600" y="425" font-size="10.5" opacity=".62">intent, entities</text>
             </g>
             <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
-              <line x1="140" y1="258" x2="140" y2="368"/>
-              <line x1="356" y1="258" x2="356" y2="368"/>
-              <line x1="572" y1="258" x2="572" y2="368"/>
+              <line x1="128" y1="438" x2="128" y2="482"/>
+              <line x1="364" y1="438" x2="364" y2="482"/>
+              <line x1="600" y1="438" x2="600" y2="482"/>
             </g>
 
-            <!-- THE BOUNDARY -->
-            <line x1="28" y1="376" x2="1172" y2="376" class="em-line" stroke-width="2.5"/>
-            <rect x="366" y="360" width="470" height="32" rx="16" class="band"/>
-            <text x="601" y="381" font-size="12" text-anchor="middle" class="band-t" letter-spacing="0.4">STRUCTURED FACTS ONLY — NO PROBABILITY CROSSES</text>
+            <!-- ══ THE CONTRACT ═════════════════════════════════════════════ -->
+            <rect x="28" y="488" width="1144" height="34" rx="8" class="band"/>
+            <text x="44" y="504" font-size="11" class="band-t" letter-spacing="1.2" opacity=".8">FACT CONTRACT — EVERYTHING CROSSES HERE, IN ONE SHAPE</text>
+            <text x="44" y="517" font-size="10.5" class="band-t" opacity=".92">enum severity · boolean flags · integer scores · ISO timestamps · signed digests — schema-validated on arrival, and a malformed field falls back rather than propagating</text>
 
-            <!-- BAND 3 · DECISION ENGINE -->
-            <rect x="28" y="410" width="1144" height="176" rx="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
-            <text x="44" y="432" font-size="11" letter-spacing="1.4" opacity=".62">DETERMINISTIC DECISION ENGINE — PURE FUNCTIONS OVER ACCOUNT STATE</text>
+            <!-- ══ BAND 3 · DECISION ENGINE ═════════════════════════════════ -->
+            <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
+              <line x1="176" y1="522" x2="176" y2="554"/>
+              <line x1="456" y1="522" x2="456" y2="554"/>
+              <line x1="736" y1="522" x2="736" y2="554"/>
+              <line x1="1020" y1="522" x2="1020" y2="554"/>
+            </g>
+            <rect x="28" y="558" width="1144" height="224" rx="10" fill="none" stroke="currentColor" stroke-width="1.6"/>
+            <text x="44" y="580" font-size="11" letter-spacing="1.4" opacity=".62">DETERMINISTIC DECISION ENGINE — PURE FUNCTIONS OVER TYPED STATE, TIME PASSED IN</text>
             <g stroke="currentColor" stroke-width="1" fill="none" opacity=".5">
-              <rect x="44" y="446" width="264" height="122" rx="6"/>
-              <rect x="324" y="446" width="264" height="122" rx="6"/>
-              <rect x="604" y="446" width="264" height="122" rx="6"/>
-              <rect x="884" y="446" width="272" height="122" rx="6"/>
+              <rect x="44" y="594" width="264" height="132" rx="6"/>
+              <rect x="324" y="594" width="264" height="132" rx="6"/>
+              <rect x="604" y="594" width="264" height="132" rx="6"/>
+              <rect x="884" y="594" width="272" height="132" rx="6"/>
             </g>
             <g font-size="12" text-anchor="middle">
-              <text x="176" y="470" font-size="12.5">corroborateClaim()</text>
-              <text x="176" y="490" font-size="10.5" opacity=".62">telemetry vs reported time</text>
-              <text x="176" y="507" font-size="10.5" opacity=".62">→ corroborated · inconclusive</text>
-              <text x="176" y="523" font-size="10.5" opacity=".62">→ contradicted + confidence</text>
-              <text x="176" y="547" font-size="10.5" opacity=".45">Mechanism 1</text>
+              <text x="176" y="620" font-size="13">Claim corroboration</text>
+              <text x="176" y="642" font-size="10.5" opacity=".62">reported incident time against</text>
+              <text x="176" y="659" font-size="10.5" opacity=".62">tower, SIM and IMEI records</text>
+              <text x="176" y="681" font-size="10.5" opacity=".62">→ corroborated · inconclusive</text>
+              <text x="176" y="697" font-size="10.5" opacity=".62">· contradicted, with confidence</text>
+              <text x="176" y="716" font-size="10.5" opacity=".45">Mechanism 1</text>
 
-              <text x="456" y="470" font-size="12.5">verifyAttestation()</text>
-              <text x="456" y="490" font-size="10.5" opacity=".62">signature · freshness · score</text>
-              <text x="456" y="507" font-size="10.5" opacity=".62">enforced in the reducer</text>
-              <text x="456" y="523" font-size="10.5" opacity=".62">→ eligible · refused</text>
-              <text x="456" y="547" font-size="10.5" opacity=".45">Mechanism 5</text>
+              <text x="456" y="620" font-size="13">Underwriting gate</text>
+              <text x="456" y="642" font-size="10.5" opacity=".62">attestation signature, then age,</text>
+              <text x="456" y="659" font-size="10.5" opacity=".62">then health score — in that order</text>
+              <text x="456" y="681" font-size="10.5" opacity=".62">→ eligible · refused, with the</text>
+              <text x="456" y="697" font-size="10.5" opacity=".62">failing checks kept as evidence</text>
+              <text x="456" y="716" font-size="10.5" opacity=".45">Mechanism 5</text>
 
-              <text x="736" y="470" font-size="12.5">resolutionOptions() · advise()</text>
-              <text x="736" y="490" font-size="10.5" opacity=".62">ranks repair · swap · ship</text>
-              <text x="736" y="507" font-size="10.5" opacity=".62">against live stock + bench</text>
-              <text x="736" y="523" font-size="10.5" opacity=".62">→ ordered paths + reasoning</text>
-              <text x="736" y="547" font-size="10.5" opacity=".45">Mechanism 4</text>
+              <text x="736" y="620" font-size="13">Resolution optimiser</text>
+              <text x="736" y="642" font-size="10.5" opacity=".62">ranks repair · swap · ship against</text>
+              <text x="736" y="659" font-size="10.5" opacity=".62">live node stock and bench time</text>
+              <text x="736" y="681" font-size="10.5" opacity=".62">→ ordered paths, each with the</text>
+              <text x="736" y="697" font-size="10.5" opacity=".62">reason it placed where it did</text>
+              <text x="736" y="716" font-size="10.5" opacity=".45">Mechanism 4</text>
 
-              <text x="1020" y="470" font-size="12.5">protectionPosture() · preStage()</text>
-              <text x="1020" y="490" font-size="10.5" opacity=".62">score → fraud threshold,</text>
-              <text x="1020" y="507" font-size="10.5" opacity=".62">inspection rule, staging arm</text>
-              <text x="1020" y="523" font-size="10.5" opacity=".62">→ closed control loop</text>
-              <text x="1020" y="547" font-size="10.5" opacity=".45">Addition ②</text>
+              <text x="1020" y="620" font-size="13">Protection posture</text>
+              <text x="1020" y="642" font-size="10.5" opacity=".62">turns the score into the fraud</text>
+              <text x="1020" y="659" font-size="10.5" opacity=".62">threshold, inspection rule and</text>
+              <text x="1020" y="681" font-size="10.5" opacity=".62">staging arm the engine reads next</text>
+              <text x="1020" y="697" font-size="10.5" opacity=".62">→ a closed control loop</text>
+              <text x="1020" y="716" font-size="10.5" opacity=".45">Addition 2</text>
             </g>
-
-            <!-- feedback loop arrow: posture back into the engine -->
-            <path d="M 1156 520 C 1186 520 1186 600 1100 600 L 120 600 C 44 600 44 520 44 520"
+            <path d="M 1156 690 C 1170 690 1170 748 1140 748 L 60 748 C 40 748 40 700 44 690"
                   fill="none" class="em-line" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#ar-sig)"/>
-            <text x="600" y="616" font-size="11" text-anchor="middle" class="em">closed loop — the score sets the thresholds the engine reads next time</text>
+            <text x="600" y="770" font-size="11" text-anchor="middle" class="em">closed loop — the posture computed on this pass sets the thresholds the engine reads on the next one</text>
 
-            <!-- BAND 4 · LEDGER -->
+            <!-- ══ BAND 4 · LEDGER ══════════════════════════════════════════ -->
             <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
-              <line x1="600" y1="586" x2="600" y2="640"/>
+              <line x1="600" y1="782" x2="600" y2="816"/>
             </g>
-            <rect x="300" y="646" width="600" height="70" rx="8" fill="none" stroke="currentColor" stroke-width="1.6"/>
-            <text x="600" y="672" font-size="12.5" text-anchor="middle">Decision ledger — canonical JSON → digest(input) · digest(output)</text>
-            <text x="600" y="692" font-size="11" text-anchor="middle" opacity=".62">replay re-executes the recorded function and compares digests</text>
-            <text x="600" y="708" font-size="10.5" text-anchor="middle" opacity=".45">Mechanism 3 · records BOTH the perception output and the deterministic verdict</text>
+            <rect x="300" y="820" width="600" height="72" rx="8" fill="none" stroke="currentColor" stroke-width="1.6"/>
+            <text x="600" y="846" font-size="12.5" text-anchor="middle">Decision ledger — canonical JSON, digest in and digest out</text>
+            <text x="600" y="865" font-size="11" text-anchor="middle" opacity=".62">recording is the call path, not a parallel log: replay re-executes and compares</text>
+            <text x="600" y="881" font-size="10.5" text-anchor="middle" opacity=".45">Mechanism 3 · keeps both the perception output and the deterministic verdict</text>
 
-            <!-- BAND 5 · EFFECTS -->
+            <!-- ══ BAND 5 · EFFECTS ═════════════════════════════════════════ -->
             <g stroke="currentColor" stroke-width="1.3" marker-end="url(#ar)" opacity=".7">
-              <line x1="150" y1="586" x2="150" y2="768"/>
-              <line x1="450" y1="716" x2="450" y2="768"/>
-              <line x1="750" y1="716" x2="750" y2="768"/>
-              <line x1="1050" y1="586" x2="1050" y2="768"/>
+              <line x1="150" y1="782" x2="150" y2="930"/>
+              <line x1="450" y1="892" x2="450" y2="930"/>
+              <line x1="750" y1="892" x2="750" y2="930"/>
+              <line x1="1050" y1="782" x2="1050" y2="930"/>
             </g>
-            <text x="40" y="752" font-size="11" letter-spacing="1.6" opacity=".62">EFFECTS — PHYSICAL &amp; EXTERNAL</text>
+            <text x="40" y="922" font-size="11" letter-spacing="1.6" opacity=".62">EFFECTS — PHYSICAL &amp; EXTERNAL</text>
             <g stroke="currentColor" stroke-width="1" fill="none" opacity=".5">
-              <rect x="44" y="768" width="212" height="76" rx="6"/>
-              <rect x="344" y="768" width="212" height="76" rx="6"/>
-              <rect x="644" y="768" width="212" height="76" rx="6"/>
+              <rect x="44" y="934" width="212" height="84" rx="6"/>
+              <rect x="344" y="934" width="212" height="84" rx="6"/>
+              <rect x="644" y="934" width="212" height="84" rx="6"/>
             </g>
-            <rect x="944" y="768" width="212" height="76" rx="6" fill="none" class="em-box" stroke-width="1.6"/>
+            <rect x="944" y="934" width="212" height="84" rx="6" fill="none" class="em-box" stroke-width="1.6"/>
             <g font-size="12" text-anchor="middle">
-              <text x="150" y="792">Asurion intake</text>
-              <text x="150" y="810" font-size="10.5" opacity=".62">one payload shape,</text>
-              <text x="150" y="826" font-size="10.5" opacity=".62">whatever the claim type</text>
+              <text x="150" y="958">Asurion intake</text>
+              <text x="150" y="976" font-size="10.5" opacity=".62">the same administrator</text>
+              <text x="150" y="992" font-size="10.5" opacity=".62">as today, receiving one</text>
+              <text x="150" y="1008" font-size="10.5" opacity=".62">payload for every claim type</text>
 
-              <text x="450" y="792">Blocklist &amp; suspension</text>
-              <text x="450" y="810" font-size="10.5" opacity=".62">consent-gated · withheld</text>
-              <text x="450" y="826" font-size="10.5" opacity=".62">when telemetry disputes</text>
+              <text x="450" y="958">Blocklist &amp; suspension</text>
+              <text x="450" y="976" font-size="10.5" opacity=".62">consent-gated, and withheld</text>
+              <text x="450" y="992" font-size="10.5" opacity=".62">when the network disputes</text>
+              <text x="450" y="1008" font-size="10.5" opacity=".62">what was reported</text>
 
-              <text x="750" y="792">Store pre-staging</text>
-              <text x="750" y="810" font-size="10.5" opacity=".62">device + restore snapshot</text>
-              <text x="750" y="826" font-size="10.5" opacity=".62">moved to a named node</text>
+              <text x="750" y="958">Fulfilment pre-staging</text>
+              <text x="750" y="976" font-size="10.5" opacity=".62">device plus restore snapshot</text>
+              <text x="750" y="992" font-size="10.5" opacity=".62">moved to a named node before</text>
+              <text x="750" y="1008" font-size="10.5" opacity=".62">the claim is filed</text>
 
-              <text x="1050" y="786" class="em">Line-anchored provisioning</text>
-              <text x="1050" y="804" font-size="10.5" class="em" opacity=".8">manifest keyed to the number,</text>
-              <text x="1050" y="820" font-size="10.5" class="em" opacity=".8">handset is a pointer</text>
-              <text x="1050" y="836" font-size="10" class="em" opacity=".7">Mechanism 2</text>
+              <text x="1050" y="954" class="em">Line-anchored provisioning</text>
+              <text x="1050" y="972" font-size="10.5" class="em" opacity=".85">manifest keyed to the number,</text>
+              <text x="1050" y="988" font-size="10.5" class="em" opacity=".85">the handset only a pointer</text>
+              <text x="1050" y="1010" font-size="10" class="em" opacity=".7">Mechanism 2</text>
             </g>
           </g>
         </svg>
       </div>
       <figcaption>
-        The architectural claim in one figure. Photos, incident reports and diagnostics pass
-        through probabilistic models; carrier telemetry and account state bypass them entirely
-        because they are already structured. Nothing probabilistic crosses the boundary — the
-        decision engine receives facts, not confidences, and every verdict it emits is recorded
-        with digests of both sides. The dashed return path is the closed control loop: the
-        Protection Score the engine computes becomes an input to the thresholds it reads next time.
+        Both lanes end at the same administrator — that is the point. Today's path carries the
+        customer's own account of the incident to a human reviewer and ships a handset that the
+        coverage was bound to. DeviceFlex changes what reaches that intake: photos, the incident
+        form and the on-device inspection pass through models, while carrier telemetry and account
+        state bypass them because they arrive structured already. Everything converges on one typed
+        contract, so the engine below receives facts rather than confidences, and every verdict it
+        emits is recorded with digests of both sides. The dashed return path is the control loop —
+        the posture computed on one pass becomes the threshold read on the next.
       </figcaption>
     </figure>
 

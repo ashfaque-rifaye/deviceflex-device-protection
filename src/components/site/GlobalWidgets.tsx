@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { Phone, MessageSquare, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 import { ChatPanel } from "./ChatPanel";
+import { SearchChatIcon } from "./NavIcons";
 
 const COOKIE_KEY = "att_cookie_dismissed";
 
@@ -36,24 +37,49 @@ export function GlobalWidgets() {
 
   return (
     <>
-      {/* Right-edge Order Now tab */}
-      <a
-        href="tel:8669714383"
-        className="fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 rotate-180 items-center gap-2 rounded-t-md bg-[#00388F] px-3 py-3 text-xs font-bold text-white shadow-lg [writing-mode:vertical-rl] hover:bg-[#0057B8] md:inline-flex"
-        style={{ writingMode: "vertical-rl" }}
-      >
-        <Phone className="h-4 w-4 rotate-90" /> ORDER NOW / 866-971-4383
-      </a>
+      {/*
+        att.com's right-edge rail: the Feedback tab sits directly above the Fusion
+        chat launcher, both flush to the viewport edge and rounded only on the
+        left (4px 0 0 4px), so they read as one stack tabbed out of the page.
+      */}
+      <div className="fixed right-0 top-1/2 z-40 hidden -translate-y-1/2 flex-col items-end gap-2 md:flex">
+        <button
+          type="button"
+          aria-label="Feedback"
+          onClick={openChat}
+          className="rounded-l border border-r-0 border-[#DCDFE3] bg-white px-1.5 py-4 text-xs font-bold text-[#0057B8] shadow-[0_2px_8px_rgba(37,48,58,0.16)] hover:bg-[#F3F4F6]"
+          style={{ writingMode: "vertical-rl", borderRadius: "4px 0 0 4px" }}
+        >
+          Feedback
+        </button>
 
-      {/* Chat launcher — the same bubble att.com carries on every page */}
+        {!chatOpen && (
+          <button
+            type="button"
+            id="fusionChatActiveBtn"
+            aria-label="Open chat"
+            onClick={() => setChatOpen(true)}
+            className="flex w-16 flex-col items-center justify-center gap-1 bg-[#00388F] px-0 py-2 text-white shadow-[0_2px_8px_rgba(37,48,58,0.16)] hover:bg-[#0057B8]"
+            style={{ borderRadius: "4px 0 0 4px", minHeight: 55 }}
+          >
+            <SearchChatIcon className="h-8 w-8 [&_path]:fill-white" />
+            <span className="text-[11px] font-bold leading-none">CHAT</span>
+          </button>
+        )}
+      </div>
+
+      {/* Below md the rail would eat the thumb zone, so the launcher docks bottom-right. */}
       {!chatOpen && (
         <button
+          type="button"
+          aria-label="Open chat"
           onClick={() => setChatOpen(true)}
-          className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[#00388F] px-5 py-3 text-sm font-bold text-white shadow-xl hover:bg-[#0057B8]"
+          className="fixed bottom-4 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#00388F] text-white shadow-xl hover:bg-[#0057B8] md:hidden"
         >
-          <MessageSquare className="h-4 w-4" /> Let&rsquo;s chat
+          <SearchChatIcon className="h-7 w-7 [&_path]:fill-white" />
         </button>
       )}
+
       {chatOpen && <ChatPanel onClose={() => setChatOpen(false)} />}
 
       {/* Cookie banner */}

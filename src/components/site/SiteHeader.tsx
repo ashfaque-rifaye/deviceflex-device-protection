@@ -1,10 +1,19 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { AccountTray } from "@/components/deviceflex/AccountTray";
-import { Search, ShoppingCart, ChevronDown, ChevronUp, User, Menu, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Menu, X } from "lucide-react";
 import { AttLogo } from "@/components/AttLogo";
+import {
+  SearchIcon,
+  SearchChatIcon,
+  CartIcon,
+  AccountIcon,
+  NavChevron,
+} from "@/components/site/NavIcons";
+import { openChat } from "@/components/site/GlobalWidgets";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
+import { MEGA_NAV, type MegaMenu, type MegaLink } from "@/data/meganav";
 import shopBackToSchool from "@/assets/hero-internet-air.jpg";
 import iphonePromo from "@/assets/phone-iphone17pro.jpg";
 
@@ -23,7 +32,7 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
   const [mobile, setMobile] = useState(false);
   const [openMenu, setOpenMenu] = useState<NavLabel | null>(null);
   const [signInOpen, setSignInOpen] = useState(false);
-  const [shopTab, setShopTab] = useState<"plans" | "devices">("plans");
+  const [rail, setRail] = useState(0);
   const signInRef = useRef<HTMLDivElement>(null);
   const { isAuthed, user } = useAuth();
   const { count } = useCart();
@@ -80,7 +89,10 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
                 return (
                   <button
                     key={label}
-                    onClick={() => setOpenMenu(active ? null : label)}
+                    onClick={() => {
+                      setRail(0);
+                      setOpenMenu(active ? null : label);
+                    }}
                     className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[15px] font-bold ${
                       active ? "bg-[#E7F5FB] text-[#0072B2]" : "text-[#1D2329] hover:bg-[#F3F4F6]"
                     }`}
@@ -100,41 +112,61 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
               })}
             </nav>
 
-            <div className="ml-auto flex items-center gap-3">
+            <div className="ml-auto flex items-center gap-1">
+              {/* "Search or chat" pill — att.com's fusion entry point. Collapses to a
+                  bare icon button below lg, exactly as the real header does. */}
               <button
-                aria-label="Search"
-                className="hidden rounded-full p-2 hover:bg-[#F3F4F6] sm:inline-flex"
+                type="button"
+                aria-label="Search or chat"
+                onClick={openChat}
+                className="mega-search-chat-btn hidden h-10 items-center gap-2 rounded-full border border-[#DCDFE3] bg-white pl-2 pr-4 text-sm font-bold text-[#1D2329] hover:bg-[#F3F4F6] lg:inline-flex"
               >
-                <Search className="h-5 w-5" strokeWidth={2} />
+                <SearchChatIcon className="h-6 w-6" />
+                <span>Search or chat</span>
               </button>
               <button
-                aria-label="Cart"
-                onClick={() => navigate({ to: "/buy/cart" })}
-                className="relative hidden rounded-full p-2 hover:bg-[#F3F4F6] sm:inline-flex"
+                type="button"
+                aria-label="Search or chat"
+                onClick={openChat}
+                className="grid h-10 w-10 place-items-center rounded-full hover:bg-[#E7F5FB] lg:hidden"
               >
-                <ShoppingCart className="h-5 w-5" strokeWidth={2} />
+                <SearchChatIcon className="h-6 w-6" />
+              </button>
+
+              <button
+                aria-label="Open search"
+                className="hidden h-10 w-10 place-items-center rounded-full hover:bg-[#E7F5FB] sm:grid"
+              >
+                <SearchIcon className="h-6 w-6" />
+              </button>
+
+              <button
+                aria-label="Cart"
+                title={badge > 0 ? `Cart, ${badge} item${badge === 1 ? "" : "s"}` : "Cart"}
+                onClick={() => navigate({ to: "/buy/cart" })}
+                className="relative hidden h-10 w-10 place-items-center rounded-full hover:bg-[#E7F5FB] sm:grid"
+              >
+                <CartIcon className="h-6 w-6" />
                 {badge > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-full bg-[#009FDB] text-[11px] font-bold text-white">
-                    {badge}
+                  <span className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-[#009FDB] px-1 text-[11px] font-bold leading-none text-white">
+                    <span aria-hidden="true">{badge}</span>
+                    <span className="sr-only">{badge} cart items</span>
                   </span>
                 )}
               </button>
 
               <div className="relative" ref={signInRef}>
                 <button
-                  aria-label={isAuthed ? "Account menu" : "Sign in"}
+                  aria-label="Account"
+                  aria-haspopup="dialog"
+                  aria-expanded={signInOpen}
                   onClick={() => setSignInOpen(!signInOpen)}
-                  className="hidden items-center gap-1.5 rounded-full py-1.5 pl-1.5 pr-2 hover:bg-[#F3F4F6] sm:inline-flex"
+                  className="hidden h-10 items-center gap-2 rounded-full border border-transparent px-2 text-[#1D2329] hover:bg-[#E7F5FB] sm:inline-flex"
                 >
-                  <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-[#1D2329]">
-                    <User className="h-4 w-4" strokeWidth={2.25} />
-                  </span>
-                  {isAuthed && (
-                    <span className="text-sm font-bold text-[#1D2329]">{user!.firstName}</span>
-                  )}
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${signInOpen ? "rotate-180" : ""}`}
-                    strokeWidth={2.5}
+                  <AccountIcon className="h-5 w-5" />
+                  {isAuthed && <span className="text-sm font-bold">{user!.firstName}</span>}
+                  <NavChevron
+                    className={`h-3 w-3 transition-transform ${signInOpen ? "rotate-180" : ""}`}
                   />
                   {isAuthed && (
                     <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-[20px] place-items-center rounded-full bg-[#C70032] px-1 text-[11px] font-bold text-white">
@@ -229,11 +261,12 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
         {openMenu && (
           <div className="absolute inset-x-0 top-full z-50 border-t border-[#DCDFE3] bg-white shadow-xl">
             <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6 lg:px-10">
-              {openMenu === "Shop" ? (
-                <ShopMega tab={shopTab} setTab={setShopTab} onClose={() => setOpenMenu(null)} />
-              ) : (
-                <div className="py-8 text-[#686E74]">Coming soon.</div>
-              )}
+              <Mega
+                menu={MEGA_NAV[openMenu]}
+                rail={rail}
+                setRail={setRail}
+                onClose={() => setOpenMenu(null)}
+              />
             </div>
           </div>
         )}
@@ -250,40 +283,44 @@ export function SiteHeader({ cartCount }: { cartCount?: number }) {
   );
 }
 
-function ShopMega({
-  tab,
-  setTab,
+/**
+ * One mega-menu panel set. att.com's layout is fixed across all four menus:
+ * a 3-column left rail of sub-panels, a 6-column body carrying a quick-action
+ * row over 2–3 link columns, and a 3-column promo card on the right.
+ */
+function Mega({
+  menu,
+  rail,
+  setRail,
   onClose,
 }: {
-  tab: "plans" | "devices";
-  setTab: (t: "plans" | "devices") => void;
+  menu: MegaMenu;
+  rail: number;
+  setRail: (i: number) => void;
   onClose: () => void;
 }) {
+  const panel = menu.panels[rail] ?? menu.panels[0];
+
   return (
     <div className="grid grid-cols-12 gap-6">
       {/* Left rail */}
       <aside className="col-span-3 border-r border-[#DCDFE3] pr-4">
-        <h3 className="mb-4 text-2xl font-extrabold text-[#1D2329]">Shop</h3>
+        <h3 className="mb-4 text-2xl font-extrabold text-[#1D2329]">{menu.title}</h3>
         <div className="space-y-1">
-          {(
-            [
-              ["plans", "Plans & services"],
-              ["devices", "Devices & accessories"],
-            ] as const
-          ).map(([key, label]) => {
-            const active = tab === key;
+          {menu.panels.map((p, i) => {
+            const active = i === rail;
             return (
               <button
-                key={key}
-                onMouseEnter={() => setTab(key)}
-                onClick={() => setTab(key)}
+                key={p.rail}
+                onMouseEnter={() => setRail(i)}
+                onClick={() => setRail(i)}
                 className={`relative flex w-full items-center justify-between rounded-lg px-4 py-3 text-left text-[15px] ${
                   active
                     ? "bg-[#E7F5FB] font-bold text-[#0072B2]"
                     : "font-semibold text-[#1D2329] hover:bg-[#F3F4F6]"
                 }`}
               >
-                {label}
+                {p.rail}
                 {active && (
                   <span className="absolute right-0 top-2 bottom-2 w-1 rounded-l bg-[#009FDB]" />
                 )}
@@ -293,166 +330,75 @@ function ShopMega({
         </div>
       </aside>
 
-      {/* Middle content */}
-      <div className="col-span-6">
-        {tab === "plans" ? (
-          <>
-            <div className="mb-4 flex flex-wrap items-center gap-3 border-b border-[#DCDFE3] pb-3 text-sm">
-              <span className="font-extrabold text-[#1D2329]">Quick actions</span>
-              {["Upgrade", "Add a line", "Bring your own phone", "Switch & save"].map((l, i) => (
-                <span key={l} className="flex items-center gap-3">
-                  {i > 0 && <span className="text-[#DCDFE3]">|</span>}
-                  <a href="#" className="font-bold text-[#0072B2] hover:underline">
-                    {l}
-                  </a>
-                </span>
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-6 text-sm">
-              <MegaCol
-                h="Bundles"
-                items={[
-                  "Explore bundles",
-                  "AT&T OneConnect",
-                  "Build-A-Plan",
-                  "Internet + wireless",
-                  "Internet + home phone",
-                  "Customers 55+",
-                ]}
-              />
-              <MegaCol
-                h="Wireless"
-                items={[
-                  "Explore wireless",
-                  "Phone plans",
-                  "Network coverage",
-                  "Prepaid",
-                  "International add-ons",
-                  "Connected car",
-                ]}
-              />
-              <MegaCol
-                h="Home internet"
-                items={[
-                  "Explore home internet",
-                  "Check availability",
-                  "AT&T Fiber",
-                  "AT&T Internet Air",
-                  "Home phone",
-                ]}
-              />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="mb-4 flex flex-wrap items-center gap-3 border-b border-[#DCDFE3] pb-3 text-sm">
-              <span className="font-extrabold text-[#1D2329]">New arrivals</span>
-              {[
-                "Samsung Galaxy S26 Ultra",
-                "iPhone 17 Pro",
-                "AirPods Pro 3",
-                "Google Pixel 10 Pro",
-              ].map((l, i) => (
-                <span key={l} className="flex items-center gap-3">
-                  {i > 0 && <span className="text-[#DCDFE3]">|</span>}
-                  <Link
-                    to="/buy/phones"
-                    onClick={onClose}
-                    className="font-bold text-[#0072B2] hover:underline"
-                  >
-                    {l}
-                  </Link>
-                </span>
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-6 text-sm">
-              <MegaCol
-                h="Devices"
-                items={[
-                  "Phones",
-                  "Prepaid phones",
-                  "Tablets",
-                  "Smartwatches",
-                  "AT&T Certified Pre-Owned",
-                ]}
-                linkFirstTo="/buy/phones"
-                onClick={onClose}
-              />
-              <MegaCol
-                h="Accessories"
-                items={[
-                  "Shop all accessories",
-                  "Cases",
-                  "Chargers",
-                  "Screen protectors",
-                  "Headphones",
-                ]}
-              />
-              <MegaCol h="Brands" items={["Apple", "Samsung", "Motorola", "Google", "Meta"]} />
-            </div>
-          </>
+      {/* Body */}
+      <div className={panel.promo ? "col-span-6" : "col-span-9"}>
+        {panel.quick && (
+          <div className="mb-4 flex flex-wrap items-center gap-3 border-b border-[#DCDFE3] pb-3 text-sm">
+            <span className="font-extrabold text-[#1D2329]">{panel.quickLabel}</span>
+            {panel.quick.map((q, i) => (
+              <span key={q.label} className="flex items-center gap-3">
+                {i > 0 && <span className="text-[#DCDFE3]">|</span>}
+                <MegaLinkEl link={q} onClose={onClose} className="font-bold text-[#0072B2]" />
+              </span>
+            ))}
+          </div>
         )}
+        <div className="grid grid-cols-3 gap-6 text-sm">
+          {panel.columns.map((col) => (
+            <div key={col.heading}>
+              <h4 className="mb-3 font-extrabold text-[#1D2329]">{col.heading}</h4>
+              <ul className="space-y-2.5">
+                {col.links.map((l) => (
+                  <li key={l.label}>
+                    <MegaLinkEl link={l} onClose={onClose} className="text-[#1D2329]" />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Right promo */}
-      <div className="relative col-span-3">
-        <div className="pointer-events-none absolute -right-16 top-0 h-full w-64 rounded-full bg-[#009FDB]/25 blur-2xl" />
-        <div className="pointer-events-none absolute -right-8 top-8 h-56 w-56 rounded-full border-[16px] border-[#009FDB]/40" />
-        <article className="relative overflow-hidden rounded-2xl border border-[#DCDFE3] bg-white p-4 text-center shadow-sm">
-          <img
-            src={tab === "plans" ? shopBackToSchool : iphonePromo}
-            alt=""
-            className="mx-auto h-32 w-full rounded-xl object-cover"
-          />
-          <p className="mt-4 text-[15px] font-extrabold leading-snug text-[#1D2329]">
-            {tab === "plans"
-              ? "Save big on everything back-to-school"
-              : "Get iPhone 17 Pro for $0 with eligible trade-in."}
-          </p>
-          <Link to="/buy/phones" onClick={onClose} className="btn-primary mt-4 w-full text-sm">
-            {tab === "plans" ? "Shop deals" : "Shop now"}
-          </Link>
-        </article>
-      </div>
+      {panel.promo && (
+        <div className="col-span-3">
+          <article className="overflow-hidden rounded-2xl border border-[#DCDFE3] bg-white p-4 text-center shadow-sm">
+            <img
+              src={panel.promo.image === "plans" ? shopBackToSchool : iphonePromo}
+              alt=""
+              className="mx-auto h-32 w-full rounded-xl object-cover"
+            />
+            <p className="mt-4 text-[15px] font-extrabold leading-snug text-[#1D2329]">
+              {panel.promo.copy}
+            </p>
+            <Link to="/buy/phones" onClick={onClose} className="btn-primary mt-4 w-full text-sm">
+              {panel.promo.cta}
+            </Link>
+          </article>
+        </div>
+      )}
     </div>
   );
 }
 
-function MegaCol({
-  h,
-  items,
-  linkFirstTo,
-  onClick,
+/** A mega-nav link: a real route where the prototype has one, inert otherwise. */
+function MegaLinkEl({
+  link,
+  onClose,
+  className,
 }: {
-  h: string;
-  items: string[];
-  linkFirstTo?: string;
-  onClick?: () => void;
+  link: MegaLink;
+  onClose: () => void;
+  className: string;
 }) {
-  return (
-    <div>
-      <h4 className="mb-3 font-extrabold text-[#1D2329]">{h}</h4>
-      <ul className="space-y-2.5">
-        {items.map((l, i) =>
-          i === 0 && linkFirstTo ? (
-            <li key={l}>
-              <Link
-                to={linkFirstTo}
-                onClick={onClick}
-                className="text-[#1D2329] hover:text-[#0072B2]"
-              >
-                {l}
-              </Link>
-            </li>
-          ) : (
-            <li key={l}>
-              <a href="#" className="text-[#1D2329] hover:text-[#0072B2]">
-                {l}
-              </a>
-            </li>
-          ),
-        )}
-      </ul>
-    </div>
+  const cls = `${className} hover:text-[#0072B2] hover:underline`;
+  return link.to ? (
+    <Link to={link.to} onClick={onClose} className={cls}>
+      {link.label}
+    </Link>
+  ) : (
+    <a href="#" className={cls}>
+      {link.label}
+    </a>
   );
 }
