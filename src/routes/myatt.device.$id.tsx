@@ -297,7 +297,6 @@ function ProtectPromo({ d }: { d: MemberDevice }) {
   if (d.protected) {
     return (
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0057B8] to-[#009FDB] p-6 text-white">
-        <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full border-[18px] border-white/15" />
         <h2 className="text-[22px] font-extrabold">You're covered. Relax.</h2>
         <p className="mt-2 max-w-sm text-[14px] text-white/95">
           Repair or replace your {d.brand} {d.name} as soon as the same day.
@@ -314,7 +313,6 @@ function ProtectPromo({ d }: { d: MemberDevice }) {
   }
   return (
     <section className="relative overflow-hidden rounded-2xl bg-[#25303A] p-6 text-white">
-      <div className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full border-[18px] border-white/10" />
       <h2 className="text-[22px] font-extrabold">Accidents happen. Have a plan.</h2>
       <p className="mt-2 max-w-sm text-[14px] text-white/90">
         Repair or replace your {d.brand} {d.name} as soon as the same day.

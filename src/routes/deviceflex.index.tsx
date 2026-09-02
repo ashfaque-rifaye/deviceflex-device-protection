@@ -26,7 +26,6 @@ function DeviceFlexLanding() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#0057B8] via-[#0072B2] to-[#009FDB] text-white">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full border-[28px] border-white/10" />
         <div className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6 lg:px-10 lg:py-20">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-white/90">
             AT&amp;T DeviceFlex™

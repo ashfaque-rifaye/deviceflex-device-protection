@@ -15,7 +15,8 @@ export type MegaPanel = {
   quickLabel?: string;
   quick?: MegaLink[];
   columns: { heading: string; links: MegaLink[] }[];
-  promo?: { image: "plans" | "devices"; copy: string; cta: string };
+  /** Image path for the promo card — served from /public, so it matches the copy. */
+  promo?: { image: string; copy: string; cta: string };
 };
 
 export type MegaMenu = { title: string; panels: MegaPanel[] };
@@ -68,7 +69,7 @@ export const MEGA_NAV: Record<string, MegaMenu> = {
           },
         ],
         promo: {
-          image: "plans",
+          image: "/att/devices/apple-iphone-17-pro/cosmic-orange-hero.webp",
           copy: "Save big on everything back-to-school",
           cta: "Shop deals",
         },
@@ -115,7 +116,7 @@ export const MEGA_NAV: Record<string, MegaMenu> = {
           },
         ],
         promo: {
-          image: "devices",
+          image: "/att/devices/samsung-galaxy-z-fold8/graphite-hero.png",
           copy: "Get the new Samsung Galaxy Z Fold8 for $0 with eligible trade-in",
           cta: "Shop now",
         },
@@ -159,7 +160,7 @@ export const MEGA_NAV: Record<string, MegaMenu> = {
           { heading: "Subscriptions", links: [{ label: "AT&T OneConnect" }] },
         ],
         promo: {
-          image: "plans",
+          image: "/att/devices/samsung-galaxy-s26-ultra/black-hero.png",
           copy: "Switch to AT&T and learn how to get up to $800/line to break your contract",
           cta: "See offer details",
         },
@@ -221,7 +222,11 @@ export const MEGA_NAV: Record<string, MegaMenu> = {
             links: [{ label: "5G coverage map" }, { label: "Fiber coverage map" }],
           },
         ],
-        promo: { image: "plans", copy: "America's best guarantee", cta: "Learn more" },
+        promo: {
+          image: "/att/misc/att-guarantee.jpg",
+          copy: "America's best guarantee",
+          cta: "Learn more",
+        },
       },
       {
         rail: "Our sponsorships",

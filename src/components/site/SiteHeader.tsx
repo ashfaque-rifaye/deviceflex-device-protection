@@ -14,8 +14,6 @@ import { openChat } from "@/components/site/GlobalWidgets";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 import { MEGA_NAV, type MegaMenu, type MegaLink } from "@/data/meganav";
-import shopBackToSchool from "@/assets/hero-internet-air.jpg";
-import iphonePromo from "@/assets/phone-iphone17pro.jpg";
 
 const NAV = ["Shop", "Deals", "AT&T Difference", "Support"] as const;
 type NavLabel = (typeof NAV)[number];
@@ -364,9 +362,9 @@ function Mega({
         <div className="col-span-3">
           <article className="overflow-hidden rounded-2xl border border-[#DCDFE3] bg-white p-4 text-center shadow-sm">
             <img
-              src={panel.promo.image === "plans" ? shopBackToSchool : iphonePromo}
+              src={panel.promo.image}
               alt=""
-              className="mx-auto h-32 w-full rounded-xl object-cover"
+              className="mx-auto h-32 w-full rounded-xl object-contain"
             />
             <p className="mt-4 text-[15px] font-extrabold leading-snug text-[#1D2329]">
               {panel.promo.copy}

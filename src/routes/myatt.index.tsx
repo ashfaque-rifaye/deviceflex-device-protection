@@ -91,7 +91,6 @@ function Overview() {
           {/* Protection status — enrolled vs not */}
           {m.enrolled ? (
             <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#00388F] to-[#009FDB] p-6 text-white">
-              <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full border-[16px] border-white/15" />
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5" />
                 <p className="text-xs font-bold uppercase tracking-widest text-white/90">
