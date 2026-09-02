@@ -9,6 +9,7 @@
 // with per-category progress. Category selection is the part that makes this feel
 // like a product rather than a demo.
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Overlay } from "@/components/att/Modal";
 import {
   X,
   Check,
@@ -104,240 +105,229 @@ export function SmartRestore({
   const STEPS = ["Source", "What to bring", "Destination", "Review"];
 
   return (
-    <div className="fixed inset-0 z-[70] grid place-items-center overflow-y-auto bg-black/50 p-4">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="sr-title"
-        className="my-8 w-full max-w-2xl rounded-2xl bg-white shadow-2xl"
-      >
-        <div className="flex items-start gap-4 border-b border-[#DCDFE3] p-6">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#E7F5FB]">
-            <ShieldCheck className="h-5 w-5 text-[#00388F]" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="att-eyebrow">Smart Restore</p>
-            <h2 id="sr-title" className="att-h3 mt-1">
-              Move your data to another device
-            </h2>
-          </div>
-          <button
-            ref={closeRef}
-            aria-label="Close Smart Restore"
-            onClick={onClose}
-            className="rounded-full p-1.5 text-[#686E74] hover:bg-[#F3F4F6]"
-          >
-            <X className="h-5 w-5" />
-          </button>
+    <Overlay open onClose={onClose} labelledBy="sr-title" className="max-w-2xl">
+      <div className="flex items-start gap-4 border-b border-[#DCDFE3] p-6">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#E7F5FB]">
+          <ShieldCheck className="h-5 w-5 text-[#00388F]" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="att-eyebrow">Smart Restore</p>
+          <h2 id="sr-title" className="att-h3 mt-1">
+            Move your data to another device
+          </h2>
         </div>
+        <button
+          ref={closeRef}
+          aria-label="Close Smart Restore"
+          onClick={onClose}
+          className="rounded-full p-1.5 text-[#686E74] hover:bg-[#F3F4F6]"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        {step < 4 && (
-          <ol className="flex flex-wrap gap-x-5 gap-y-2 border-b border-[#DCDFE3] px-6 py-3 text-xs font-bold">
-            {STEPS.map((s, i) => (
-              <li
-                key={s}
-                className={`flex items-center gap-1.5 ${i === step ? "text-[#00388F]" : i < step ? "text-[#1F7A3D]" : "text-[#878C94]"}`}
+      {step < 4 && (
+        <ol className="flex flex-wrap gap-x-5 gap-y-2 border-b border-[#DCDFE3] px-6 py-3 text-xs font-bold">
+          {STEPS.map((s, i) => (
+            <li
+              key={s}
+              className={`flex items-center gap-1.5 ${i === step ? "text-[#00388F]" : i < step ? "text-[#1F7A3D]" : "text-[#878C94]"}`}
+            >
+              <span
+                className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${
+                  i === step
+                    ? "bg-[#00388F] text-white"
+                    : i < step
+                      ? "bg-[#1F7A3D] text-white"
+                      : "bg-[#DCDFE3] text-[#686E74]"
+                }`}
               >
-                <span
-                  className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${
-                    i === step
-                      ? "bg-[#00388F] text-white"
-                      : i < step
-                        ? "bg-[#1F7A3D] text-white"
-                        : "bg-[#DCDFE3] text-[#686E74]"
-                  }`}
-                >
-                  {i < step ? <Check className="h-3 w-3" /> : i + 1}
-                </span>
-                {s}
-              </li>
-            ))}
-          </ol>
+                {i < step ? <Check className="h-3 w-3" /> : i + 1}
+              </span>
+              {s}
+            </li>
+          ))}
+        </ol>
+      )}
+
+      <div className="max-h-[52vh] overflow-y-auto p-6">
+        {/* 0 — source */}
+        {step === 0 && (
+          <div>
+            <h3 className="att-h4">Restore from which backup?</h3>
+            <p className="att-small mt-1">Only devices with a backup in your vault are listed.</p>
+            <div className="mt-4 grid gap-2">
+              {backed.map((d) => (
+                <DeviceRow
+                  key={d.id}
+                  d={d}
+                  selected={fromId === d.id}
+                  onSelect={() => setFromId(d.id)}
+                  meta={`${formatCapacity(deviceVaultGB(d))} · backed up ${d.lastBackup.toLowerCase()}`}
+                />
+              ))}
+            </div>
+          </div>
         )}
 
-        <div className="max-h-[52vh] overflow-y-auto p-6">
-          {/* 0 — source */}
-          {step === 0 && (
-            <div>
-              <h3 className="att-h4">Restore from which backup?</h3>
-              <p className="att-small mt-1">Only devices with a backup in your vault are listed.</p>
-              <div className="mt-4 grid gap-2">
-                {backed.map((d) => (
+        {/* 1 — categories */}
+        {step === 1 && from && (
+          <div>
+            <h3 className="att-h4">What should we bring across?</h3>
+            <p className="att-small mt-1">
+              Leave anything out and it stays safe in the vault — you can pull it later.
+            </p>
+            <div className="mt-4 grid gap-2">
+              {CATS.map(({ key, label, Icon, perGb, hint }) => {
+                const on = picked.includes(key);
+                const gb = from.vault[key];
+                return (
+                  <label
+                    key={key}
+                    className={`att-choice flex items-center gap-3 !p-4 ${on ? "att-choice-on" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={on}
+                      onChange={() => toggle(key)}
+                      className="att-checkbox shrink-0"
+                    />
+                    <Icon className="h-5 w-5 shrink-0 text-[#00388F]" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-bold">{label}</span>
+                      <span className="att-small block">
+                        {Math.round(gb * perGb).toLocaleString()} items · {hint}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-sm font-extrabold tabular-nums">
+                      {formatCapacity(gb)}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="mt-4 flex items-center justify-between rounded-xl bg-[#F3F4F6] p-4 text-sm">
+              <span className="font-bold">Selected</span>
+              <span className="font-extrabold tabular-nums">
+                {formatCapacity(selected.gb)} · {selected.items.toLocaleString()} items
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* 2 — destination */}
+        {step === 2 && (
+          <div>
+            <h3 className="att-h4">Restore onto which device?</h3>
+            <p className="att-small mt-1">
+              Anything already on the destination is kept — Smart Restore merges rather than wipes.
+            </p>
+            <div className="mt-4 grid gap-2">
+              {member.devices
+                .filter((d) => d.id !== fromId)
+                .map((d) => (
                   <DeviceRow
                     key={d.id}
                     d={d}
-                    selected={fromId === d.id}
-                    onSelect={() => setFromId(d.id)}
-                    meta={`${formatCapacity(deviceVaultGB(d))} · backed up ${d.lastBackup.toLowerCase()}`}
+                    selected={toId === d.id}
+                    onSelect={() => setToId(d.id)}
+                    meta={
+                      d.backedUp
+                        ? `Already holds ${formatCapacity(deviceVaultGB(d))} — will be merged`
+                        : "No existing backup"
+                    }
                   />
                 ))}
-              </div>
             </div>
-          )}
-
-          {/* 1 — categories */}
-          {step === 1 && from && (
-            <div>
-              <h3 className="att-h4">What should we bring across?</h3>
-              <p className="att-small mt-1">
-                Leave anything out and it stays safe in the vault — you can pull it later.
-              </p>
-              <div className="mt-4 grid gap-2">
-                {CATS.map(({ key, label, Icon, perGb, hint }) => {
-                  const on = picked.includes(key);
-                  const gb = from.vault[key];
-                  return (
-                    <label
-                      key={key}
-                      className={`att-choice flex items-center gap-3 !p-4 ${on ? "att-choice-on" : ""}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={on}
-                        onChange={() => toggle(key)}
-                        className="att-checkbox shrink-0"
-                      />
-                      <Icon className="h-5 w-5 shrink-0 text-[#00388F]" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-bold">{label}</span>
-                        <span className="att-small block">
-                          {Math.round(gb * perGb).toLocaleString()} items · {hint}
-                        </span>
-                      </span>
-                      <span className="shrink-0 text-sm font-extrabold tabular-nums">
-                        {formatCapacity(gb)}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-              <div className="mt-4 flex items-center justify-between rounded-xl bg-[#F3F4F6] p-4 text-sm">
-                <span className="font-bold">Selected</span>
-                <span className="font-extrabold tabular-nums">
-                  {formatCapacity(selected.gb)} · {selected.items.toLocaleString()} items
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* 2 — destination */}
-          {step === 2 && (
-            <div>
-              <h3 className="att-h4">Restore onto which device?</h3>
-              <p className="att-small mt-1">
-                Anything already on the destination is kept — Smart Restore merges rather than
-                wipes.
-              </p>
-              <div className="mt-4 grid gap-2">
-                {member.devices
-                  .filter((d) => d.id !== fromId)
-                  .map((d) => (
-                    <DeviceRow
-                      key={d.id}
-                      d={d}
-                      selected={toId === d.id}
-                      onSelect={() => setToId(d.id)}
-                      meta={
-                        d.backedUp
-                          ? `Already holds ${formatCapacity(deviceVaultGB(d))} — will be merged`
-                          : "No existing backup"
-                      }
-                    />
-                  ))}
-              </div>
-            </div>
-          )}
-
-          {/* 3 — review */}
-          {step === 3 && from && to && (
-            <div>
-              <h3 className="att-h4">Ready to restore</h3>
-              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#DCDFE3] p-4">
-                <div className="min-w-0 flex-1">
-                  <p className="att-small">From</p>
-                  <p className="text-sm font-extrabold">{from.name}</p>
-                  <p className="att-small">{from.owner}</p>
-                </div>
-                <ArrowRight className="h-5 w-5 shrink-0 text-[#00388F]" />
-                <div className="min-w-0 flex-1">
-                  <p className="att-small">Onto</p>
-                  <p className="text-sm font-extrabold">{to.name}</p>
-                  <p className="att-small">{to.owner}</p>
-                </div>
-              </div>
-              <ul className="mt-4 divide-y divide-[#DCDFE3] rounded-xl border border-[#DCDFE3]">
-                {selected.rows.map((r) => {
-                  const c = CATS.find((x) => x.key === r.key)!;
-                  return (
-                    <li
-                      key={r.key}
-                      className="flex items-center justify-between px-4 py-2.5 text-sm"
-                    >
-                      <span className="flex items-center gap-2">
-                        <c.Icon className="h-4 w-4 text-[#00388F]" />
-                        {c.label}
-                        <span className="att-small">· {r.items.toLocaleString()}</span>
-                      </span>
-                      <span className="font-bold tabular-nums">{formatCapacity(r.gb)}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-              <div className="mt-4 flex items-center justify-between rounded-xl bg-[#E7F5FB] p-4 text-sm">
-                <span className="font-bold">
-                  {formatCapacity(selected.gb)} · {selected.items.toLocaleString()} items
-                </span>
-                <span className="font-extrabold">
-                  About {minutes} minute{minutes > 1 ? "s" : ""}
-                </span>
-              </div>
-              {selected.rows.length === 0 && (
-                <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FFF3E0] p-3 text-sm text-[#7A4A00]">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                  Nothing selected — go back and pick at least one category.
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* 4 — running / done */}
-          {step === 4 && from && to && (
-            <RunRestore
-              from={from}
-              to={to}
-              rows={selected.rows}
-              totalGb={selected.gb}
-              onDone={() => onRestore(from.id, to.id)}
-              onClose={onClose}
-            />
-          )}
-        </div>
-
-        {step < 4 && (
-          <div className="flex items-center justify-between gap-3 border-t border-[#DCDFE3] p-6">
-            <button
-              onClick={() => (step === 0 ? onClose() : setStep((n) => n - 1))}
-              className="btn-secondary att-btn-sm"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {step === 0 ? "Cancel" : "Back"}
-            </button>
-            <button
-              onClick={() => setStep((n) => n + 1)}
-              disabled={
-                (step === 0 && !fromId) ||
-                (step === 1 && picked.length === 0) ||
-                (step === 2 && !toId)
-              }
-              className="btn-primary att-btn-sm"
-            >
-              {step === 3 ? "Start restore" : "Continue"}
-              <ArrowRight className="h-4 w-4" />
-            </button>
           </div>
         )}
+
+        {/* 3 — review */}
+        {step === 3 && from && to && (
+          <div>
+            <h3 className="att-h4">Ready to restore</h3>
+            <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#DCDFE3] p-4">
+              <div className="min-w-0 flex-1">
+                <p className="att-small">From</p>
+                <p className="text-sm font-extrabold">{from.name}</p>
+                <p className="att-small">{from.owner}</p>
+              </div>
+              <ArrowRight className="h-5 w-5 shrink-0 text-[#00388F]" />
+              <div className="min-w-0 flex-1">
+                <p className="att-small">Onto</p>
+                <p className="text-sm font-extrabold">{to.name}</p>
+                <p className="att-small">{to.owner}</p>
+              </div>
+            </div>
+            <ul className="mt-4 divide-y divide-[#DCDFE3] rounded-xl border border-[#DCDFE3]">
+              {selected.rows.map((r) => {
+                const c = CATS.find((x) => x.key === r.key)!;
+                return (
+                  <li key={r.key} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                    <span className="flex items-center gap-2">
+                      <c.Icon className="h-4 w-4 text-[#00388F]" />
+                      {c.label}
+                      <span className="att-small">· {r.items.toLocaleString()}</span>
+                    </span>
+                    <span className="font-bold tabular-nums">{formatCapacity(r.gb)}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="mt-4 flex items-center justify-between rounded-xl bg-[#E7F5FB] p-4 text-sm">
+              <span className="font-bold">
+                {formatCapacity(selected.gb)} · {selected.items.toLocaleString()} items
+              </span>
+              <span className="font-extrabold">
+                About {minutes} minute{minutes > 1 ? "s" : ""}
+              </span>
+            </div>
+            {selected.rows.length === 0 && (
+              <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#FFF3E0] p-3 text-sm text-[#7A4A00]">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                Nothing selected — go back and pick at least one category.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* 4 — running / done */}
+        {step === 4 && from && to && (
+          <RunRestore
+            from={from}
+            to={to}
+            rows={selected.rows}
+            totalGb={selected.gb}
+            onDone={() => onRestore(from.id, to.id)}
+            onClose={onClose}
+          />
+        )}
       </div>
-    </div>
+
+      {step < 4 && (
+        <div className="flex items-center justify-between gap-3 border-t border-[#DCDFE3] p-6">
+          <button
+            onClick={() => (step === 0 ? onClose() : setStep((n) => n - 1))}
+            className="btn-secondary att-btn-sm"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {step === 0 ? "Cancel" : "Back"}
+          </button>
+          <button
+            onClick={() => setStep((n) => n + 1)}
+            disabled={
+              (step === 0 && !fromId) ||
+              (step === 1 && picked.length === 0) ||
+              (step === 2 && !toId)
+            }
+            className="btn-primary att-btn-sm"
+          >
+            {step === 3 ? "Start restore" : "Continue"}
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+    </Overlay>
   );
 }
 

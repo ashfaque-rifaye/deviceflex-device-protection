@@ -8,7 +8,8 @@ export { Checkbox, Radio, Switch, Select, Textarea, SearchField } from "./Contro
 export type { SwitchProps, SelectProps, TextareaProps, SearchFieldProps } from "./Controls";
 export { Alert, EmptyState, Progress, Skeleton, Spinner, StatusPill } from "./Feedback";
 export type { Tone } from "./Feedback";
-export { Modal, Drawer } from "./Modal";
+export { Modal, Drawer, Overlay } from "./Modal";
 export type { ModalProps } from "./Modal";
 export { Tabs, Accordion, AccordionItem } from "./Disclosure";
+export { Stepper } from "./Stepper";
 export type { TabItem } from "./Disclosure";

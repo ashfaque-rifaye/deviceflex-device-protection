@@ -10,7 +10,8 @@
     "preview": "wrangler dev --cwd .output/server",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "contrast": "node scripts/contrast-audit.mjs"
+    "contrast": "node scripts/contrast-audit.mjs",
+    "lint:tokens": "node scripts/lint-tokens.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

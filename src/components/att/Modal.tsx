@@ -28,6 +28,59 @@ function useOverlay(
   }, [open, onClose, panel]);
 }
 
+/**
+ * The overlay shell, without the standard header and footer.
+ *
+ * `<Modal>` is the right answer when a dialog is a title, some body and a row of
+ * actions. Four flows here are not that — the diagnostics run, the eligibility agent,
+ * the plan change and Smart Restore each drive their own staged interior with a
+ * progress head. They were re-implementing the scrim, the escape key and the scroll
+ * lock to get it, which is three chances each to drift and, in practice, four dialogs
+ * that did not all close on Escape.
+ *
+ * This gives them the shell and leaves the interior alone.
+ */
+export function Overlay({
+  open,
+  onClose,
+  children,
+  labelledBy,
+  label,
+  className,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: ReactNode;
+  labelledBy?: string;
+  label?: string;
+  className?: string;
+}) {
+  const panel = useRef<HTMLDivElement>(null);
+  useOverlay(open, onClose, panel);
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[70] grid place-items-center overflow-y-auto bg-black/50 p-4"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        ref={panel}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={labelledBy}
+        aria-label={label}
+        className={cn("my-8 w-full rounded-2xl bg-white shadow-2xl outline-none", className)}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export type ModalProps = {
   open: boolean;
   onClose: () => void;

@@ -58,7 +58,7 @@ export function ProtectionScore({
   const score = computeProtectionScore(member);
   const band = scoreBand(score);
   // Addition ② — the same posture the fraud gate and enrolment read.
-  const posture = protectionPosture(score);
+  const posture = protectionPosture(score, member.devices);
   const nudges = runProactiveScan(member).slice(0, limit);
   const [diagFor, setDiagFor] = useState<MemberDevice | null>(null);
 
@@ -111,6 +111,15 @@ export function ProtectionScore({
             {nudges.length === 0
               ? "Nothing needs your attention — everything's covered, backed up and healthy."
               : "Protection that works every month, not only when something breaks."}
+          </p>
+          {/*
+            ADDITION 2 on the surface. The score is a thermostat, not a thermometer —
+            it sets the thresholds the engine reads next time. That was only visible
+            behind the info tip, so the strongest claim in the set was the easiest to
+            miss.
+          */}
+          <p className="att-small mt-2 max-w-md font-bold text-[var(--color-att-link)]">
+            {posture.memberSummary}
           </p>
         </div>
         {focus && (

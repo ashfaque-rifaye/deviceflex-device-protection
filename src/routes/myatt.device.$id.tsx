@@ -20,6 +20,7 @@ import {
   Lock,
   Tag,
   BadgeCheck,
+  Signal,
   Check,
   Loader2,
   PackageCheck,
@@ -33,6 +34,7 @@ import { RequireAuth, useAuth } from "@/lib/auth";
 import { DeductibleCard } from "@/components/deviceflex/DeductibleCard";
 import { getTier } from "@/data/deviceflex";
 import { verifyAttestation, shortSignature } from "@/lib/attestation";
+import { telemetryFor } from "@/data/network-signals";
 import { preStage, findStores, PRESTAGE_THRESHOLD } from "@/lib/ai";
 import type { Member, MemberDevice } from "@/data/member";
 
@@ -423,8 +425,71 @@ function TabInfo({ d, member }: { d: MemberDevice; member: Member }) {
         />
       </dl>
 
+      <NetworkStatusRow device={d} />
       <AttestationRecord device={d} member={member} />
     </div>
+  );
+}
+
+/**
+ * MECHANISM 1, on the surface.
+ *
+ * The corroboration payoff was only visible inside the fraud dialog, three steps into a
+ * claim. This is the same telemetry stated plainly on the device page, because it is the
+ * one fact on this screen that Asurion and Apple physically cannot show: they administer
+ * protection without running a network.
+ *
+ * Nothing here is a verdict — it is what the network observed. The verdict is the
+ * engine's job and stays in the claim flow.
+ */
+function NetworkStatusRow({ device }: { device: MemberDevice }) {
+  const t = telemetryFor(device.id);
+  if (!t) return null;
+  const live = t.disconnectPattern === "none" || t.activitySinceLastSeen;
+  // The SIM or IMEI turning up elsewhere is the strongest single signal here, and it
+  // points the opposite way from "reachable" — worth saying plainly rather than folding
+  // into a liveness summary.
+  const moved =
+    t.simStatus === "swapped-to-other-handset" || t.imeiStatus === "seen-with-other-sim";
+  const lastSeen =
+    t.lastSeenHoursAgo < 1
+      ? `${Math.round(t.lastSeenHoursAgo * 60)} min ago`
+      : `${t.lastSeenHoursAgo.toFixed(1)} hrs ago`;
+
+  return (
+    <section className="mt-6 rounded-xl border border-[var(--color-att-border)] p-4">
+      <p className="att-eyebrow flex items-center gap-1.5">
+        <span className="grid h-5 w-5 place-items-center rounded-full bg-[var(--color-att-pale-2)]">
+          <Signal className="h-3 w-3 text-[var(--color-att-link)]" />
+        </span>
+        AT&amp;T network — only we can see this
+      </p>
+      <dl className="mt-3 grid gap-x-8 gap-y-2 text-[13px] sm:grid-cols-2">
+        <Row k="Last seen on network" v={`${lastSeen} · cell site ${t.cellSite}`} />
+        <Row k="Area" v={t.cellSiteArea} />
+        <Row
+          k="Signal ended"
+          v={
+            t.disconnectPattern === "abrupt"
+              ? "Abruptly, mid-session"
+              : t.disconnectPattern === "graceful"
+                ? "Powered down cleanly"
+                : "Still on the network"
+          }
+        />
+        <Row
+          k="SIM & IMEI"
+          v={`${t.simStatus === "active" ? "SIM active" : t.simStatus === "inactive" ? "SIM inactive" : "SIM in another handset"} · ${t.imeiStatus === "on-network" ? "IMEI on-network" : t.imeiStatus === "silent" ? "IMEI silent" : "IMEI seen with another SIM"}`}
+        />
+      </dl>
+      <p className="att-small mt-3">
+        {moved
+          ? "This handset's SIM is now active in a different device. On a loss or theft claim that contradicts the report, and the blocklist submission is withheld rather than actioned."
+          : live
+            ? "This device is reachable right now. If it were reported lost, the network would say so."
+            : "The network has not seen this device recently — which is what corroborates a loss or theft report."}
+      </p>
+    </section>
   );
 }
 

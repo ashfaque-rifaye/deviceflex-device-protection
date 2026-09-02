@@ -13,6 +13,7 @@ import {
   ArrowRight,
   PhoneOff,
   Stethoscope,
+  FileText,
   CloudCheck,
   CloudOff,
   Info,
@@ -66,6 +67,10 @@ import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
 import { AdvisorPanel } from "@/components/deviceflex/AdvisorPanel";
 import { DiagnosticsModal } from "@/components/deviceflex/DiagnosticsModal";
 import { Field } from "@/components/att/Field";
+import { Button } from "@/components/att/Button";
+import { StatusPill } from "@/components/att/Feedback";
+import { Card } from "@/components/att/Layout";
+import { Stepper } from "@/components/att/Stepper";
 import { deductibleFor, ASURION } from "@/data/deductibles";
 import {
   buildClaimPayload,
@@ -347,34 +352,20 @@ function Flow() {
       <h1 className="mt-3 text-3xl font-extrabold md:text-4xl">File a claim</h1>
 
       {!done && (
-        <ol className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs font-bold">
-          {STEPS.map((s, i) => (
-            <li
-              key={s}
-              className={`flex items-center gap-2 ${i === step ? "text-[#0072B2]" : i < step ? "text-[#1F7A3D]" : "text-[#878C94]"}`}
-            >
-              <span
-                className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${
-                  i === step
-                    ? "bg-[#00388F] text-white"
-                    : i < step
-                      ? "bg-[#1F7A3D] text-white"
-                      : "bg-[#DCDFE3] text-[#686E74]"
-                }`}
-              >
-                {i < step ? <Check className="h-3 w-3" /> : i + 1}
-              </span>
-              {s}
-            </li>
-          ))}
-        </ol>
+        <Stepper
+          steps={STEPS}
+          current={step}
+          leading={<FileText className="h-4 w-4" />}
+          label="Claim progress"
+          className="mt-6"
+        />
       )}
 
       <div className="mt-6 rounded-2xl border border-[#DCDFE3] bg-white p-6 sm:p-8">
         {/* ── Step 0 — what happened ───────────────────────────────── */}
         {!done && step === 0 && (
           <div>
-            <h2 className="text-xl font-extrabold">What happened?</h2>
+            <h2 className="att-h3">What happened?</h2>
             <p className="mt-1 text-sm text-[#686E74]">
               Your plan covers damage, loss, theft and out-of-warranty malfunction.
             </p>
@@ -413,16 +404,17 @@ function Flow() {
                         <p className="text-sm text-[#1D2329]">{g.followUp.prompt}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {g.followUp.options.map((o) => (
-                            <button
+                            <Button
                               key={o.id}
+                              variant="secondary"
+                              size="sm"
                               onClick={() => {
                                 setReason(o.id);
                                 setStep(1);
                               }}
-                              className="rounded-full border border-[#00388F] bg-white px-4 py-2 text-sm font-bold text-[#00388F] hover:bg-[#00388F] hover:text-white"
                             >
                               {o.label}
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       </div>
@@ -437,7 +429,7 @@ function Flow() {
         {/* ── Step 1 — device ──────────────────────────────────────── */}
         {!done && step === 1 && (
           <div>
-            <h2 className="text-xl font-extrabold">Which device?</h2>
+            <h2 className="att-h3">Which device?</h2>
             <p className="mt-1 text-sm text-[#686E74]">
               Only devices covered by your plan are listed.
             </p>
@@ -470,7 +462,7 @@ function Flow() {
         {/* ── Step 2a — photos ─────────────────────────────────────── */}
         {!done && step === 2 && cfg?.needsPhotos && (
           <div>
-            <h2 className="text-xl font-extrabold">Show us the damage</h2>
+            <h2 className="att-h3">Show us the damage</h2>
             <p className="mt-1 text-sm text-[#686E74]">
               Add 3 photos of your {device.name}. DeviceFlex AI reviews them instantly — no forms.
             </p>
@@ -536,7 +528,7 @@ function Flow() {
         {/* ── Step 2b — incident details + verification (loss / theft) ─ */}
         {!done && step === 2 && cfg?.needsIdVerify && (
           <div>
-            <h2 className="text-xl font-extrabold">
+            <h2 className="att-h3">
               {reason === "theft" ? "Report your stolen device" : "Report your lost device"}
             </h2>
             <p className="mt-1 text-sm text-[#686E74]">
@@ -780,29 +772,23 @@ function Flow() {
                 */}
                 <div className="flex flex-wrap items-center gap-2">
                   {damage.source === "model" ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EAF7EE] px-3 py-1 text-xs font-bold text-[#1F7A3D]">
-                      <Sparkle className="h-3.5 w-3.5" />
+                    <StatusPill tone="success" icon={<Sparkle className="h-3.5 w-3.5" />}>
                       Vision model · {Math.round(damage.confidence * 100)}% confidence
-                    </span>
+                    </StatusPill>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F4F6] px-3 py-1 text-xs font-bold text-[#454B52]">
-                      <Stethoscope className="h-3.5 w-3.5" />
+                    <StatusPill tone="neutral" icon={<Stethoscope className="h-3.5 w-3.5" />}>
                       On-device assessment · {Math.round(damage.confidence * 100)}% confidence
-                    </span>
+                    </StatusPill>
                   )}
-                  <span className="rounded-full bg-[#FFF3E0] px-3 py-1 text-xs font-bold text-[#9E5D00]">
-                    {damage.severity} damage
-                  </span>
+                  <StatusPill tone="warning">{damage.severity} damage</StatusPill>
                   {damage.beyondEconomicalRepair && (
-                    <span className="rounded-full bg-[#FDE9EE] px-3 py-1 text-xs font-bold text-[#C70032]">
-                      Beyond economical repair
-                    </span>
+                    <StatusPill tone="danger">Beyond economical repair</StatusPill>
                   )}
                 </div>
-                <h2 className="mt-4 text-xl font-extrabold">Here's what we found</h2>
+                <h2 className="att-h3 mt-4">Here's what we found</h2>
                 <p className="mt-2 text-sm text-[#686E74]">{damage.summary}</p>
                 {damage.source !== "model" && (
-                  <p className="mt-2 flex items-start gap-1.5 text-xs text-[#686E74]">
+                  <p className="att-note mt-3 flex items-start gap-1.5 py-3 text-xs text-[var(--color-att-ink-3)]">
                     <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0072B2]" />
                     <span>
                       {damage.fallbackReason
@@ -861,16 +847,16 @@ function Flow() {
                             setStoreId(null);
                             setSlot(null);
                           }}
-                          className="mt-1 h-5 w-5 shrink-0 accent-[#0057B8]"
+                          className="att-radio mt-1 shrink-0"
                         />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
                             <p className="font-extrabold">
                               {o.title}
                               {o.recommended && (
-                                <span className="ml-2 whitespace-nowrap rounded-full bg-[#00388F] px-2 py-0.5 text-[10px] font-bold text-white">
+                                <StatusPill tone="info" className="ml-2 whitespace-nowrap">
                                   Recommended
-                                </span>
+                                </StatusPill>
                               )}
                             </p>
                             <p className="shrink-0 text-right">
@@ -906,10 +892,13 @@ function Flow() {
                           </dl>
 
                           {o.newNotRefurbished && (
-                            <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-[#EAF7EE] px-2.5 py-0.5 text-[11px] font-bold text-[#1F7A3D]">
-                              <BadgeCheck className="h-3.5 w-3.5" /> New, not refurbished —
-                              guaranteed
-                            </p>
+                            <StatusPill
+                              tone="success"
+                              icon={<BadgeCheck className="h-3.5 w-3.5" />}
+                              className="mt-2"
+                            >
+                              New, not refurbished — guaranteed
+                            </StatusPill>
                           )}
                         </div>
                       </div>
@@ -920,7 +909,7 @@ function Flow() {
             </fieldset>
 
             {!options.some((o) => o.id === "upgrade") && (
-              <p className="mt-4 flex items-start gap-2 rounded-xl bg-[#F3F4F6] p-3 text-xs text-[#686E74]">
+              <p className="att-note mt-4 flex items-start gap-2 py-3 text-xs text-[var(--color-att-ink-3)]">
                 <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />
                 <span>
                   Upgrading instead of replacing is offered when a device can&rsquo;t be
@@ -950,7 +939,7 @@ function Flow() {
         {/* ── Step 4 — confirm, with real store routing ────────────── */}
         {!done && step === 4 && option && (!needsReplacement || replacement) && (
           <div>
-            <h2 className="text-xl font-extrabold">Confirm your {option.title.toLowerCase()}</h2>
+            <h2 className="att-h3">Confirm your {option.title.toLowerCase()}</h2>
 
             {replacement && (
               <div className="mt-3 flex items-center gap-3 rounded-xl border border-[#DCDFE3] bg-[#F2FAFD] p-3">
@@ -1070,7 +1059,7 @@ function Flow() {
               </div>
             )}
 
-            <div className="mt-5 rounded-xl border border-[#DCDFE3] bg-[#F3F4F6] p-4 text-sm">
+            <Card className="mt-5 text-sm">
               <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#686E74]">
                 <Receipt className="h-3.5 w-3.5" /> What you'll pay
               </p>
@@ -1081,7 +1070,7 @@ function Flow() {
                     : option.feeKind === "replacement"
                       ? `Replacement deductible · Tier ${feeDetail.tier}`
                       : option.feeKind === "upgrade"
-                        ? "Upgrade — no claim deductible"
+                        ? `Upgrade deductible · Tier ${feeDetail.tier}`
                         : "Service fee"}
                 </span>
                 <span className="text-2xl font-extrabold tabular-nums">{option.price}</span>
@@ -1105,7 +1094,7 @@ function Flow() {
                       : "Smart Restore on arrival"}
                 </span>
               </div>
-            </div>
+            </Card>
 
             <Nav
               onBack={back}

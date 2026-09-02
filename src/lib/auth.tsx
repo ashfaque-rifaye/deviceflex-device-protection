@@ -29,10 +29,23 @@ import {
   type Claim,
   type TierId,
 } from "@/data/member";
-import { computeProtectionScore } from "@/lib/ai";
+import {
+  computeProtectionScore,
+  protectionPosture,
+  postureDecision,
+  preStageDecision,
+  healthDecayIndex,
+  findStores,
+} from "@/lib/ai";
 import { reconcileManifest, rebindManifest } from "@/lib/manifest";
-import { appendTrace, type DecisionTrace } from "@/lib/ledger";
-import { verifyAttestation, attestFromReport, type ConditionAttestation } from "@/lib/attestation";
+import { appendTrace, decide, type DecisionTrace } from "@/lib/ledger";
+import {
+  verifyAttestation,
+  admissibleForEnrolment,
+  attestationGateDecision,
+  attestFromReport,
+  type ConditionAttestation,
+} from "@/lib/attestation";
 import { runDiagnostics } from "@/lib/diagnostics";
 
 const SESSION_KEY = "att_pa_session"; // which demo account is signed in
@@ -131,6 +144,33 @@ function reconcile(m: Member): Member {
     if (!d.protected || m.attestations[d.id]) continue;
     m.attestations[d.id] = attestFromReport(d, runDiagnostics(d));
   }
+
+  // MECHANISM 3 — record the posture and the pre-staging call, not just the claim-time
+  // decisions. "Every consequential decision is replayable" was only true of the two
+  // that ran inside the claim flow; the posture sets the thresholds the gate reads and
+  // pre-staging moves physical stock, so both belong in the ledger too. Trace ids are
+  // content-derived and `appendTrace` de-duplicates, so a reconcile that changes nothing
+  // adds nothing.
+  const posture = decide(
+    "protectionPosture",
+    postureDecision,
+    { score: m.protectionScore, devices: m.devices },
+    `Protection posture at score ${m.protectionScore}`,
+  );
+  m.ledger = appendTrace(m.ledger, posture.trace);
+
+  if (posture.value.preStageArmed) {
+    const worst = [...m.devices].sort((a, b) => healthDecayIndex(a) - healthDecayIndex(b))[0];
+    if (worst) {
+      const staging = decide(
+        "preStage",
+        preStageDecision,
+        { device: worst, stores: findStores(worst, "swap") },
+        `Pre-staging decision for ${worst.name}`,
+      );
+      m.ledger = appendTrace(m.ledger, staging.trace);
+    }
+  }
   return m;
 }
 
@@ -228,7 +268,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // A device without a valid, recent, signed condition attestation is not enrolled
       // even if the caller asks for it. Putting the check in the reducer means no screen
       // can route around it, which is the difference between a control and a suggestion.
-      const attested = deviceIds.filter((id) => verifyAttestation(m.attestations?.[id]).valid);
+      //
+      // ADDITION 2 — the gate reads the posture the score produced, so the loop is
+      // closed on behaviour rather than on a displayed line. Below the inspection
+      // threshold the admissible window narrows from 30 days to 7.
+      const { requiresInspection } = protectionPosture(m.protectionScore, m.devices);
+      const now = new Date().toISOString();
+      const attested = deviceIds.filter((id) => {
+        const gate = decide(
+          "attestationGate",
+          attestationGateDecision,
+          { attestation: m.attestations?.[id], requiresInspection, now },
+          `Enrolment gate for ${m.devices.find((d) => d.id === id)?.name ?? id}`,
+        );
+        m.ledger = appendTrace(m.ledger ?? [], gate.trace);
+        return gate.value.admissible;
+      });
       if (!attested.length) return;
       const covered = attested.slice(0, cap);
       m.tier = tierId;
@@ -409,8 +464,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     mutate((m) => {
       if (!m.tier) return;
       if (m.devices.filter((d) => d.protected).length >= TIER_POOL[m.tier]) return;
-      // Adding a device to the pool is an enrolment, so it passes the same gate.
-      if (!verifyAttestation(m.attestations?.[deviceId]).valid) return;
+      // Adding a device to the pool is an enrolment, so it passes the same gate —
+      // including the posture-derived freshness window.
+      const { requiresInspection } = protectionPosture(m.protectionScore, m.devices);
+      if (!admissibleForEnrolment(m.attestations?.[deviceId], requiresInspection).admissible)
+        return;
       const d = m.devices.find((x) => x.id === deviceId);
       if (!d) return;
       d.protected = true;

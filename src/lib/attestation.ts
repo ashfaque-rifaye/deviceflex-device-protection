@@ -170,6 +170,55 @@ export function verifyAttestation(
   };
 }
 
+/**
+ * Days an attestation may be old when the household's posture demands a fresh look.
+ * The standard window is ATTESTATION_VALID_DAYS; this is the stricter one.
+ */
+export const ATTESTATION_STRICT_DAYS = 7;
+
+/**
+ * ADDITION 2, closing the loop for real.
+ *
+ * `protectionPosture()` computes `requiresInspection`, and until now nothing read it —
+ * enrolment demanded the same attestation whatever the score, so the control loop was a
+ * readout rather than a control. This is the single place both enrolment paths ask
+ * "is this device admissible?", and it takes the posture flag as an argument, so a
+ * low-scoring household genuinely gets the stricter path.
+ *
+ * Kept as a pure function over (attestation, flag, now) so it can be replayed like any
+ * other decision.
+ */
+export function admissibleForEnrolment(
+  att: ConditionAttestation | undefined,
+  requiresInspection: boolean,
+  now = new Date(),
+): AttestationVerdict & { admissible: boolean; window: number } {
+  const verdict = verifyAttestation(att, now);
+  const window = requiresInspection ? ATTESTATION_STRICT_DAYS : ATTESTATION_VALID_DAYS;
+  const withinWindow = verdict.ageDays === null ? false : verdict.ageDays <= window;
+  const admissible = verdict.valid && withinWindow;
+  if (verdict.valid && !withinWindow) {
+    return {
+      ...verdict,
+      admissible: false,
+      window,
+      reason: "expired",
+      headline: "A fresher inspection is needed",
+      detail: `This account's protection score puts it on the stricter path, so enrolment needs an attestation from the last ${window} days. This one is ${verdict.ageDays} days old.`,
+    };
+  }
+  return { ...verdict, admissible, window };
+}
+
+/** Single-input wrapper so the enrolment gate can be recorded and replayed. */
+export function attestationGateDecision(input: {
+  attestation: ConditionAttestation | undefined;
+  requiresInspection: boolean;
+  now: string;
+}) {
+  return admissibleForEnrolment(input.attestation, input.requiresInspection, new Date(input.now));
+}
+
 /** Short signature form for the UI — enough to compare by eye, not the whole digest. */
 export const shortSignature = (att: ConditionAttestation) =>
   `${att.signature.slice(0, 4)}…${att.signature.slice(-4)}`.toUpperCase();

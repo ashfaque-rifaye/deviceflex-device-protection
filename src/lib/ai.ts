@@ -676,16 +676,37 @@ export type Posture = {
    * lists always describe the same underlying state.
    */
   memberEffects: Array<{ title: string; detail: string; good: boolean }>;
+  /**
+   * The loop in one line, for the member.
+   *
+   * The three edges above live behind an info tip, which means the single most
+   * differentiating property of the system — the score is a thermostat, not a
+   * thermometer — is invisible unless you go looking. This is the surface version.
+   */
+  memberSummary: string;
 };
 
 export const POSTURE_ELEVATED_BELOW = 60;
 export const POSTURE_INSPECTION_BELOW = 45;
-export const PRESTAGE_ARM_BELOW = 70;
 
-export function protectionPosture(score: number): Posture {
+/**
+ * Posture over the account.
+ *
+ * `devices` is optional only so a caller holding nothing but a score still gets the
+ * fraud and inspection edges. Pre-staging is the one edge that cannot be answered from
+ * a score: it is a per-device physical decision, and it reads `healthDecayIndex`
+ * against `PRESTAGE_THRESHOLD` — the same number `preStage()` uses.
+ *
+ * There used to be a second constant here, PRESTAGE_ARM_BELOW = 70, applied to the
+ * score. It could disagree with `preStage()`: posture said "armed" while the staging
+ * function said "no action", for the same household on the same render. One threshold,
+ * one deterministic story.
+ */
+export function protectionPosture(score: number, devices?: MemberDevice[]): Posture {
   const elevated = score < POSTURE_ELEVATED_BELOW;
   const requiresInspection = score < POSTURE_INSPECTION_BELOW;
-  const preStageArmed = score < PRESTAGE_ARM_BELOW;
+  const worstIndex = devices?.length ? Math.min(...devices.map(healthDecayIndex)) : null;
+  const preStageArmed = worstIndex !== null && worstIndex < PRESTAGE_THRESHOLD;
   const effects: string[] = [];
 
   effects.push(
@@ -743,8 +764,16 @@ export function protectionPosture(score: number): Posture {
         },
   ];
 
+  const memberSummary = [
+    `Protection Score ${score}`,
+    elevated ? "a claim may take one extra step" : "claims approve without extra checks",
+    requiresInspection ? "new devices need a condition check" : "devices can be added right away",
+    preStageArmed ? "a spare is staged nearby" : "nothing is close to failing",
+  ].join(" → ");
+
   return {
     score,
+    memberSummary,
     band: scoreBand(score).label,
     fraudSensitivity: elevated ? "elevated" : "standard",
     velocityThreshold: elevated ? 2 : 4,
@@ -836,6 +865,24 @@ export function preStage(device: MemberDevice, stores: StoreMatch[]): PreStaging
       : `Health index ${index} crossed the ${PRESTAGE_THRESHOLD} threshold. No store within range holds a ${device.name} today, so one has been requested from the regional depot.`,
     daysSaved: node ? 3 : 1,
   };
+}
+
+/**
+ * Single-input wrappers, so these decisions can go through `decide()`.
+ *
+ * `decide()` records one canonical input and re-executes from it, so a function taking
+ * two positional arguments cannot be replayed from its own trace. These take one object
+ * and stay pure.
+ */
+export function postureDecision(input: { score: number; devices: MemberDevice[] }): Posture {
+  return protectionPosture(input.score, input.devices);
+}
+
+export function preStageDecision(input: {
+  device: MemberDevice;
+  stores: StoreMatch[];
+}): PreStaging {
+  return preStage(input.device, input.stores);
 }
 
 export function healthDecayIndex(d: MemberDevice): number {
@@ -1096,7 +1143,7 @@ export function fraudCheck(
   const inWindow = withinFilingWindow(incident?.date);
   // Addition ② — the closed loop. How tolerant this gate is comes from the account's
   // own Protection Score rather than a fixed constant.
-  const posture = protectionPosture(m.protectionScore);
+  const posture = protectionPosture(m.protectionScore, m.devices);
 
   const signals: FraudSignal[] = [
     {
