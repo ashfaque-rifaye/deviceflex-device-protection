@@ -78,7 +78,7 @@ function ImpactPage() {
           {[
             ["18% → 70%", "Online vs retail attach — the wedge"],
             ["~40% → 55–65%", "Protection attach: today → target"],
-            ["$25 → $40", "ARPU uplift (Basic → Family)"],
+            ["$25 → $50", "ARPU uplift (Basic → Family)"],
             ["$1B+", "Incremental opportunity"],
           ].map(([big, sub]) => (
             <div

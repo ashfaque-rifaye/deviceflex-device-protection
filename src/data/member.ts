@@ -205,7 +205,7 @@ export const vaultGrowthPerDevice = (tier?: TierId) => (tier ? VAULT_PER_DEVICE_
 export const TIER_POOL: Record<TierId, number> = { basic: 1, plus: 1, family: 5 };
 /** Free annual accessory credits per tier. */
 export const TIER_CREDITS: Record<TierId, number> = { basic: 0, plus: 1, family: 2 };
-export const TIER_PRICE: Record<TierId, number> = { basic: 15, plus: 25, family: 40 };
+export const TIER_PRICE: Record<TierId, number> = { basic: 15, plus: 25, family: 50 };
 
 // ── Account 1 — ENROLLED (Protect Advantage Family) ───────────────────────────
 export const MEMBER_ENROLLED: Member = {
@@ -218,7 +218,7 @@ export const MEMBER_ENROLLED: Member = {
   memberSince: "2023",
   enrolled: true,
   tier: "family",
-  tierPrice: 40,
+  tierPrice: 50,
   balance: "$0.00",
   protectionScore: 82,
   devices: [

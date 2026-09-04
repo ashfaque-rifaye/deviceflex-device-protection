@@ -21,7 +21,7 @@ function FamilyPage() {
         <AccountNav active="Account" />
         <RequirePlan
           title="The family pool comes with Protect Advantage"
-          blurb="Family covers up to 5 devices under one $40/mo. membership — a shared vault, shared perks, and parental controls on kids' devices."
+          blurb="Family covers up to 5 devices under one $50/mo. membership — a shared vault, shared perks, and parental controls on kids' devices."
         >
           <Family />
         </RequirePlan>

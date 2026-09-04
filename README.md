@@ -162,12 +162,14 @@ Device protection is a mature, commoditised category. Verizon, T-Mobile and AT&T
 
 ### Three tiers, one membership
 
-| Capability                 | Basic · $15/mo                                                  | Plus · $25/mo | Family · $40/mo |
+| Capability                 | Basic · $15/mo                                                  | Plus · $25/mo | Family · $50/mo |
 | -------------------------- | --------------------------------------------------------------- | ------------- | --------------- |
 | Devices covered            | 1                                                               | 1             | Up to 5         |
 | Screen & back-glass repair | $0, unlimited                                                   | $0, unlimited | $0, unlimited   |
 | Replacement deductible     | Asurion tier schedule — $25 / $100 / $225 / $275 by device tier |               |                 |
 | Home screen repair         | —                                                               | Included      | Included        |
+| ProTech expert support     | —                                                               | 24/7          | 24/7            |
+| Battery replacement        | —                                                               | Unlimited     | Unlimited       |
 | Data Vault                 | 50 GB                                                           | 500 GB        | 1 TB shared     |
 | Annual accessory perk      | —                                                               | 1 free        | 2 free          |
 | "New, not refurbished"     | —                                                               | Yes           | Yes             |
@@ -439,7 +441,7 @@ The shell is a faithful att.com replica, because a prototype that looks like a m
 | Lever             | Today    | With DeviceFlex | Mechanism                                                                       |
 | ----------------- | -------- | --------------- | ------------------------------------------------------------------------------- |
 | Protection attach | ~40%     | 55–65%          | Close the 18%-online / 70%-retail gap by answering the deductible question      |
-| ARPU (protection) | $25      | up to $40       | Tier ladder; Family raises revenue per _account_ faster than per device         |
+| ARPU (protection) | $25      | up to $50       | Tier ladder; Family raises revenue per _account_ faster than per device         |
 | Revenue streams   | 1        | 7+              | Tiers, home-repair add-on, accessory upsell, enterprise/fleet, trade-in capture |
 | Replacement time  | 1–3 days | ~15 min         | Pre-staging plus line-anchored provisioning                                     |
 | Feature churn     | ~1.26%   | lower           | Family pool and shared vault create household switching costs                   |

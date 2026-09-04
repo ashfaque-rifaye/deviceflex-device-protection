@@ -23,8 +23,6 @@ export const TIERS: Tier[] = [
     highlights: [
       "Unlimited claims — damage, loss, theft & out-of-warranty malfunction",
       "$0 screen & back-glass repair, unlimited",
-      "Unlimited battery replacement",
-      "ProTech expert support, 24/7",
       "Same-day replacement & setup",
       "50 GB Data Vault",
     ],
@@ -35,10 +33,12 @@ export const TIERS: Tier[] = [
     price: 25,
     devices: "1 device",
     ribbon: "Most popular",
-    blurb: "Everything in Basic, plus repair that comes to you and a bigger vault.",
+    blurb: "Everything in Basic, plus repair that comes to you, expert support and a bigger vault.",
     highlights: [
       "Everything in Basic",
       "Home screen repair — a technician comes to you",
+      "ProTech expert support, 24/7",
+      "Unlimited battery replacement",
       "ActiveArmor® Advanced security & identity monitoring",
       "500 GB Data Vault",
       "1 FREE annual accessory",
@@ -49,7 +49,7 @@ export const TIERS: Tier[] = [
   {
     id: "family",
     name: "Family",
-    price: 40,
+    price: 50,
     devices: "Up to 5 devices",
     ribbon: "Best value",
     blurb: "One membership for the whole household — up to 5 devices, one shared vault.",
@@ -223,7 +223,7 @@ export const KPIS = [
   {
     label: "ARPU (protection)",
     today: "$25",
-    future: "up to $40",
+    future: "up to $50",
     note: "Tier ladder: Basic → Plus → Family",
     dir: "up" as const,
   },

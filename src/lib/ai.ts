@@ -1522,7 +1522,7 @@ export function assistantReply(input: string, ctx: ChatContext): ChatMessage {
       role: "agent",
       text: enrolled
         ? `Your deductible depends on the device and the type of claim — I show you the exact amount before you confirm anything, so there is nothing to discover later. You're on ${tierName} at $${m?.tierPrice}/mo., which covers ${poolStatus(m!).capacity} device${poolStatus(m!).capacity > 1 ? "s" : ""}, ${m?.perks.accessoryTotal} free annual accessor${m?.perks.accessoryTotal === 1 ? "y" : "ies"} and a ${formatCapacity(m!.vault.totalGB)} vault.`
-        : "Protect Advantage runs $15/mo. for one device, $25 with home repair and the accessory perk, or $40 for up to five devices. Any claim deductible is shown upfront before you commit.",
+        : "Protect Advantage runs $15/mo. for one device, $25 with home repair and the accessory perk, or $50 for up to five devices. Any claim deductible is shown upfront before you commit.",
       actions: enrolled
         ? [{ label: "See my plan", to: "/myatt/protection" }]
         : [{ label: "Compare tiers", to: "/deviceflex" }],
@@ -1576,7 +1576,7 @@ export function assistantReply(input: string, ctx: ChatContext): ChatMessage {
     }
     return {
       role: "agent",
-      text: "The Family tier covers up to five devices under one $40/mo. subscription — phones, tablets and kids' devices, with a shared vault and parental controls.",
+      text: "The Family tier covers up to five devices under one $50/mo. subscription — phones, tablets and kids' devices, with a shared vault and parental controls.",
       actions: [{ label: "Compare tiers", to: "/deviceflex" }],
     };
   }
