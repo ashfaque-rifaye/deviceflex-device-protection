@@ -28,7 +28,7 @@ export const Route = createFileRoute("/buy/addons")({ component: AddonsPage });
 const BENEFITS = [
   "Same-day replacement, with your cost confirmed upfront",
   "$0 screen & back-glass repair, unlimited",
-  "AI Damage Assessment — 3 photos, auto-booked",
+  "AI Damage Assessment — photos or a video, auto-booked",
   "Smart Restore — your data back in under 2 minutes",
   "Family pool, shared Data Vault & annual accessory perk",
 ];

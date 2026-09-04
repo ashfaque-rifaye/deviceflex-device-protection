@@ -26,6 +26,7 @@ import {
   Receipt,
   Building2,
   CalendarDays,
+  Video,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { GlobalWidgets } from "@/components/site/GlobalWidgets";
@@ -79,7 +80,20 @@ import {
   type IncidentDetails,
   type AsurionAck,
 } from "@/lib/asurion";
-import { toDataUrl } from "@/lib/image";
+import { toDataUrl, framesFromVideo } from "@/lib/image";
+
+/**
+ * One still bound for the vision model, and where it came from — a member who
+ * filmed the damage should see that the frames on screen are what gets read.
+ */
+type Shot = { url: string; from: "photo" | "video" };
+
+/** Enough angles for the model to judge severity rather than guess it. */
+const MIN_SHOTS = 3;
+/** Downscaled stills run ~100 KB, so six stays well inside the request ceiling. */
+const MAX_SHOTS = 6;
+/** Frames sampled from a single clip. Three angles, one continuous shot. */
+const VIDEO_FRAMES = 3;
 
 export const Route = createFileRoute("/myatt/claims/new")({
   validateSearch: (s: Record<string, unknown>) => ({ device: (s.device as string) || "" }),
@@ -129,7 +143,9 @@ function Flow() {
   const [device, setDevice] = useState<MemberDevice>(
     covered.find((d) => d.id === preselect) ?? covered[0],
   );
-  const [photos, setPhotos] = useState<(string | null)[]>([null, null, null]);
+  const [photos, setPhotos] = useState<Shot[]>([]);
+  const [reading, setReading] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [damage, setDamage] = useState<AssessResponse | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -152,15 +168,57 @@ function Flow() {
 
   const cfg = CLAIM_REASONS.find((r) => r.id === reason);
   const incidentAge = daysSince(incident.date);
-  const filled = photos.filter(Boolean).length;
+  const filled = photos.length;
   const back = () => setStep((s) => Math.max(0, s - 1));
+
+  /**
+   * Take everything the member picked in one pass — any mix of stills and clips —
+   * and stop at MAX_SHOTS rather than silently dropping the tail.
+   */
+  const addFiles = async (picked: FileList | File[]) => {
+    const files = Array.from(picked);
+    if (!files.length || reading) return;
+    setReading(true);
+    setPhotoError(null);
+
+    const added: Shot[] = [];
+    let failed = 0;
+    let room = MAX_SHOTS - photos.length;
+
+    for (const file of files) {
+      if (room <= 0) break;
+      try {
+        if (file.type.startsWith("video/")) {
+          const frames = await framesFromVideo(file, Math.min(VIDEO_FRAMES, room));
+          frames.forEach((url) => added.push({ url, from: "video" }));
+          room -= frames.length;
+        } else {
+          added.push({ url: await toDataUrl(file), from: "photo" });
+          room -= 1;
+        }
+      } catch {
+        failed += 1;
+      }
+    }
+
+    if (added.length) setPhotos((prev) => [...prev, ...added].slice(0, MAX_SHOTS));
+    if (failed)
+      setPhotoError(
+        failed === files.length
+          ? "We couldn't read those files. Photos or a video, please."
+          : `${failed} of those files couldn't be read and were skipped.`,
+      );
+    else if (room <= 0 && added.length < files.length)
+      setPhotoError(`That's the ${MAX_SHOTS}-file maximum — anything after it was left out.`);
+    setReading(false);
+  };
 
   // Send the photos to the Damage Assessment Agent. The server function falls back to
   // the deterministic model if the provider is unconfigured or unreachable, so this
   // always resolves to something the flow can continue from.
   const analyzePhotos = async () => {
-    const images = photos.filter((p): p is string => !!p);
-    if (images.length < 3 || busy) return;
+    const images = photos.map((p) => p.url);
+    if (images.length < MIN_SHOTS || busy) return;
     setBusy(true);
     setPhotoError(null);
     try {
@@ -464,46 +522,91 @@ function Flow() {
           <div>
             <h2 className="att-h3">Show us the damage</h2>
             <p className="mt-1 text-sm text-[#686E74]">
-              Add 3 photos of your {device.name}. DeviceFlex AI reviews them instantly — no forms.
+              Add at least {MIN_SHOTS} photos of your {device.name} — pick them all at once, or film
+              a short clip and we'll take the frames for you. DeviceFlex AI reviews them instantly —
+              no forms.
             </p>
-            <div className="mt-5 grid grid-cols-3 gap-3">
-              {photos.map((p, i) => (
-                <label
-                  key={i}
-                  className="grid aspect-[3/4] cursor-pointer place-items-center overflow-hidden rounded-xl border-2 border-dashed border-[#DCDFE3] bg-[#F3F4F6] hover:border-[#0057B8]"
-                >
-                  {p ? (
-                    <img src={p} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-center text-xs font-bold text-[#686E74]">
-                      <Camera className="mx-auto mb-1 h-6 w-6 text-[#0072B2]" />
-                      Add photo {i + 1}
-                    </span>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const f = e.target.files?.[0];
-                      e.target.value = "";
-                      if (!f) return;
-                      try {
-                        // Downscaled here so three photos stay well inside the
-                        // provider's request ceiling.
-                        const url = await toDataUrl(f);
-                        setPhotoError(null);
-                        setPhotos((ph) => ph.map((x, j) => (j === i ? url : x)));
-                      } catch {
-                        setPhotoError("That file couldn't be read as an image.");
-                      }
-                    }}
-                  />
-                </label>
-              ))}
-            </div>
+
+            <label
+              onDragOver={(e) => {
+                e.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragging(false);
+                void addFiles(e.dataTransfer.files);
+              }}
+              className={`mt-5 grid cursor-pointer place-items-center rounded-2xl border-2 border-dashed p-8 text-center transition ${
+                dragging ? "border-[#0057B8] bg-[#E7F5FB]" : "border-[#DCDFE3] bg-[#F3F4F6]"
+              } ${reading ? "pointer-events-none opacity-70" : "hover:border-[#0057B8]"}`}
+            >
+              {reading ? (
+                <Loader2 className="h-7 w-7 animate-spin text-[#0072B2]" />
+              ) : (
+                <span className="flex gap-2">
+                  <Camera className="h-7 w-7 text-[#0072B2]" />
+                  <Video className="h-7 w-7 text-[#0072B2]" />
+                </span>
+              )}
+              <span className="mt-3 text-sm font-extrabold text-[#1D2329]">
+                {reading
+                  ? "Reading your files…"
+                  : filled
+                    ? "Add more photos or a video"
+                    : "Add photos or a video"}
+              </span>
+              <span className="mt-1 text-xs text-[#686E74]">
+                Select several at once, or drag them here · up to {MAX_SHOTS}
+              </span>
+              <input
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                className="hidden"
+                disabled={reading || filled >= MAX_SHOTS}
+                onChange={(e) => {
+                  // Copy before resetting the input: `files` is a live FileList and
+                  // clearing `value` empties it, so passing the list itself loses it.
+                  const files = e.target.files ? Array.from(e.target.files) : [];
+                  e.target.value = "";
+                  if (files.length) void addFiles(files);
+                }}
+              />
+            </label>
+
+            {filled > 0 && (
+              <ul className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-6">
+                {photos.map((shot, i) => (
+                  <li
+                    key={`${i}-${shot.url.slice(-16)}`}
+                    className="relative aspect-[3/4] overflow-hidden rounded-xl border border-[#DCDFE3] bg-[#F3F4F6]"
+                  >
+                    <img src={shot.url} alt="" className="h-full w-full object-cover" />
+                    {shot.from === "video" && (
+                      <span className="absolute bottom-1 left-1 flex items-center gap-1 rounded-full bg-black/65 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        <Video className="h-2.5 w-2.5" /> Frame
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      aria-label={`Remove photo ${i + 1}`}
+                      onClick={() => setPhotos((prev) => prev.filter((_, j) => j !== i))}
+                      className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/65 text-white hover:bg-black/80"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs text-[#686E74]">{filled}/3 photos added</p>
+              <p className="text-xs text-[#686E74]">
+                {filled} of {MAX_SHOTS} added
+                {filled < MIN_SHOTS && ` · ${MIN_SHOTS - filled} more to continue`}
+              </p>
               <p className="flex items-center gap-1.5 text-xs text-[#686E74]">
                 <Sparkle className="h-3.5 w-3.5 text-[#00388F]" />A vision model reads these to
                 identify the damage and its severity
@@ -518,7 +621,7 @@ function Flow() {
             <Nav
               onBack={back}
               nextLabel={busy ? "Reviewing your photos…" : "Continue"}
-              nextDisabled={filled < 3 || busy}
+              nextDisabled={filled < MIN_SHOTS || busy}
               onNext={analyzePhotos}
               busy={busy}
             />
