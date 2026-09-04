@@ -27,6 +27,7 @@ import {
   Receipt,
 } from "lucide-react";
 import type { MemberDevice } from "@/data/member";
+import { useAuth } from "@/lib/auth";
 import { DEVICES } from "@/data/devices";
 import { deductibleFor, ASURION } from "@/data/deductibles";
 
@@ -53,6 +54,9 @@ export function ReplacementFlow({
   onDone: (choice: ReplacementChoice) => void;
   onBack: () => void;
 }) {
+  const { user } = useAuth();
+  /** The member's actual tier, not a single-device figure — Family bills at its own rate. */
+  const protectionMonthly = user?.tierPrice ?? 0;
   const [sub, setSub] = useState(0);
   const [path, setPath] = useState<"replace" | "upgrade">("replace");
   const [pickSlug, setPickSlug] = useState<string | null>(null);
@@ -261,11 +265,11 @@ export function ReplacementFlow({
             <div className="h-px bg-[#DCDFE3]" />
             <Group
               title="Due monthly"
-              total={monthly + 85 + 17 - 10}
+              total={monthly + 85 + protectionMonthly - 10}
               rows={[
                 ["Device installments", monthly, "Recurring payment"],
                 ["AT&T Unlimited Premium plan", 85, "Recurring payment"],
-                ["AT&T Protect Advantage", 17, "Recurring payment"],
+                ["AT&T Protect Advantage", protectionMonthly, "Recurring payment"],
                 ["AutoPay and paperless billing discount", -10, "Recurring credit"],
               ]}
             />
