@@ -31,10 +31,10 @@ const IMG = {
   galaxyS26: "/att/devices/samsung-galaxy-s26/black-hero.png",
   galaxyS26Ultra: "/att/devices/samsung-galaxy-s26-ultra/black-hero.png",
   guarantee: "/att/misc/att-guarantee.jpg",
-  // The Protect Advantage tile shows the outcome, not the accident: the same
-  // AT&T device render the deals carousel uses, returned whole.
-  protect: "/att/devices/apple-iphone-17-pro-max/cosmic-orange-hero.webp",
-  protectFallback: "/att/devices/apple-iphone-17-pro/cosmic-orange-hero.webp",
+  // The Protect Advantage tile leads with the moment the product exists for — a
+  // cracked screen carried into a store — rather than a clean device render.
+  protect: "/att/misc/protect-store-cracked.png",
+  protectFallback: "/att/misc/protect-cracked-phone.webp",
 };
 
 const DEALS = [
@@ -301,17 +301,17 @@ function Index() {
                 </Link>
               </div>
             </div>
-            <div className="relative grid place-items-center bg-[#F2FAFD] p-8">
+            <div className="relative flex bg-[#F2FAFD] p-8">
               <img
                 src={IMG.protect}
-                alt="iPhone 17 Pro Max, repaired and returned"
+                alt="A cracked iPhone screen, held at the counter of an AT&T store"
                 loading="lazy"
                 onError={(e) => {
                   const img = e.currentTarget;
                   if (img.src.endsWith(IMG.protectFallback)) return;
                   img.src = IMG.protectFallback;
                 }}
-                className="max-h-[360px] w-full rounded-2xl object-contain"
+                className="h-full min-h-[280px] w-full rounded-2xl object-cover"
               />
               <span className="absolute left-6 top-6 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-[#0057B8] shadow">
                 No hidden fees
