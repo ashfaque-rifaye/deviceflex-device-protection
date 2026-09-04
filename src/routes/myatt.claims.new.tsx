@@ -67,11 +67,7 @@ import {
 import { DeductibleInline } from "@/components/deviceflex/DeductibleCard";
 import { AdvisorPanel } from "@/components/deviceflex/AdvisorPanel";
 import { DiagnosticsModal } from "@/components/deviceflex/DiagnosticsModal";
-import { Field } from "@/components/att/Field";
-import { Button } from "@/components/att/Button";
-import { StatusPill } from "@/components/att/Feedback";
-import { Card } from "@/components/att/Layout";
-import { Stepper } from "@/components/att/Stepper";
+import { Field, Button, StatusPill, Alert, Textarea, Card, Stepper } from "@/components/att";
 import { deductibleFor, ASURION } from "@/data/deductibles";
 import {
   buildClaimPayload,
@@ -110,7 +106,7 @@ const REASON_LABEL: Record<ClaimReasonId, Claim["reason"]> = {
 
 function NewClaim() {
   return (
-    <div className="min-h-screen bg-[#F3F4F6] text-[#1D2329]">
+    <div className="min-h-screen bg-[var(--color-att-gray)] text-[var(--color-att-ink)]">
       <SiteHeader />
       <RequireAuth returnTo="/myatt/claims/new">
         <AccountNav active="Account" />
@@ -388,7 +384,7 @@ function Flow() {
     return (
       <div className="mx-auto max-w-[800px] px-4 py-16 text-center sm:px-6">
         <h1 className="text-2xl font-extrabold">No covered devices</h1>
-        <p className="mt-2 text-sm text-[#686E74]">
+        <p className="mt-2 text-sm text-[var(--color-att-ink-3)]">
           Add a device to your plan before filing a claim.
         </p>
         <Link to="/myatt/family" className="btn-primary mt-6">
@@ -403,7 +399,7 @@ function Flow() {
       <Link
         to="/myatt/protection"
         search={{ device: "" }}
-        className="inline-flex items-center gap-1 text-sm font-bold text-[#0072B2] hover:underline"
+        className="inline-flex items-center gap-1 text-sm font-bold text-[var(--color-att-link)] hover:underline"
       >
         <ArrowLeft className="h-4 w-4" /> Back to my protection
       </Link>
@@ -419,12 +415,12 @@ function Flow() {
         />
       )}
 
-      <div className="mt-6 rounded-2xl border border-[#DCDFE3] bg-white p-6 sm:p-8">
+      <div className="mt-6 rounded-2xl border border-[var(--color-att-border)] bg-white p-6 sm:p-8">
         {/* ── Step 0 — what happened ───────────────────────────────── */}
         {!done && step === 0 && (
           <div>
             <h2 className="att-h3">What happened?</h2>
-            <p className="mt-1 text-sm text-[#686E74]">
+            <p className="mt-1 text-sm text-[var(--color-att-ink-3)]">
               Your plan covers damage, loss, theft and out-of-warranty malfunction.
             </p>
             <div className="mt-5 grid gap-3">
@@ -433,7 +429,7 @@ function Flow() {
                 return (
                   <div
                     key={g.id}
-                    className={`rounded-xl border ${open ? "border-[#00388F] bg-[#E7F5FB]" : "border-[#DCDFE3]"}`}
+                    className={`rounded-xl border ${open ? "border-[var(--color-att-navy)] bg-[var(--color-att-pale-2)]" : "border-[var(--color-att-border)]"}`}
                   >
                     <button
                       onClick={() => {
@@ -446,20 +442,20 @@ function Flow() {
                         setOpenGroup(open ? null : g.id);
                       }}
                       aria-expanded={g.reasons.length > 1 ? open : undefined}
-                      className="flex w-full items-start justify-between gap-4 rounded-xl p-4 text-left hover:border-[#0057B8]"
+                      className="flex w-full items-start justify-between gap-4 rounded-xl p-4 text-left hover:border-[var(--color-att-navy-hover)]"
                     >
                       <div>
                         <p className="font-extrabold">{g.title}</p>
-                        <p className="mt-0.5 text-sm text-[#686E74]">{g.desc}</p>
+                        <p className="mt-0.5 text-sm text-[var(--color-att-ink-3)]">{g.desc}</p>
                       </div>
                       <ArrowRight
-                        className={`mt-1 h-5 w-5 shrink-0 text-[#0072B2] transition-transform ${open ? "rotate-90" : ""}`}
+                        className={`mt-1 h-5 w-5 shrink-0 text-[var(--color-att-link)] transition-transform ${open ? "rotate-90" : ""}`}
                       />
                     </button>
 
                     {open && g.followUp && (
                       <div className="border-t border-[#BBDDF0] px-4 pb-4 pt-3">
-                        <p className="text-sm text-[#1D2329]">{g.followUp.prompt}</p>
+                        <p className="text-sm text-[var(--color-att-ink)]">{g.followUp.prompt}</p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           {g.followUp.options.map((o) => (
                             <Button
@@ -488,7 +484,7 @@ function Flow() {
         {!done && step === 1 && (
           <div>
             <h2 className="att-h3">Which device?</h2>
-            <p className="mt-1 text-sm text-[#686E74]">
+            <p className="mt-1 text-sm text-[var(--color-att-ink-3)]">
               Only devices covered by your plan are listed.
             </p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -496,15 +492,15 @@ function Flow() {
                 <button
                   key={d.id}
                   onClick={() => setDevice(d)}
-                  className={`flex items-center gap-3 rounded-xl border p-4 text-left ${device.id === d.id ? "border-[#00388F] ring-2 ring-[#00388F]/30" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
+                  className={`flex items-center gap-3 rounded-xl border p-4 text-left ${device.id === d.id ? "border-[var(--color-att-navy)] ring-2 ring-[var(--color-att-navy)]/30" : "border-[var(--color-att-border)] hover:border-[var(--color-att-navy-hover)]"}`}
                 >
                   <img src={d.image} alt={d.name} className="h-16 w-11 object-contain" />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-extrabold">{d.name}</p>
-                    <p className="text-xs text-[#686E74]">
+                    <p className="text-xs text-[var(--color-att-ink-3)]">
                       {d.owner} · {d.line}
                     </p>
-                    <p className="text-[11px] text-[#686E74]">
+                    <p className="text-[11px] text-[var(--color-att-ink-3)]">
                       {d.warranty}
                       {d.nextUp && " · Next Up"}
                     </p>
@@ -521,7 +517,7 @@ function Flow() {
         {!done && step === 2 && cfg?.needsPhotos && (
           <div>
             <h2 className="att-h3">Show us the damage</h2>
-            <p className="mt-1 text-sm text-[#686E74]">
+            <p className="mt-1 text-sm text-[var(--color-att-ink-3)]">
               Add at least {MIN_SHOTS} photos of your {device.name} — pick them all at once, or film
               a short clip and we'll take the frames for you. DeviceFlex AI reviews them instantly —
               no forms.
@@ -539,25 +535,27 @@ function Flow() {
                 void addFiles(e.dataTransfer.files);
               }}
               className={`mt-5 grid cursor-pointer place-items-center rounded-2xl border-2 border-dashed p-8 text-center transition ${
-                dragging ? "border-[#0057B8] bg-[#E7F5FB]" : "border-[#DCDFE3] bg-[#F3F4F6]"
-              } ${reading ? "pointer-events-none opacity-70" : "hover:border-[#0057B8]"}`}
+                dragging
+                  ? "border-[var(--color-att-navy-hover)] bg-[var(--color-att-pale-2)]"
+                  : "border-[var(--color-att-border)] bg-[var(--color-att-gray)]"
+              } ${reading ? "pointer-events-none opacity-70" : "hover:border-[var(--color-att-navy-hover)]"}`}
             >
               {reading ? (
-                <Loader2 className="h-7 w-7 animate-spin text-[#0072B2]" />
+                <Loader2 className="h-7 w-7 animate-spin text-[var(--color-att-link)]" />
               ) : (
                 <span className="flex gap-2">
-                  <Camera className="h-7 w-7 text-[#0072B2]" />
-                  <Video className="h-7 w-7 text-[#0072B2]" />
+                  <Camera className="h-7 w-7 text-[var(--color-att-link)]" />
+                  <Video className="h-7 w-7 text-[var(--color-att-link)]" />
                 </span>
               )}
-              <span className="mt-3 text-sm font-extrabold text-[#1D2329]">
+              <span className="mt-3 text-sm font-extrabold text-[var(--color-att-ink)]">
                 {reading
                   ? "Reading your files…"
                   : filled
                     ? "Add more photos or a video"
                     : "Add photos or a video"}
               </span>
-              <span className="mt-1 text-xs text-[#686E74]">
+              <span className="mt-1 text-xs text-[var(--color-att-ink-3)]">
                 Select several at once, or drag them here · up to {MAX_SHOTS}
               </span>
               <input
@@ -581,7 +579,7 @@ function Flow() {
                 {photos.map((shot, i) => (
                   <li
                     key={`${i}-${shot.url.slice(-16)}`}
-                    className="relative aspect-[3/4] overflow-hidden rounded-xl border border-[#DCDFE3] bg-[#F3F4F6]"
+                    className="relative aspect-[3/4] overflow-hidden rounded-xl border border-[var(--color-att-border)] bg-[var(--color-att-gray)]"
                   >
                     <img src={shot.url} alt="" className="h-full w-full object-cover" />
                     {shot.from === "video" && (
@@ -603,17 +601,17 @@ function Flow() {
             )}
 
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-xs text-[#686E74]">
+              <p className="text-xs text-[var(--color-att-ink-3)]">
                 {filled} of {MAX_SHOTS} added
                 {filled < MIN_SHOTS && ` · ${MIN_SHOTS - filled} more to continue`}
               </p>
-              <p className="flex items-center gap-1.5 text-xs text-[#686E74]">
-                <Sparkle className="h-3.5 w-3.5 text-[#00388F]" />A vision model reads these to
-                identify the damage and its severity
+              <p className="flex items-center gap-1.5 text-xs text-[var(--color-att-ink-3)]">
+                <Sparkle className="h-3.5 w-3.5 text-[var(--color-att-navy)]" />A vision model reads
+                these to identify the damage and its severity
               </p>
             </div>
             {photoError && (
-              <p className="mt-2 flex items-start gap-2 rounded-xl bg-[#FDE9EE] p-3 text-sm text-[#C70032]">
+              <p className="mt-2 flex items-start gap-2 rounded-xl bg-[#FDE9EE] p-3 text-sm text-[var(--color-att-danger)]">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                 {photoError}
               </p>
@@ -634,27 +632,28 @@ function Flow() {
             <h2 className="att-h3">
               {reason === "theft" ? "Report your stolen device" : "Report your lost device"}
             </h2>
-            <p className="mt-1 text-sm text-[#686E74]">
+            <p className="mt-1 text-sm text-[var(--color-att-ink-3)]">
               No photos needed. Tell us what you can about the incident, then we'll verify it's you
               and suspend the line so nobody else can use it.
             </p>
 
             <div className="mt-5 space-y-3">
-              <div className="rounded-xl border border-[#DCDFE3] p-4">
+              <Card>
                 <p className="text-sm font-extrabold">Device</p>
-                <p className="mt-1 text-sm text-[#686E74]">
+                <p className="mt-1 text-sm text-[var(--color-att-ink-3)]">
                   {device.name} · {device.line} · IMEI {device.imei}
                 </p>
-              </div>
+              </Card>
 
               {/* Incident details — optional, but they sharpen the fraud checks and are
                   exactly what Asurion asks for on the phone. */}
-              <div className="rounded-xl border border-[#DCDFE3] p-4">
+              <Card>
                 <p className="flex items-center gap-2 text-sm font-extrabold">
-                  <CalendarDays className="h-4 w-4 text-[#0072B2]" />
-                  Incident details <span className="font-normal text-[#686E74]">(optional)</span>
+                  <CalendarDays className="h-4 w-4 text-[var(--color-att-link)]" />
+                  Incident details{" "}
+                  <span className="font-normal text-[var(--color-att-ink-3)]">(optional)</span>
                 </p>
-                <p className="mt-1 text-xs text-[#686E74]">
+                <p className="mt-1 text-xs text-[var(--color-att-ink-3)]">
                   Claims must be reported within {ASURION.filingWindowDays} days of the incident. An
                   approximate time is fine.
                 </p>
@@ -673,87 +672,80 @@ function Flow() {
                     onChange={(e) => setIncident((x) => ({ ...x, time: e.target.value }))}
                   />
                 </div>
-                <label className="mt-3 block">
-                  <span className="text-xs font-bold text-[#686E74]">
-                    Where it happened, and anything you remember
-                  </span>
-                  <textarea
-                    rows={2}
-                    value={incident.circumstances ?? ""}
-                    onChange={(e) => setIncident((x) => ({ ...x, circumstances: e.target.value }))}
-                    placeholder={
-                      reason === "theft"
-                        ? "e.g. taken from my bag on the 14 bus, downtown"
-                        : "e.g. left it in a taxi coming back from the airport"
-                    }
-                    className="mt-1.5 w-full resize-y rounded-lg border border-[#DCDFE3] px-3 py-2 text-sm outline-none focus:border-[#00388F]"
-                  />
-                </label>
+                <Textarea
+                  className="mt-3"
+                  label="Where it happened, and anything you remember"
+                  rows={2}
+                  value={incident.circumstances ?? ""}
+                  onChange={(e) => setIncident((x) => ({ ...x, circumstances: e.target.value }))}
+                  placeholder={
+                    reason === "theft"
+                      ? "e.g. taken from my bag on the 14 bus, downtown"
+                      : "e.g. left it in a taxi coming back from the airport"
+                  }
+                />
 
                 {incidentAge !== null && incidentAge > ASURION.filingWindowDays && (
-                  <p className="mt-3 flex items-start gap-2 rounded-lg bg-[#FFF3E0] p-3 text-xs text-[#7A4A00]">
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <Alert tone="warning" className="mt-3">
                     That's {incidentAge} days ago, past the {ASURION.filingWindowDays}-day reporting
                     window. You can still file — {ASURION.short} will review it rather than
                     approving automatically.
-                  </p>
+                  </Alert>
                 )}
-              </div>
+              </Card>
 
               {reason === "theft" && (
-                <div className="rounded-xl border border-[#DCDFE3] p-4">
+                <Card>
                   <Field
                     label="Police report number (optional)"
                     hint="Format is usually something like DPD-2026-114872."
                     value={incident.policeReport ?? ""}
                     onChange={(e) => setIncident((x) => ({ ...x, policeReport: e.target.value }))}
                   />
-                </div>
+                </Card>
               )}
             </div>
 
             {/* The agent runs in a dialog — it needs the screen while it works, and it
                 must stop and ask before suspending the line. */}
             {!verified ? (
-              <div className="mt-5 rounded-2xl border border-[#DCDFE3] p-5">
+              <Card className="mt-5 p-5">
                 <div className="flex flex-wrap items-start gap-4">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#E7F5FB]">
-                    <ShieldCheck className="h-5 w-5 text-[#0072B2]" />
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[var(--color-att-pale-2)]">
+                    <ShieldCheck className="h-5 w-5 text-[var(--color-att-link)]" />
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-extrabold">Verify your claim</p>
-                    <p className="mt-1 text-sm text-[#686E74]">
+                    <p className="mt-1 text-sm text-[var(--color-att-ink-3)]">
                       The Eligibility &amp; Fraud Agent runs {signals.length} checks — identity,
                       account standing, your claim history, the device record, the reporting window
                       and AT&amp;T&rsquo;s own network data. It asks before it suspends anything.
                     </p>
                   </div>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="shrink-0"
                     onClick={() => setAgentOpen(true)}
-                    className="btn-secondary shrink-0 text-sm"
                   >
                     Start verification
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
             ) : (
-              <div className="mt-5 rounded-2xl border border-[#BFE3CB] bg-[#EAF7EE] p-5">
-                <p className="flex items-center gap-2 text-sm font-extrabold text-[#1F7A3D]">
-                  <ShieldCheck className="h-4 w-4" />
-                  {verdictFraud?.headline ?? "Verified"}
-                </p>
-                <p className="mt-1.5 text-sm text-[#1D2329]">
+              <Alert tone="success" className="mt-5" title={verdictFraud?.headline ?? "Verified"}>
+                <p className="mt-1.5 text-sm text-[var(--color-att-ink)]">
                   {suspended
                     ? `Line ${device.line} suspended · IMEI ${device.imei} blocked. Your number moves to the replacement.`
                     : "Your line is still active — you chose not to block the device."}
                 </p>
                 <button
                   onClick={() => setAgentOpen(true)}
-                  className="mt-2 text-xs font-bold text-[#0072B2] hover:underline"
+                  className="mt-2 text-xs font-bold text-[var(--color-att-link)] hover:underline"
                 >
                   Review what was checked
                 </button>
-              </div>
+              </Alert>
             )}
 
             <Nav
@@ -776,17 +768,17 @@ function Flow() {
             </p>
 
             {!diagReport ? (
-              <div className="mt-6 grid place-items-center rounded-2xl border border-[#DCDFE3] bg-[#F3F4F6] p-10 text-center">
+              <div className="mt-6 grid place-items-center rounded-2xl border border-[var(--color-att-border)] bg-[var(--color-att-gray)] p-10 text-center">
                 <span className="grid h-14 w-14 place-items-center rounded-full bg-white">
-                  <Stethoscope className="h-7 w-7 text-[#00388F]" />
+                  <Stethoscope className="h-7 w-7 text-[var(--color-att-navy)]" />
                 </span>
                 <p className="att-body mt-3 max-w-sm">
                   A full hardware inspection — 19 checks across sensors, battery, housing and device
                   identity. About 15 seconds.
                 </p>
-                <button onClick={() => setDiagOpen(true)} className="btn-primary mt-4">
+                <Button className="mt-4" onClick={() => setDiagOpen(true)}>
                   Run diagnostics
-                </button>
+                </Button>
               </div>
             ) : (
               <>
@@ -809,15 +801,15 @@ function Flow() {
                 </div>
 
                 {(diagReport.failures.length > 0 || diagReport.warnings.length > 0) && (
-                  <ul className="mt-4 divide-y divide-[#DCDFE3] rounded-xl border border-[#DCDFE3]">
+                  <ul className="mt-4 divide-y divide-[var(--color-att-border)] rounded-xl border border-[var(--color-att-border)]">
                     {[...diagReport.failures, ...diagReport.warnings].map((c) => (
                       <li
                         key={c.id}
                         className="flex items-center justify-between gap-3 p-3.5 text-sm"
                       >
-                        <span className="text-[#686E74]">{c.label}</span>
+                        <span className="text-[var(--color-att-ink-3)]">{c.label}</span>
                         <span
-                          className={`inline-flex items-center gap-1.5 font-bold ${c.status === "fail" ? "text-[#C70032]" : "text-[#9E5D00]"}`}
+                          className={`inline-flex items-center gap-1.5 font-bold ${c.status === "fail" ? "text-[var(--color-att-danger)]" : "text-[var(--color-att-warning)]"}`}
                         >
                           {c.status === "fail" ? (
                             <X className="h-4 w-4" />
@@ -831,7 +823,7 @@ function Flow() {
                   </ul>
                 )}
 
-                <div className="mt-4 rounded-xl bg-[#E7F5FB] p-4 text-sm">
+                <div className="mt-4 rounded-xl bg-[var(--color-att-pale-2)] p-4 text-sm">
                   <b>What that means for this claim:</b>{" "}
                   {reason === "battery"
                     ? device.batteryHealth < 80
@@ -889,23 +881,20 @@ function Flow() {
                   )}
                 </div>
                 <h2 className="att-h3 mt-4">Here's what we found</h2>
-                <p className="mt-2 text-sm text-[#686E74]">{damage.summary}</p>
+                <p className="mt-2 text-sm text-[var(--color-att-ink-3)]">{damage.summary}</p>
                 {damage.source !== "model" && (
-                  <p className="att-note mt-3 flex items-start gap-1.5 py-3 text-xs text-[var(--color-att-ink-3)]">
-                    <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#0072B2]" />
-                    <span>
-                      {damage.fallbackReason
-                        ? `${damage.fallbackReason} — this reading came from the device's own diagnostics instead.`
-                        : "This reading came from the device's own diagnostics rather than a vision model."}{" "}
-                      The deductible and resolution below are unaffected: they are computed from the
-                      assessment, whichever produced it.
-                    </span>
-                  </p>
+                  <Alert tone="info" className="mt-3">
+                    {damage.fallbackReason
+                      ? `${damage.fallbackReason} — this reading came from the device's own diagnostics instead.`
+                      : "This reading came from the device's own diagnostics rather than a vision model."}{" "}
+                    The deductible and resolution below are unaffected: they are computed from the
+                    assessment, whichever produced it.
+                  </Alert>
                 )}
                 <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                   {damage.detected.map((d) => (
                     <li key={d} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-att-link)]" />
                       {d}
                     </li>
                   ))}
@@ -923,7 +912,7 @@ function Flow() {
 
             <div className="mt-7 flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="text-base font-extrabold">Choose how to resolve it</h3>
-              <p className="text-xs text-[#686E74]">
+              <p className="text-xs text-[var(--color-att-ink-3)]">
                 Deductibles set by {ASURION.short}, billed to your next AT&amp;T bill
               </p>
             </div>
@@ -966,7 +955,7 @@ function Flow() {
                               <span className="block text-lg font-extrabold leading-none">
                                 {o.price}
                               </span>
-                              <span className="block text-[10px] uppercase tracking-wide text-[#686E74]">
+                              <span className="block text-[10px] uppercase tracking-wide text-[var(--color-att-ink-3)]">
                                 {o.feeKind === "screen-repair"
                                   ? "service fee"
                                   : o.feeKind === "replacement"
@@ -977,20 +966,22 @@ function Flow() {
                               </span>
                             </p>
                           </div>
-                          <p className="mt-1 text-sm text-[#686E74]">{o.detail}</p>
+                          <p className="mt-1 text-sm text-[var(--color-att-ink-3)]">{o.detail}</p>
 
-                          <dl className="mt-3 grid gap-2 border-t border-[#DCDFE3] pt-3 text-xs sm:grid-cols-3">
+                          <dl className="mt-3 grid gap-2 border-t border-[var(--color-att-border)] pt-3 text-xs sm:grid-cols-3">
                             <div>
-                              <dt className="text-[#686E74]">How long</dt>
+                              <dt className="text-[var(--color-att-ink-3)]">How long</dt>
                               <dd className="font-bold">{o.time}</dd>
                             </div>
                             <div>
-                              <dt className="text-[#686E74]">You end up with</dt>
+                              <dt className="text-[var(--color-att-ink-3)]">You end up with</dt>
                               <dd className="font-bold">{o.outcome}</dd>
                             </div>
                             <div>
-                              <dt className="text-[#686E74]">Without coverage</dt>
-                              <dd className="font-bold text-[#C70032]">{o.withoutCoverage}</dd>
+                              <dt className="text-[var(--color-att-ink-3)]">Without coverage</dt>
+                              <dd className="font-bold text-[var(--color-att-danger)]">
+                                {o.withoutCoverage}
+                              </dd>
                             </div>
                           </dl>
 
@@ -1013,7 +1004,7 @@ function Flow() {
 
             {!options.some((o) => o.id === "upgrade") && (
               <p className="att-note mt-4 flex items-start gap-2 py-3 text-xs text-[var(--color-att-ink-3)]">
-                <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" />
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-att-link)]" />
                 <span>
                   Upgrading instead of replacing is offered when a device can&rsquo;t be
                   economically repaired. This one can be, so repair comes first.
@@ -1045,10 +1036,10 @@ function Flow() {
             <h2 className="att-h3">Confirm your {option.title.toLowerCase()}</h2>
 
             {replacement && (
-              <div className="mt-3 flex items-center gap-3 rounded-xl border border-[#DCDFE3] bg-[#F2FAFD] p-3">
+              <div className="mt-3 flex items-center gap-3 rounded-xl border border-[var(--color-att-border)] bg-[var(--color-att-pale)] p-3">
                 <img src={replacement.image} alt="" className="h-14 w-10 shrink-0 object-contain" />
                 <div className="min-w-0">
-                  <p className="att-small font-bold text-[#686E74]">
+                  <p className="att-small font-bold text-[var(--color-att-ink-3)]">
                     {replacement.path === "upgrade" ? "Upgrading to" : "Replacing with"}
                   </p>
                   <p className="text-sm font-extrabold">{replacement.deviceName}</p>
@@ -1059,7 +1050,7 @@ function Flow() {
                 </div>
                 <button
                   onClick={() => setReplacement(null)}
-                  className="ml-auto shrink-0 text-xs font-bold text-[#0072B2] hover:underline"
+                  className="ml-auto shrink-0 text-xs font-bold text-[var(--color-att-link)] hover:underline"
                 >
                   Change
                 </button>
@@ -1067,14 +1058,14 @@ function Flow() {
             )}
 
             {isShip && (
-              <p className="mt-2 text-sm text-[#686E74]">
+              <p className="mt-2 text-sm text-[var(--color-att-ink-3)]">
                 We'll ship a replacement to your address on file — arriving tomorrow.
               </p>
             )}
 
             {isHomeRepair && (
               <>
-                <p className="mt-2 text-sm text-[#686E74]">
+                <p className="mt-2 text-sm text-[var(--color-att-ink-3)]">
                   A mobile technician comes to you and repairs the screen on site.
                 </p>
                 <p className="mt-4 text-sm font-bold">Pick a window</p>
@@ -1083,7 +1074,7 @@ function Flow() {
                     <button
                       key={w}
                       onClick={() => setSlot(w)}
-                      className={`rounded-full border px-4 py-2 text-sm font-bold ${slot === w ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3]"}`}
+                      className={`rounded-full border px-4 py-2 text-sm font-bold ${slot === w ? "border-[var(--color-att-navy)] bg-[var(--color-att-pale-2)] text-[var(--color-att-link)]" : "border-[var(--color-att-border)]"}`}
                     >
                       {w}
                     </button>
@@ -1094,10 +1085,10 @@ function Flow() {
 
             {!isShip && !isHomeRepair && (
               <>
-                <p className="mt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[#0072B2]">
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-[var(--color-att-link)]">
                   <Package className="h-3.5 w-3.5" /> Retail &amp; Inventory Agent
                 </p>
-                <p className="mt-1 text-sm text-[#686E74]">
+                <p className="mt-1 text-sm text-[var(--color-att-ink-3)]">
                   {storeMatches.length} store{storeMatches.length === 1 ? "" : "s"} near you can
                   handle this. Ranked by stock, then distance.
                 </p>
@@ -1111,16 +1102,16 @@ function Flow() {
                           setStoreId(sm.store.id);
                           setSlot(null);
                         }}
-                        className={`flex items-start gap-3 rounded-xl border p-4 text-left ${active ? "border-[#00388F] bg-[#E7F5FB]" : "border-[#DCDFE3] hover:border-[#0057B8]"}`}
+                        className={`flex items-start gap-3 rounded-xl border p-4 text-left ${active ? "border-[var(--color-att-navy)] bg-[var(--color-att-pale-2)]" : "border-[var(--color-att-border)] hover:border-[var(--color-att-navy-hover)]"}`}
                       >
-                        <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#0072B2]" />
+                        <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-att-link)]" />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-extrabold">{sm.store.name}</p>
-                          <p className="text-xs text-[#686E74]">
+                          <p className="text-xs text-[var(--color-att-ink-3)]">
                             {sm.store.address} · {sm.store.miles} mi · {sm.store.hours}
                           </p>
                           <p
-                            className={`mt-1 text-xs font-bold ${sm.inStock || need !== "swap" ? "text-[#1F7A3D]" : "text-[#9E5D00]"}`}
+                            className={`mt-1 text-xs font-bold ${sm.inStock || need !== "swap" ? "text-[var(--color-att-success)]" : "text-[var(--color-att-warning)]"}`}
                           >
                             {sm.reason}
                           </p>
@@ -1140,7 +1131,7 @@ function Flow() {
                         <button
                           key={s}
                           onClick={() => setSlot(s)}
-                          className={`rounded-full border px-4 py-2 text-sm font-bold ${slot === s ? "border-[#00388F] bg-[#E7F5FB] text-[#0072B2]" : "border-[#DCDFE3]"}`}
+                          className={`rounded-full border px-4 py-2 text-sm font-bold ${slot === s ? "border-[var(--color-att-navy)] bg-[var(--color-att-pale-2)] text-[var(--color-att-link)]" : "border-[var(--color-att-border)]"}`}
                         >
                           {s}
                         </button>
@@ -1153,7 +1144,7 @@ function Flow() {
 
             {option.newNotRefurbished && (
               <div className="mt-5 flex items-start gap-3 rounded-xl border border-[#BFE3CB] bg-[#EAF7EE] p-4">
-                <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#1F7A3D]" />
+                <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-[var(--color-att-success)]" />
                 <p className="text-sm">
                   <b>New, not refurbished.</b> The device you receive is factory-new and sealed. We
                   issue a written guarantee with its serial number the moment it's handed over — it
@@ -1163,10 +1154,10 @@ function Flow() {
             )}
 
             <Card className="mt-5 text-sm">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#686E74]">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--color-att-ink-3)]">
                 <Receipt className="h-3.5 w-3.5" /> What you'll pay
               </p>
-              <div className="mt-3 flex items-baseline justify-between border-b border-[#DCDFE3] pb-3">
+              <div className="mt-3 flex items-baseline justify-between border-b border-[var(--color-att-border)] pb-3">
                 <span className="font-bold">
                   {option.feeKind === "screen-repair"
                     ? "Screen repair service fee"
@@ -1178,17 +1169,19 @@ function Flow() {
                 </span>
                 <span className="text-2xl font-extrabold tabular-nums">{option.price}</span>
               </div>
-              <p className="mt-2 text-xs text-[#686E74]">{feeDetail.basis}.</p>
+              <p className="mt-2 text-xs text-[var(--color-att-ink-3)]">{feeDetail.basis}.</p>
               <div className="mt-3 flex justify-between">
-                <span className="text-[#686E74]">Billed to</span>
+                <span className="text-[var(--color-att-ink-3)]">Billed to</span>
                 <span className="font-bold">Your next AT&amp;T wireless bill</span>
               </div>
               <div className="mt-1 flex justify-between">
-                <span className="text-[#686E74]">Same fix without coverage</span>
-                <span className="font-bold text-[#C70032]">{option.withoutCoverage}</span>
+                <span className="text-[var(--color-att-ink-3)]">Same fix without coverage</span>
+                <span className="font-bold text-[var(--color-att-danger)]">
+                  {option.withoutCoverage}
+                </span>
               </div>
               <div className="mt-1 flex justify-between">
-                <span className="text-[#686E74]">Your data</span>
+                <span className="text-[var(--color-att-ink-3)]">Your data</span>
                 <span className="text-right font-bold">
                   {option.restore === "none"
                     ? "Stays on your device"
@@ -1301,7 +1294,7 @@ function Confirmation({
   return (
     <div className="py-4 text-center">
       <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#EAF7EE]">
-        <ShieldCheck className="h-8 w-8 text-[#1F7A3D]" />
+        <ShieldCheck className="h-8 w-8 text-[var(--color-att-success)]" />
       </span>
       <h2 className="mt-4 text-2xl font-extrabold">
         {option.id === "home-repair"
@@ -1310,7 +1303,7 @@ function Confirmation({
             ? "Replacement on the way"
             : "You're booked"}
       </h2>
-      <p className="mt-2 text-sm text-[#686E74]">
+      <p className="mt-2 text-sm text-[var(--color-att-ink-3)]">
         {option.id === "home-repair"
           ? `A technician is on the way — ${slot ?? "today"}. You keep your device, so nothing needs restoring.`
           : option.restore === "on-arrival"
@@ -1318,48 +1311,51 @@ function Confirmation({
             : `${option.title} confirmed${slot ? ` for ${slot}` : ""}${storeName ? ` at ${storeName}` : ""}.`}
       </p>
       {claimId && (
-        <p className="mt-1 text-xs text-[#686E74]">Claim {claimId} · saved to your account</p>
+        <p className="mt-1 text-xs text-[var(--color-att-ink-3)]">
+          Claim {claimId} · saved to your account
+        </p>
       )}
 
       {/* The Asurion handoff, shown rather than implied — they administer the program,
           charge the deductible and fulfil the device. */}
       {ack && (
-        <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-[#DCDFE3] p-5 text-left">
-          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#686E74]">
-            <Building2 className="h-3.5 w-3.5 text-[#0072B2]" /> Sent to {ASURION.short}
+        <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-[var(--color-att-border)] p-5 text-left">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--color-att-ink-3)]">
+            <Building2 className="h-3.5 w-3.5 text-[var(--color-att-link)]" /> Sent to{" "}
+            {ASURION.short}
           </p>
           <p className="mt-2 text-sm">
             Your claim has been submitted to <b>{ASURION.administrator}</b>, who administers
             AT&amp;T Protect Advantage and fulfils the replacement.
           </p>
-          <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-[#DCDFE3] pt-3 text-xs">
+          <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-[var(--color-att-border)] pt-3 text-xs">
             <div>
-              <dt className="text-[#686E74]">{ASURION.short} reference</dt>
+              <dt className="text-[var(--color-att-ink-3)]">{ASURION.short} reference</dt>
               <dd className="font-bold">{ack.reference}</dd>
             </div>
             <div>
-              <dt className="text-[#686E74]">Status</dt>
+              <dt className="text-[var(--color-att-ink-3)]">Status</dt>
               <dd
-                className={`font-bold ${ack.status === "Approved" ? "text-[#1F7A3D]" : "text-[#9E5D00]"}`}
+                className={`font-bold ${ack.status === "Approved" ? "text-[var(--color-att-success)]" : "text-[var(--color-att-warning)]"}`}
               >
                 {ack.status}
               </dd>
             </div>
             <div>
-              <dt className="text-[#686E74]">
+              <dt className="text-[var(--color-att-ink-3)]">
                 {option.feeKind === "screen-repair" ? "Service fee" : "Deductible"}
               </dt>
               <dd className="font-bold">{option.price}</dd>
             </div>
             <div>
-              <dt className="text-[#686E74]">Billed to</dt>
+              <dt className="text-[var(--color-att-ink-3)]">Billed to</dt>
               <dd className="font-bold">{ack.billedTo}</dd>
             </div>
           </dl>
           {fv?.outcome === "review" && (
             <p className="mt-3 rounded-lg bg-[#FFF3E0] p-3 text-xs text-[#7A4A00]">{fv.detail}</p>
           )}
-          <p className="mt-3 text-[11px] text-[#686E74]">
+          <p className="mt-3 text-[11px] text-[var(--color-att-ink-3)]">
             Questions about this claim: {ASURION.claimsUrl} or {ASURION.claimsPhone} ·{" "}
             {ASURION.hours}. Underwritten by {ASURION.underwriter}.
           </p>
@@ -1368,29 +1364,29 @@ function Confirmation({
 
       {/* New, not refurbished — the certificate, issued */}
       {guarantee && option.newNotRefurbished && (
-        <div className="mx-auto mt-6 max-w-lg rounded-2xl border-2 border-[#1F7A3D] p-5 text-left">
-          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#1F7A3D]">
+        <div className="mx-auto mt-6 max-w-lg rounded-2xl border-2 border-[var(--color-att-success)] p-5 text-left">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--color-att-success)]">
             <BadgeCheck className="h-4 w-4" /> New, not refurbished — guaranteed
           </p>
           <p className="mt-2 text-sm">
             Your replacement {guarantee.deviceName} is <b>factory new and sealed</b>. This guarantee
             is on your account.
           </p>
-          <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-[#DCDFE3] pt-3 text-xs">
+          <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-[var(--color-att-border)] pt-3 text-xs">
             <div>
-              <dt className="text-[#686E74]">Serial</dt>
+              <dt className="text-[var(--color-att-ink-3)]">Serial</dt>
               <dd className="font-bold">{guarantee.serial}</dd>
             </div>
             <div>
-              <dt className="text-[#686E74]">Issued</dt>
+              <dt className="text-[var(--color-att-ink-3)]">Issued</dt>
               <dd className="font-bold">{guarantee.issued}</dd>
             </div>
             <div>
-              <dt className="text-[#686E74]">Condition</dt>
+              <dt className="text-[var(--color-att-ink-3)]">Condition</dt>
               <dd className="font-bold">{guarantee.condition}</dd>
             </div>
             <div>
-              <dt className="text-[#686E74]">Warranty</dt>
+              <dt className="text-[var(--color-att-ink-3)]">Warranty</dt>
               <dd className="font-bold">Full manufacturer term</dd>
             </div>
           </dl>
@@ -1399,14 +1395,14 @@ function Confirmation({
 
       {/* Prepare for your visit — the honest pre-swap step */}
       {option.restore === "in-store" && (
-        <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-[#DCDFE3] p-5 text-left">
+        <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-[var(--color-att-border)] p-5 text-left">
           <p className="text-sm font-extrabold">Prepare for your visit</p>
           <ul className="mt-3 space-y-2 text-sm">
             <li className="flex items-start gap-2">
               {device.backedUp ? (
-                <CloudCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#1F7A3D]" />
+                <CloudCheck className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-att-success)]" />
               ) : (
-                <CloudOff className="mt-0.5 h-4 w-4 shrink-0 text-[#9E5D00]" />
+                <CloudOff className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-att-warning)]" />
               )}
               <span>
                 Vault backup: <b>{device.lastBackup}</b>
@@ -1415,16 +1411,16 @@ function Confirmation({
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" /> Bring the damaged device
-              and a photo ID
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-att-link)]" /> Bring the
+              damaged device and a photo ID
             </li>
             <li className="flex items-start gap-2">
-              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#0072B2]" /> Your new device is
-              configured before you leave
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-att-link)]" /> Your new
+              device is configured before you leave
             </li>
           </ul>
 
-          <div className="mt-4 rounded-xl bg-[#E7F5FB] p-3 text-xs">
+          <div className="mt-4 rounded-xl bg-[var(--color-att-pale-2)] p-3 text-xs">
             <b>What is Smart Restore?</b> When the associate hands you the replacement, your{" "}
             {plan.gb} GB — {plan.photos.toLocaleString()} photos, {plan.messages.toLocaleString()}{" "}
             messages, {plan.apps} apps — are pulled from your AT&amp;T vault onto the new device, in
@@ -1433,24 +1429,28 @@ function Confirmation({
           </div>
 
           {!preview ? (
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
+              block
+              className="mt-4"
+              icon={<Sparkles className="mr-2 inline h-4 w-4" />}
               onClick={() => {
                 setPreview(true);
                 setIdx(0);
               }}
-              className="btn-secondary mt-4 w-full text-sm"
             >
-              <Sparkles className="mr-2 inline h-4 w-4" /> Preview what happens in store
-            </button>
+              Preview what happens in store
+            </Button>
           ) : (
-            <div className="mt-4 rounded-xl border border-[#DCDFE3] p-4 text-center">
-              <p className="text-xs font-bold uppercase tracking-widest text-[#686E74]">
+            <div className="mt-4 rounded-xl border border-[var(--color-att-border)] p-4 text-center">
+              <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-att-ink-3)]">
                 In-store preview
               </p>
               <p className="mt-2 text-sm">{steps[idx]}</p>
-              <div className="mx-auto mt-3 h-2 w-56 overflow-hidden rounded-full bg-[#F3F4F6]">
+              <div className="mx-auto mt-3 h-2 w-56 overflow-hidden rounded-full bg-[var(--color-att-gray)]">
                 <div
-                  className="h-full rounded-full bg-[#00388F] transition-all"
+                  className="h-full rounded-full bg-[var(--color-att-navy)] transition-all"
                   style={{ width: `${((idx + 1) / steps.length) * 100}%` }}
                 />
               </div>
@@ -1460,16 +1460,14 @@ function Confirmation({
       )}
 
       {option.restore === "on-arrival" && (
-        <div className="mx-auto mt-6 max-w-lg rounded-2xl bg-[#E7F5FB] p-4 text-left text-xs">
+        <div className="mx-auto mt-6 max-w-lg rounded-2xl bg-[var(--color-att-pale-2)] p-4 text-left text-xs">
           <b>What happens next:</b> when your replacement arrives and you sign in, Smart Restore
           automatically pulls your {plan.gb} GB from the AT&amp;T vault onto the new device.
         </div>
       )}
 
       <div className="mt-6 flex flex-wrap justify-center gap-3">
-        <button onClick={onDashboard} className="btn-primary">
-          Back to my protection
-        </button>
+        <Button onClick={onDashboard}>Back to my protection</Button>
         <Link to="/deviceflex/impact" className="btn-secondary">
           See the business impact
         </Link>
@@ -1494,15 +1492,15 @@ function Nav({
   hideNext?: boolean;
 }) {
   return (
-    <div className="mt-7 flex items-center justify-between gap-3 border-t border-[#DCDFE3] pt-5">
-      <button onClick={onBack} className="btn-secondary">
+    <div className="mt-7 flex items-center justify-between gap-3 border-t border-[var(--color-att-border)] pt-5">
+      <Button variant="secondary" onClick={onBack}>
         Back
-      </button>
+      </Button>
       {!hideNext && onNext && (
-        <button
+        <Button
           onClick={onNext}
           disabled={nextDisabled}
-          className={`btn-primary ${nextDisabled ? "opacity-50" : ""}`}
+          className={nextDisabled ? "opacity-50" : undefined}
         >
           {busy ? (
             <span className="inline-flex items-center gap-2">
@@ -1511,7 +1509,7 @@ function Nav({
           ) : (
             nextLabel
           )}
-        </button>
+        </Button>
       )}
     </div>
   );

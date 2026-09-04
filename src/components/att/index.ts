@@ -12,4 +12,5 @@ export { Modal, Drawer, Overlay } from "./Modal";
 export type { ModalProps } from "./Modal";
 export { Tabs, Accordion, AccordionItem } from "./Disclosure";
 export { Stepper } from "./Stepper";
+export { Container, Section, Card, Eyebrow } from "./Layout";
 export type { TabItem } from "./Disclosure";
